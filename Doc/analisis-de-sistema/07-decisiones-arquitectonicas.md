@@ -175,6 +175,6 @@ Se considerarán principalmente:
 - Estado de disponibilidad.
 
 No se establece todavía una tecnología específica de caché.
-
+    
 
 
