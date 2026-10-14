@@ -36,8 +36,6 @@ características de los establecimientos.
 
 ![Historias de usuario por modalidad](../diagramas/Historias%20de%20usuario%20por%20modalidad.png)
 
-# Historias de Usuario — UrbanPulse
-
 ## 3. Historias relacionadas con el cliente
 
 ### HU01 — Buscar establecimientos
@@ -65,7 +63,7 @@ La información podrá incluir:
 
 ---
 
-### HU03 — Consultar disponibilidad de una cancha
+### HU03 — Consultar disponibilidad de cancha
 
 **Como cliente**, quiero consultar la disponibilidad de una cancha por fecha y horario, **para reservar un bloque de tiempo disponible**.
 
@@ -311,3 +309,11 @@ El proveedor concreto de mapas se decidirá posteriormente.
 ## 9. Flujo conceptual de las historias
 
 ![Flujo conceptual de las historias](../diagramas/Flujo%20conceptual%20de%20las%20historias.png)
+
+## 10. Aclaraciones de alcance y trazabilidad
+
+- **HU03 — Consultar disponibilidad de cancha** y **HU04 — Consultar disponibilidad de karaoke** conservan su acción de consulta. RF04 y RF06 describen la reserva de esas modalidades ya contempladas; su asociación con estas HU es contextual y no convierte sus enunciados en historias explícitas de ejecución de la reserva. La precisión de esa cobertura queda pendiente, sin crear nuevas HU.
+- **HU10 — Consultar reservas** permite consultar información y estados; no expresa ni implica permiso para cancelar. Ninguna de las HU existentes respalda claramente RF13, que queda pendiente de validación en [[03-requisitos-funcionales]].
+- **HU11 — Gestionar establecimientos** respalda RF15. No atribuye administración de usuarios al administrador.
+
+Las denominaciones anteriores son las que deben utilizarse en la trazabilidad. Las imágenes existentes se conservan; no sustituyen las aclaraciones textuales ni acreditan funcionalidades pendientes.

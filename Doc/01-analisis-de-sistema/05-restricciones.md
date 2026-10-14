@@ -48,7 +48,7 @@ en un repositorio compartido en GitHub.
 La documentación y los artefactos del proyecto deberán mantenerse
 versionados para permitir identificar la evolución de UrbanPulse.
 
-La estructura inicial del repositorio contempla:
+La estructura documental actual del repositorio contempla:
 
 ```text
 UrbanPulse
@@ -57,8 +57,9 @@ UrbanPulse
 ├── .gitignore
 │
 └── Doc
-    ├── analisis-de-sistema
-    └── arquitectura
+    ├── 01-analisis-de-sistema
+    ├── 02-arquitectura-software
+    └── diagramas
 ```
 
 ### RC03 — API REST
@@ -188,7 +189,7 @@ La ubicación de los establecimientos se visualizará mediante un proveedor exte
 
 El proveedor específico todavía no constituye una decisión definitiva.
 
-Podrá utilizarse Google Maps u otro servicio compatible.
+La mención previa de Google Maps corresponde únicamente a un ejemplo de proveedor posible; no es una selección tecnológica. El proveedor concreto permanece pendiente.
 
 La funcionalidad principal requerida para el MVP es:
 
@@ -215,7 +216,7 @@ UrbanPulse contempla inicialmente:
 | Servicio externo | Función |
 |---|---|
 | **Proveedor de mapas** | Visualizar la ubicación de establecimientos. |
-| **WhatsApp** | Facilitar la comunicación entre cliente y propietario. |
+| **WhatsApp** | Redirigir al cliente hacia el contacto del propietario, sin administrar conversaciones. |
 | **Pago simulado** | Simular el resultado de un pago o adelanto. |
 
 El cambio o sustitución de uno de estos servicios no debería requerir modificar innecesariamente las reglas principales relacionadas con reservas, disponibilidad o establecimientos.

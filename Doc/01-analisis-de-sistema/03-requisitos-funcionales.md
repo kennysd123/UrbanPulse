@@ -7,6 +7,8 @@ en las historias de usuario.
 Cada requisito se expresa desde la perspectiva de lo que el sistema
 debe permitir realizar.
 
+**Estado de RF13:** se conserva su identificador y formulación para mantener el historial documental, pero la cancelación está **pendiente de validación funcional** y no se considera parte del alcance confirmado del MVP. Véase la sección 4.
+
 ---
 
 ## 1. Resumen de requisitos funcionales
@@ -25,7 +27,7 @@ debe permitir realizar.
 | **RF10** | El sistema debe permitir al propietario gestionar las solicitudes de reserva de salones y recreos. | Gestión de solicitudes |
 | **RF11** | El sistema debe permitir registrar un adelanto mediante un servicio de pago simulado. | Pagos |
 | **RF12** | El sistema debe permitir confirmar una reserva cuando se hayan cumplido las condiciones requeridas. | Reservas |
-| **RF13** | El sistema debe permitir cancelar una reserva de acuerdo con las condiciones definidas por el establecimiento. | Reservas |
+| **RF13** | El sistema debe permitir cancelar una reserva de acuerdo con las condiciones definidas por el establecimiento. **Pendiente de validación funcional; sin HU de origen.** | Reservas |
 | **RF14** | El sistema debe permitir al cliente consultar sus reservas y el estado de cada una. | Reservas |
 | **RF15** | El sistema debe permitir al administrador gestionar los establecimientos registrados en la plataforma. | Administración |
 | **RF16** | El sistema debe permitir visualizar la ubicación de un establecimiento mediante un proveedor externo de mapas. | Ubicación |
@@ -37,16 +39,14 @@ debe permitir realizar.
 
 ## 2. Relación entre Historias de Usuario y Requisitos Funcionales
 
-La siguiente relación permite comprobar que las funcionalidades identificadas responden a las historias de usuario previamente definidas.
+La siguiente relación registra la cobertura identificada en [[02-historias-del-usuarios]]. RF04 y RF06 tienen asociación contextual con HU03 y HU04; RF13 no tiene una HU de origen respaldada. Estas limitaciones se detallan en la sección 4.
 
 | Historia de usuario | Requisitos funcionales relacionados |
 |---|---|
 | **HU01 — Buscar establecimientos** | RF01 |
 | **HU02 — Consultar información** | RF02 |
-| **HU03 — Consultar disponibilidad de cancha** | RF03 |
-| **HU03 — Reservar cancha** | RF04 |
-| **HU04 — Consultar disponibilidad de karaoke** | RF05 |
-| **HU04 — Reservar karaoke** | RF06 |
+| **HU03 — Consultar disponibilidad de cancha** | RF03; RF04 como asociación contextual con la reserva por bloques |
+| **HU04 — Consultar disponibilidad de karaoke** | RF05; RF06 como asociación contextual con la reserva de sala + tiempo |
 | **HU05 — Solicitar reserva de salón o recreo** | RF07 |
 | **HU06 — Administrar establecimiento** | RF08 |
 | **HU07 — Administrar recursos y disponibilidad** | RF09 |
@@ -63,3 +63,20 @@ La siguiente relación permite comprobar que las funcionalidades identificadas r
 
 ![Matriz de trazabilidad HU → RF](../diagramas/Matriz%20de%20trazabilidad%20HU%20%E2%86%92%20RF.png)
 
+La imagen no distingue las asociaciones contextuales de RF04 y RF06. Debe leerse junto con la tabla y las limitaciones siguientes; su actualización gráfica queda pendiente.
+
+## 4. Cobertura y pendientes de validación
+
+| Elemento | Evidencia existente | Estado |
+|---|---|---|
+| RF04 | HU03 consulta disponibilidad para reservar un bloque; la modalidad de reserva de cancha está confirmada. | Se mantiene el RF y la denominación real de HU03. Pendiente precisar la cobertura de la acción de reservar en la historia existente. |
+| RF06 | HU04 consulta disponibilidad para seleccionar una sala; la modalidad de reserva de sala + tiempo está confirmada. | Se mantiene el RF y la denominación real de HU04. Pendiente precisar la cobertura de la acción de reservar en la historia existente. |
+| RF13 | HU10 solo consulta reservas; HU08 gestiona solicitudes de salones y recreos, no cancelaciones de reservas. No hay otra HU que cubra esta acción explícita o implícitamente. | Pendiente validar la necesidad de cancelación, quién podría realizarla y sus condiciones. No se inventa una HU ni se da por aprobada la funcionalidad. |
+
+La aparición de cancelación en la arquitectura inicial o en los PNG no resuelve la falta de origen funcional de RF13. Se conserva como antecedente pendiente, no como evidencia de aprobación.
+
+## 5. Continuidad de la trazabilidad
+
+La cadena documental se consulta en [[02-historias-del-usuarios]] → este documento → [[04-atributos-de-calidad]] / [[05-restricciones]] → [[06-driver-arquitectonicos]] → [[07-decisiones-arquitectonicas]]. Las relaciones explícitas se registran en las tablas de drivers y ADR; no se presume cobertura completa por la sola existencia de un requisito.
+
+Las relaciones directas RF → driver actualmente documentadas cubren RF01, RF03–RF08, RF12 y RF15–RF18. RF02, RF09, RF10, RF11, RF14 y RF19 no tienen todavía una relación de origen explícita en las tablas de drivers; esto no invalida sus HU de origen. Su eventual influencia arquitectónica debe revisarse posteriormente, sin asignar un driver artificialmente. RF13 permanece fuera de la cadena confirmada.

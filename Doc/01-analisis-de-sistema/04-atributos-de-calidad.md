@@ -13,7 +13,7 @@ y extensibilidad del sistema.
 
 ## 1. Atributos de calidad identificados
 
-| ID | Atributo de calidad | Escenario de calidad |
+| ID | Atributo de calidad | Descripción cualitativa |
 |---|---|---|
 | **AC01** | **Rendimiento** | Las búsquedas de establecimientos y las consultas de disponibilidad deben responder adecuadamente cuando existan múltiples usuarios realizando consultas de manera concurrente. |
 | **AC02** | **Disponibilidad** | El sistema debe permanecer disponible para que los clientes puedan consultar establecimientos, disponibilidad y reservas durante los periodos de mayor demanda. |
@@ -104,7 +104,7 @@ Por ejemplo:
 |---|---|
 | **Cliente** | Sus reservas y operaciones permitidas. |
 | **Propietario** | Su establecimiento, recursos y solicitudes. |
-| **Administrador** | Gestión y supervisión de la plataforma. |
+| **Administrador** | Gestión y supervisión de establecimientos, según HU11 y RF15. |
 
 La información que no corresponda a las responsabilidades del actor no deberá estar disponible sin autorización.
 
@@ -203,9 +203,26 @@ Inicialmente se consideran:
 | Servicio externo | Uso |
 |---|---|
 | **Proveedor de mapas** | Visualización de la ubicación del establecimiento. |
-| **WhatsApp** | Comunicación directa entre cliente y propietario. |
+| **WhatsApp** | Redirección al contacto del propietario, sin administración de conversaciones. |
 | **Pago simulado** | Simulación de aprobación o rechazo de un pago o adelanto. |
 
 Estas integraciones deben mantenerse separadas de la lógica principal del negocio.
 
 El sistema no debe depender directamente de una implementación específica cuando esta pueda ser reemplazada posteriormente.
+
+## 3. Estado de especificación y evaluación
+
+Los ocho atributos están identificados, pero sus descripciones no constituyen todavía escenarios medibles completos. No se establecen métricas ni umbrales en esta etapa.
+
+| Atributo | Base existente | Definición pendiente para un escenario evaluable |
+|---|---|---|
+| AC01 — Rendimiento | Búsquedas y consultas concurrentes. | Carga de referencia, entorno y tiempos de respuesta aceptables. |
+| AC02 — Disponibilidad | Acceso durante periodos de mayor demanda. | Periodos de servicio, condiciones de interrupción y medida de disponibilidad aceptable. |
+| AC03 — Consistencia | Prohibición de confirmar reservas incompatibles para un mismo recurso y periodo o fecha. | Condiciones de concurrencia y procedimiento de verificación; la regla ya está definida, su mecanismo todavía no. |
+| AC04 — Seguridad | Acceso según rol y responsabilidad sobre la información. | Operaciones y recursos a evaluar, condiciones de acceso y evidencia verificable de autorización o rechazo. |
+| AC05 — Mantenibilidad | Separación de responsabilidades y de integraciones. | Cambio de referencia, alcance del impacto y criterio de aceptación del cambio. |
+| AC06 — Extensibilidad | Incorporar modalidades sin alterar significativamente las existentes. | Cambio de referencia y criterio para evaluar su impacto, sin incorporar una nueva modalidad al MVP. |
+| AC07 — Usabilidad | Flujo comprensible de consulta y reserva o solicitud. | Tareas, contexto de evaluación y criterio observable de éxito. |
+| AC08 — Interoperabilidad | Mapas, redirección a WhatsApp y pago simulado desacoplados. | Condiciones de interacción, resultados y fallos a evaluar, sin elegir proveedores ni protocolos adicionales. |
+
+Los escenarios se completarán cuando se acuerden las condiciones pendientes. Las relaciones existentes con drivers se encuentran en [[06-driver-arquitectonicos]]. AC02 y AC07 no tienen actualmente un driver ni una respuesta arquitectónica explícita; esa cobertura queda pendiente de evaluación, sin inventar drivers o ADR.

@@ -13,12 +13,12 @@ prioritariamente durante el diseño de la solución arquitectónica.
 
 | ID | Driver arquitectónico | Origen | ¿Por qué influye en la arquitectura? |
 |---|---|---|---|
-| **DA01** | **Soporte para diferentes modalidades de reserva** | RC06 / RF03–RF07 | La arquitectura debe permitir manejar diferentes reglas de reserva para canchas, karaokes, salones y recreos sin forzar un único flujo para todos los establecimientos. |
+| **DA01** | **Soporte para diferentes modalidades de reserva** | AC05 / AC06 / RC06 / RF03–RF07 | La arquitectura debe permitir manejar diferentes reglas de reserva para canchas, karaokes, salones y recreos sin forzar un único flujo para todos los establecimientos. |
 | **DA02** | **Consistencia de disponibilidad** | AC03 / RF04 / RF06 / RF12 | La arquitectura debe evitar que un mismo recurso sea confirmado para reservas incompatibles durante el mismo periodo. |
 | **DA03** | **Extensibilidad de modalidades** | AC06 / RC06 | La solución debe permitir incorporar nuevos tipos de establecimientos o modalidades de reserva sin modificar significativamente el núcleo existente. |
 | **DA04** | **Rendimiento en consultas** | AC01 / RF01 / RF03 / RF05 | La arquitectura debe permitir responder adecuadamente las búsquedas y consultas de disponibilidad incluso cuando existan múltiples usuarios concurrentes. |
 | **DA05** | **Seguridad y control de acceso** | AC04 / RF08 / RF15 | La arquitectura debe separar las responsabilidades y permisos de clientes, propietarios y administradores. |
-| **DA06** | **Integración con servicios externos** | AC08 / RC09 / RC10 / RF16–RF18 | La arquitectura debe permitir integrar mapas, WhatsApp y pago simulado sin acoplar estas dependencias con las reglas principales del negocio. |
+| **DA06** | **Integración con servicios externos** | AC05 / AC08 / RC07 / RC08 / RC09 / RC10 / RF16–RF18 | La arquitectura debe permitir integrar mapas, WhatsApp y pago simulado sin acoplar estas dependencias con las reglas principales del negocio. |
 | **DA07** | **Comunicación mediante API REST** | RC03 | La arquitectura debe establecer una comunicación definida entre la aplicación web y el backend mediante una API REST. |
 | **DA08** | **Persistencia de información transaccional** | RC04 / RF04 / RF06 / RF07 / RF12 | La arquitectura debe garantizar el almacenamiento consistente de reservas, disponibilidad, establecimientos y operaciones relacionadas. |
 
@@ -28,7 +28,7 @@ prioritariamente durante el diseño de la solución arquitectónica.
 
 ## DA01 — Soporte para diferentes modalidades de reserva
 
-**Origen:** RC06 / RF03–RF07
+**Origen:** AC05 / AC06 / RC06 / RF03–RF07
 
 UrbanPulse debe manejar diferentes modalidades de reserva debido a las
 características de los establecimientos incluidos en el alcance.
@@ -181,7 +181,7 @@ Propietario
 
 Administrador
    │
-   └── Administración de la plataforma
+   └── Gestión de establecimientos (HU11 / RF15)
 ```
 
 La arquitectura debe garantizar que cada actor pueda acceder solamente a las operaciones correspondientes a sus responsabilidades.
@@ -202,7 +202,7 @@ Los mecanismos tecnológicos concretos de autenticación y autorización se defi
 
 ## DA06 — Integración con servicios externos
 
-**Origen:** AC08 / RC09 / RC10 / RF16–RF18
+**Origen:** AC05 / AC08 / RC07 / RC08 / RC09 / RC10 / RF16–RF18
 
 UrbanPulse contempla inicialmente tres integraciones externas:
 
@@ -362,6 +362,14 @@ Los drivers arquitectónicos se relacionan directamente con los atributos de cal
 | **DA03 — Extensibilidad** | RC06 — Diferentes modalidades de reserva |
 | **DA04 — Rendimiento** | RC01 — Aplicación web / RC03 — API REST |
 | **DA05 — Seguridad** | RC01 — Aplicación web / RC03 — API REST |
-| **DA06 — Integraciones externas** | RC08 — WhatsApp / RC09 — Mapas / RC10 — Integraciones desacopladas |
+| **DA06 — Integraciones externas** | RC07 — Pago simulado / RC08 — WhatsApp / RC09 — Mapas / RC10 — Integraciones desacopladas |
 | **DA07 — API REST** | RC03 — API REST |
 | **DA08 — Persistencia** | RC04 — Base de datos relacional |
+
+## 6. Alcance de las relaciones y pendientes
+
+Las referencias de origen y las tablas complementarias se leen conjuntamente. DA01 incorpora AC05 y AC06, ya relacionados en la sección 4. DA06 explicita AC05 y RC08, ya presentes en las tablas complementarias, y RC07, que respalda el pago simulado descrito por el propio driver.
+
+AC02 — Disponibilidad y AC07 — Usabilidad continúan identificados en [[04-atributos-de-calidad]], pero no tienen driver explícito ni respuesta arquitectónica documentada. No se asignan a un driver existente sin justificación. Las limitaciones de cobertura de RF se registran en [[03-requisitos-funcionales]].
+
+La relación de cada driver con decisiones se mantiene en [[07-decisiones-arquitectonicas]]. Ninguna relación con una ADR convierte RF13 en funcionalidad confirmada ni amplía las responsabilidades del administrador a la gestión de usuarios.
