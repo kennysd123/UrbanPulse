@@ -106,6 +106,8 @@ Por ejemplo:
 
 Esta modalidad no se considera inicialmente una reserva directa simple.
 
+DF-01 precisa que la reserva de un recreo corresponde a un ambiente o espacio definido por el propietario para un evento privado. La información de actividades, comidas, entradas y hospedaje es consultable, sin compra de esos servicios ni reserva de habitaciones desde UrbanPulse.
+
 Puede requerir:
 
 1. Seleccionar la fecha.
@@ -182,6 +184,8 @@ La solicitud podrá requerir revisión de:
 
 El propietario podrá aceptar o rechazar la solicitud según las condiciones del establecimiento.
 
+DF-02 precisa que el propietario registra la cotización y las condiciones del evento y el cliente las acepta dentro de UrbanPulse. El contacto mediante WhatsApp es complementario y no sustituye esa aceptación. La aceptación del propietario de una solicitud y la aceptación del cliente de las condiciones son acciones distintas; ninguna confirma por sí sola la reserva. El registro y la aceptación interna requieren **precisión pendiente de formalización** en la cobertura de HU05/HU08 y RF07/RF10/RF12, sin modificar aquí sus enunciados ni crear identificadores.
+
 ---
 
 ## 5. Historias relacionadas con pagos y reservas
@@ -200,6 +204,10 @@ PAGO RECHAZADO
 ```
 
 El resultado deberá actualizar el estado correspondiente de la reserva.
+
+Según DF-03, la confirmación de salones y recreos requiere conjuntamente condiciones aceptadas por el cliente, adelanto simulado aprobado y disponibilidad verificada. El rechazo del adelanto no confirma el evento; su aprobación aislada tampoco. Según DF-04, canchas y karaoke tienen confirmación directa con verificación de disponibilidad y sin adelanto obligatorio en el MVP. HU09 se interpreta para el adelanto requerido por los eventos, sin imponerlo a esas modalidades.
+
+El servicio de pago es una integración conceptual; en el MVP su abstracción se implementa mediante un componente de simulación de UrbanPulse, sin conexión a una pasarela financiera real. No se afirma que ese componente esté ya implementado o probado.
 
 ---
 
@@ -313,7 +321,9 @@ El proveedor concreto de mapas se decidirá posteriormente.
 ## 10. Aclaraciones de alcance y trazabilidad
 
 - **HU03 — Consultar disponibilidad de cancha** y **HU04 — Consultar disponibilidad de karaoke** conservan su acción de consulta. RF04 y RF06 describen la reserva de esas modalidades ya contempladas; su asociación con estas HU es contextual y no convierte sus enunciados en historias explícitas de ejecución de la reserva. La precisión de esa cobertura queda pendiente, sin crear nuevas HU.
-- **HU10 — Consultar reservas** permite consultar información y estados; no expresa ni implica permiso para cancelar. Ninguna de las HU existentes respalda claramente RF13, que queda pendiente de validación en [[03-requisitos-funcionales]].
+- **HU10 — Consultar reservas** permite consultar información y estados; no expresa ni implica permiso para cancelar. Ninguna de las HU existentes respalda claramente RF13, que queda pendiente de validación en [03-requisitos-funcionales](03-requisitos-funcionales.md).
 - **HU11 — Gestionar establecimientos** respalda RF15. No atribuye administración de usuarios al administrador.
 
 Las denominaciones anteriores son las que deben utilizarse en la trazabilidad. Las imágenes existentes se conservan; no sustituyen las aclaraciones textuales ni acreditan funcionalidades pendientes.
+
+Las decisiones DF-01–DF-04 se encuentran en las [aclaraciones de alcance de las restricciones](05-restricciones.md#3-decisiones-funcionales-aprobadas-y-alcance-del-mvp). Su aprobación funcional no resuelve la cobertura contextual HU03/RF04 y HU04/RF06 ni formaliza silenciosamente DF-02 en los requisitos existentes.

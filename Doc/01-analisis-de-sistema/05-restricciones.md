@@ -123,14 +123,16 @@ Actualmente se consideran:
 
 | Tipo de establecimiento | Modalidad |
 |---|---|
-| **Cancha** | Recurso + bloque horario |
-| **Karaoke** | Sala + intervalo de tiempo |
+| **Cancha** | Recurso + fecha + bloque horario; confirmación directa sin adelanto obligatorio en el MVP. |
+| **Karaoke** | Sala + fecha + intervalo de tiempo; confirmación directa sin adelanto obligatorio en el MVP. |
 | **Salón de eventos** | Fecha + servicios + coordinación + adelanto |
 | **Recreo** | Fecha + servicios + coordinación + adelanto |
 
 La arquitectura no debe asumir que todos los establecimientos utilizan el mismo proceso de reserva.
 
 Esta condición constituye una de las principales restricciones del diseño de UrbanPulse.
+
+DF-01 delimita el recreo a eventos privados sobre un ambiente o espacio definido por el propietario. La información de actividades, comidas, entradas y hospedaje es consultable, sin compra de esos servicios ni reserva de habitaciones desde UrbanPulse. Para eventos, DF-02/DF-03 exigen registro de cotización y condiciones por el propietario, aceptación del cliente dentro de UrbanPulse, adelanto simulado aprobado y disponibilidad verificada antes de confirmar. Véanse las [decisiones funcionales aprobadas](#3-decisiones-funcionales-aprobadas-y-alcance-del-mvp).
 
 ---
 
@@ -149,6 +151,8 @@ APROBADO / RECHAZADO
 ```
 
 Esta decisión permite desarrollar y probar el flujo de reservas y adelantos sin depender inicialmente de un proveedor financiero real.
+
+El servicio de pago es un sistema externo conceptual representado mediante una abstracción de integración. Durante el MVP, UrbanPulse implementa el componente de simulación que satisface esa abstracción; no implica conexión con una pasarela financiera real ni exige un despliegue externo del simulador. Esta descripción delimita la solución y no acredita que el componente o sus pruebas ya se hayan ejecutado. El adelanto obligatorio corresponde a eventos de salones y recreos; canchas y karaoke mantienen DF-04.
 
 La integración con una pasarela de pago real podrá evaluarse en una etapa posterior.
 
@@ -220,3 +224,18 @@ UrbanPulse contempla inicialmente:
 | **Pago simulado** | Simular el resultado de un pago o adelanto. |
 
 El cambio o sustitución de uno de estos servicios no debería requerir modificar innecesariamente las reglas principales relacionadas con reservas, disponibilidad o establecimientos.
+
+La clasificación de pago como integración se refiere al contrato conceptual y al desacoplamiento, no a una conexión financiera real durante el MVP. El componente de simulación de UrbanPulse se mantiene detrás de ese contrato, conforme a RC07 y ADR-006.
+
+## 3. Decisiones funcionales aprobadas y alcance del MVP
+
+Estas decisiones consolidan el alcance aprobado para las cuatro modalidades. No constituyen nuevas HU, RF, RC, drivers ni ADR y no modifican los enunciados de las 13 HU o de los 19 RF.
+
+| Decisión | Alcance aprobado | Respaldo y límite de formalización |
+|---|---|---|
+| DF-01 | El recreo permite reservar un ambiente o espacio definido por el propietario para un evento privado. | HU05/HU07/HU08, RF07/RF09/RF10 y RC06 aportan contexto. No incluye compra de actividades, comidas o entradas ni reserva de habitaciones. |
+| DF-02 | El propietario registra la cotización y condiciones; el cliente las acepta dentro de UrbanPulse. | HU05/HU08 y RF07/RF10/RF12 aportan contexto, pero no expresan literalmente ambas acciones. **Precisión pendiente de formalización** de cobertura y criterios de aceptación, sin reescribir aquí las HU o los RF. WhatsApp solo complementa la coordinación. |
+| DF-03 | Confirmar un evento requiere conjuntamente condiciones aceptadas por el cliente, adelanto simulado aprobado y disponibilidad verificada. | HU05/HU08/HU09; RF07/RF10–RF12/RF18/RF19. Ni la aceptación de la solicitud por el propietario, ni la disponibilidad, ni el adelanto aprobado bastan por separado. |
+| DF-04 | Canchas y karaoke utilizan confirmación directa sin adelanto obligatorio en el MVP, previa verificación de disponibilidad. | RF04/RF06/RF12 y RC06. HU03/RF04 y HU04/RF06 conservan su asociación contextual pendiente; no se reformulan esas historias. |
+
+La aprobación de estas decisiones no resuelve RF13, que permanece pendiente de validación funcional. La formalización de DF-02 y los detalles de estados, datos y criterios de aceptación deberán revisarse con la documentación funcional; no se inventan en esta corrección. Los escenarios correspondientes se consultan en [08-escenarios-atributos-calidad.md](08-escenarios-atributos-calidad.md).

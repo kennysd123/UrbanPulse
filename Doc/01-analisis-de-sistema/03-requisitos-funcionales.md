@@ -39,7 +39,7 @@ debe permitir realizar.
 
 ## 2. Relación entre Historias de Usuario y Requisitos Funcionales
 
-La siguiente relación registra la cobertura identificada en [[02-historias-del-usuarios]]. RF04 y RF06 tienen asociación contextual con HU03 y HU04; RF13 no tiene una HU de origen respaldada. Estas limitaciones se detallan en la sección 4.
+La siguiente relación registra la cobertura identificada en [02-historias-del-usuarios](02-historias-del-usuarios.md). RF04 y RF06 tienen asociación contextual con HU03 y HU04; RF13 no tiene una HU de origen respaldada. Estas limitaciones se detallan en la sección 4.
 
 | Historia de usuario | Requisitos funcionales relacionados |
 |---|---|
@@ -77,6 +77,12 @@ La aparición de cancelación en la arquitectura inicial o en los PNG no resuelv
 
 ## 5. Continuidad de la trazabilidad
 
-La cadena documental se consulta en [[02-historias-del-usuarios]] → este documento → [[04-atributos-de-calidad]] / [[05-restricciones]] → [[06-driver-arquitectonicos]] → [[07-decisiones-arquitectonicas]]. Las relaciones explícitas se registran en las tablas de drivers y ADR; no se presume cobertura completa por la sola existencia de un requisito.
+Las [decisiones funcionales DF-01–DF-04](05-restricciones.md#3-decisiones-funcionales-aprobadas-y-alcance-del-mvp) precisan el alcance sin reemplazar los 19 enunciados de RF. DF-01 delimita RF07 al ambiente o espacio definido por el propietario para un evento privado en recreos. DF-03 precisa RF12: un evento solo se confirma con condiciones aceptadas por el cliente, adelanto simulado aprobado y disponibilidad verificada; RF19 no convierte un resultado aprobado de pago en confirmación automática. DF-04 precisa RF04/RF06 como confirmación directa sin adelanto obligatorio en el MVP, manteniendo sus asociaciones HU contextuales pendientes.
+
+**Precisión pendiente de formalización — DF-02:** RF07, RF10 y RF12 aportan contexto para solicitudes, gestión y confirmación, pero no expresan literalmente el registro de cotización y condiciones por el propietario ni su aceptación por el cliente dentro de UrbanPulse. La decisión funcional está aprobada; su cobertura explícita y criterios de aceptación en HU/RF deben formalizarse posteriormente, sin agregar o reescribir requisitos en esta corrección. WhatsApp no sustituye la aceptación interna.
+
+RF11/RF18/RF19 utilizan la abstracción de pago simulado implementada por UrbanPulse durante el MVP; no requieren conectarse con una pasarela financiera real ni acreditan implementación o pruebas realizadas.
+
+La cadena documental se consulta en [02-historias-del-usuarios](02-historias-del-usuarios.md) → este documento → [04-atributos-de-calidad](04-atributos-de-calidad.md) / [05-restricciones](05-restricciones.md) → [06-driver-arquitectonicos](06-driver-arquitectonicos.md) → [07-decisiones-arquitectonicas](07-decisiones-arquitectonicas.md). Las relaciones explícitas se registran en las tablas de drivers y ADR; no se presume cobertura completa por la sola existencia de un requisito.
 
 Las relaciones directas RF → driver actualmente documentadas cubren RF01, RF03–RF08, RF12 y RF15–RF18. RF02, RF09, RF10, RF11, RF14 y RF19 no tienen todavía una relación de origen explícita en las tablas de drivers; esto no invalida sus HU de origen. Su eventual influencia arquitectónica debe revisarse posteriormente, sin asignar un driver artificialmente. RF13 permanece fuera de la cadena confirmada.

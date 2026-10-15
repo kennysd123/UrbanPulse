@@ -42,6 +42,8 @@ Actualmente se contemplan:
 | **Salón de eventos** | Fecha + servicios + coordinación + adelanto |
 | **Recreo** | Fecha + servicios + coordinación + adelanto |
 
+La lectura de estas modalidades se precisa mediante [DF-01–DF-04](05-restricciones.md#3-decisiones-funcionales-aprobadas-y-alcance-del-mvp): el recreo reserva un ambiente o espacio definido por el propietario; el propietario registra cotización y condiciones y el cliente las acepta dentro de UrbanPulse. Los eventos requieren esa aceptación, adelanto simulado aprobado y disponibilidad verificada; canchas y karaoke usan confirmación directa sin adelanto obligatorio en el MVP. DF-02 mantiene su precisión pendiente de formalización en HU/RF.
+
 Este driver tiene una influencia directa en el modelo de dominio y en
 la organización de la lógica de reservas.
 
@@ -114,11 +116,11 @@ Sala + tiempo
 
 Salón
    ↓
-Fecha + servicios + adelanto
+Fecha + servicios + coordinación + aceptación + adelanto
 
 Recreo
    ↓
-Fecha + servicios + adelanto
+Ambiente o espacio + fecha + servicios + coordinación + aceptación + adelanto
 ```
 
 En el futuro podría existir otro establecimiento con reglas diferentes.
@@ -204,7 +206,7 @@ Los mecanismos tecnológicos concretos de autenticación y autorización se defi
 
 **Origen:** AC05 / AC08 / RC07 / RC08 / RC09 / RC10 / RF16–RF18
 
-UrbanPulse contempla inicialmente tres integraciones externas:
+UrbanPulse contempla inicialmente tres integraciones, con pago como abstracción conceptual:
 
 | Servicio | Función |
 |---|---|
@@ -213,6 +215,8 @@ UrbanPulse contempla inicialmente tres integraciones externas:
 | **Pago simulado** | Simular el resultado de un pago o adelanto. |
 
 Estas integraciones no deben convertirse en dependencias directas de las reglas centrales de reservas.
+
+El servicio de pago representa un sistema externo conceptual; en el MVP, UrbanPulse implementa un componente de simulación detrás de la abstracción de integración, sin conexión a una pasarela financiera real ni exigencia de despliegue externo. Mapas y WhatsApp mantienen su carácter de servicios externos. No se seleccionan proveedores ni se acredita implementación o pruebas.
 
 ### Flujo conceptual
 
@@ -338,7 +342,7 @@ Los drivers no tienen necesariamente el mismo nivel de influencia en las decisio
 
 # 4. Relación entre drivers y atributos de calidad
 
-Los drivers arquitectónicos se relacionan directamente con los atributos de calidad definidos anteriormente.
+La siguiente tabla reúne relaciones de origen y relaciones complementarias con atributos de calidad. No todas las asociaciones representan un atributo declarado como origen del driver.
 
 | Driver | Atributos de calidad relacionados |
 |---|---|
@@ -370,6 +374,8 @@ Los drivers arquitectónicos se relacionan directamente con los atributos de cal
 
 Las referencias de origen y las tablas complementarias se leen conjuntamente. DA01 incorpora AC05 y AC06, ya relacionados en la sección 4. DA06 explicita AC05 y RC08, ya presentes en las tablas complementarias, y RC07, que respalda el pago simulado descrito por el propio driver.
 
-AC02 — Disponibilidad y AC07 — Usabilidad continúan identificados en [[04-atributos-de-calidad]], pero no tienen driver explícito ni respuesta arquitectónica documentada. No se asignan a un driver existente sin justificación. Las limitaciones de cobertura de RF se registran en [[03-requisitos-funcionales]].
+La columna **Origen** de la sección 1 y los enunciados **Origen** de cada driver registran su procedencia explícita. Las secciones 4 y 5 describen además efectos o relaciones complementarias; no amplían automáticamente esa procedencia. En particular, DA07 tiene RC03 como origen y sus relaciones con AC05/AC08 son complementarias; DA08 tiene RC04 y RF04/RF06/RF07/RF12 como origen y sus relaciones con AC03/AC05 son complementarias. En DA01, DA02, DA03, DA04, DA05 y DA06, los AC de la sección 4 sí figuran como origen explícito. Esta distinción no agrega drivers ni cadenas de origen.
 
-La relación de cada driver con decisiones se mantiene en [[07-decisiones-arquitectonicas]]. Ninguna relación con una ADR convierte RF13 en funcionalidad confirmada ni amplía las responsabilidades del administrador a la gestión de usuarios.
+AC02 — Disponibilidad y AC07 — Usabilidad continúan identificados en [04-atributos-de-calidad](04-atributos-de-calidad.md), pero no tienen driver explícito ni respuesta arquitectónica documentada. No se asignan a un driver existente sin justificación. Las limitaciones de cobertura de RF se registran en [03-requisitos-funcionales](03-requisitos-funcionales.md).
+
+La relación de cada driver con decisiones se mantiene en [07-decisiones-arquitectonicas](07-decisiones-arquitectonicas.md). Ninguna relación con una ADR convierte RF13 en funcionalidad confirmada ni amplía las responsabilidades del administrador a la gestión de usuarios.

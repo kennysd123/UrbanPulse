@@ -72,6 +72,8 @@ cada establecimiento:
 Esta decisión permite que las reglas particulares de cada modalidad no\
 se mezclen innecesariamente.
 
+Las [decisiones funcionales DF-01–DF-04](05-restricciones.md#3-decisiones-funcionales-aprobadas-y-alcance-del-mvp) precisan las modalidades: en recreos se reserva un ambiente o espacio definido por el propietario; canchas y karaoke utilizan confirmación directa con disponibilidad verificada y sin adelanto obligatorio en el MVP. Los eventos conservan su proceso de cotización, condiciones y aceptación interna antes de confirmar, sin crear una ADR adicional.
+
 ---
 
 ### ADR-004 — Gestión centralizada de disponibilidad y reservas
@@ -89,7 +91,7 @@ Consultar disponibilidad
 
 Esta decisión responde directamente al problema de evitar reservas incompatibles.
 
-El flujo representa solo la comprobación de disponibilidad. Para salones y recreos también deben cumplirse las condiciones coordinadas de servicios y el adelanto simulado requerido (HU05, HU08, HU09; RF07, RF10–RF12, RF18 y RF19). Disponibilidad por sí sola no autoriza la confirmación.
+El flujo representa solo la comprobación de disponibilidad. Según DF-02/DF-03, para salones y recreos el propietario registra cotización y condiciones y el cliente las acepta dentro de UrbanPulse. Confirmar exige conjuntamente condiciones aceptadas, adelanto simulado aprobado y disponibilidad verificada (HU05, HU08, HU09; RF07, RF10–RF12, RF18 y RF19). Disponibilidad o pago aprobado por sí solos no autorizan la confirmación. La cobertura explícita del registro y aceptación de DF-02 en HU/RF permanece pendiente de formalización.
 
 La centralización no define todavía el mecanismo que garantiza la consistencia ante solicitudes concurrentes. El diseño de esa garantía queda pendiente, sin seleccionar una tecnología.
 
@@ -131,6 +133,8 @@ WhatsApp únicamente se utilizará para redirigir al cliente hacia el\
 propietario.
 
 El pago será simulado durante el MVP.
+
+El pago es un sistema externo conceptual en la representación de integraciones. UrbanPulse implementa durante el MVP el componente de simulación que satisface la abstracción de integración; no se conecta con una pasarela financiera real ni requiere que ese componente sea un sistema externo desplegado. La interfaz conserva el desacoplamiento de las reglas del negocio. Esta aclaración no acredita implementación ni pruebas ejecutadas y no selecciona proveedores.
 
 ---
 
@@ -200,7 +204,7 @@ Las nueve ADR se mantienen como decisiones adoptadas en la documentación existe
 | ADR-008 | Adoptada | Separar contratos de repositorio e implementaciones de persistencia; no fija un producto de base de datos. |
 | ADR-009 | Adoptada | Diseñar consultas eficientes de disponibilidad; no fija métricas, caché ni otra tecnología. Su evaluación depende de la precisión posterior de AC01. |
 
-Los drivers de origen se conservan en la tabla inicial y se desarrollan en [[06-driver-arquitectonicos]]. Los atributos y restricciones se consultan en [[04-atributos-de-calidad]] y [[05-restricciones]]. Las limitaciones HU → RF y RF → driver están explicitadas en [[03-requisitos-funcionales]]; no se incorporan decisiones para completar relaciones sin respaldo.
+Los drivers de origen se conservan en la tabla inicial y se desarrollan en [06-driver-arquitectonicos](06-driver-arquitectonicos.md). Los atributos y restricciones se consultan en [04-atributos-de-calidad](04-atributos-de-calidad.md) y [05-restricciones](05-restricciones.md). Las limitaciones HU → RF y RF → driver están explicitadas en [03-requisitos-funcionales](03-requisitos-funcionales.md); no se incorporan decisiones para completar relaciones sin respaldo.
 
 ## 3. Representaciones existentes pendientes de corrección
 
@@ -211,8 +215,8 @@ En esta etapa se conservan los PNG y los documentos de arquitectura para su revi
 | [Estilo arquitectónico](../diagramas/estilo-arquitectonico.png) | Tres capas sin correspondencia explícita con Clean Architecture; PostgreSQL, archivos `.js`, puerto 5432, nombre de base de datos y ruta de API sin decisión que los respalde; administrador con gestión de usuarios y cancelación representada como función consolidada. | Monolito Modular con las cuatro capas de ADR-002. Tecnología concreta y contratos detallados pendientes. Administrador limitado al alcance HU11 → RF15; RF13 pendiente de validación. |
 | [Enfoque arquitectónico](../diagramas/enfoque-arquitectonico.png) | Node.js / Express, puerto 5432, nombre de base de datos y ruta de API sin decisión que los respalde; administrador con gestión de usuarios; cancelación representada como función consolidada. | Mantener las cuatro capas, interfaces y adaptadores. No asumir tecnologías. RF13 pendiente; gestión de usuarios no respaldada. |
 | [Arquitectura inicial](../diagramas/arquitectura%20inicial.png) | Tres capas sin correspondencia explícita con las cuatro oficiales; no distingue suficientemente dependencias de código y flujo de ejecución. | Interpretar la separación según ADR-002, sin asumir dependencia de Dominio hacia Infraestructura. |
-| [Matriz HU → RF](../diagramas/Matriz%20de%20trazabilidad%20HU%20%E2%86%92%20RF.png) | No distingue el carácter contextual de HU03 → RF04 y HU04 → RF06. | Consultar las aclaraciones de cobertura en [[03-requisitos-funcionales]]. |
+| [Matriz HU → RF](../diagramas/Matriz%20de%20trazabilidad%20HU%20%E2%86%92%20RF.png) | No distingue el carácter contextual de HU03 → RF04 y HU04 → RF06. | Consultar las aclaraciones de cobertura en [03-requisitos-funcionales](03-requisitos-funcionales.md). |
 
 Google Maps aparece como ejemplo en las imágenes de estilo y enfoque; no se considera proveedor seleccionado. Las etiquetas de protocolos o implementación de los PNG no sustituyen una decisión documentada.
 
-En [[../02-arquitectura-software/01-arquitectura-inicial]] quedan pendientes de armonización la vista de tres capas y las menciones de cancelación. En [[../02-arquitectura-software/03-enfoque-arquitectonico]], la flecha textual de Dominio hacia Infraestructura no debe interpretarse como dependencia de código: rige ADR-002. Estos archivos se revisarán en otra etapa, sin rediseñar ahora toda la arquitectura ni crear vistas C4.
+En [../02-arquitectura-software/01-arquitectura-inicial](../02-arquitectura-software/01-arquitectura-inicial.md) quedan pendientes de armonización la vista de tres capas y las menciones de cancelación. En [../02-arquitectura-software/03-enfoque-arquitectonico](../02-arquitectura-software/03-enfoque-arquitectonico.md), la flecha textual de Dominio hacia Infraestructura no debe interpretarse como dependencia de código: rige ADR-002. Estos archivos se revisarán en otra etapa, sin rediseñar ahora toda la arquitectura ni crear vistas C4.

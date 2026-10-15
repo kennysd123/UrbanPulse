@@ -21,16 +21,18 @@ la plataforma.
 - **Propietario del establecimiento**
 - **Administrador**
 
-### Sistemas externos
+### Sistemas externos y abstracción de pago
 
 - **Proveedor de mapas**
 - **WhatsApp**
-- **Servicio de pago simulado**
+- **Servicio de pago simulado:** representa conceptualmente la interacción con un servicio de pago. Durante el MVP, UrbanPulse implementa el componente de simulación detrás de una abstracción de integración; no se conecta con una pasarela financiera real ni se acredita un sistema financiero externo desplegado.
 
 ## Alcance y trazabilidad de los actores
 
-Las responsabilidades se desarrollan en [[02-historias-del-usuarios]] y [[03-requisitos-funcionales]]. Los sistemas externos son integraciones, no roles humanos adicionales.
+Las responsabilidades se desarrollan en [02-historias-del-usuarios](02-historias-del-usuarios.md) y [03-requisitos-funcionales](03-requisitos-funcionales.md). Los sistemas externos son integraciones, no roles humanos adicionales.
 
 La responsabilidad confirmada del administrador es la gestión de establecimientos (HU11 → RF15). No existe una HU ni un RF que respalde atribuirle administración de usuarios. La autorización por roles de ADR-007 no implica esa funcionalidad.
 
-WhatsApp únicamente redirecciona al cliente hacia el contacto del propietario; UrbanPulse no administra conversaciones. El proveedor de mapas está pendiente de selección y solo se utilizará para visualizar la ubicación. Durante el MVP el pago será simulado, sin pasarela real, conforme a RC07–RC10 de [[05-restricciones]].
+Según DF-01–DF-04, el propietario define el ambiente o espacio reservable del recreo y registra la cotización y condiciones del evento; el cliente las acepta dentro de UrbanPulse. La confirmación del evento requiere condiciones aceptadas, adelanto simulado aprobado y disponibilidad verificada. Canchas y karaoke utilizan confirmación directa, previa verificación de disponibilidad, sin adelanto obligatorio en el MVP. Estas aclaraciones se consolidan en las [decisiones funcionales de alcance](05-restricciones.md#3-decisiones-funcionales-aprobadas-y-alcance-del-mvp); la precisión de DF-02 en HU/RF queda pendiente de formalización.
+
+WhatsApp únicamente redirecciona al cliente hacia el contacto del propietario; UrbanPulse no administra conversaciones. El proveedor de mapas está pendiente de selección y solo se utilizará para visualizar la ubicación. Durante el MVP el pago será simulado, sin pasarela real, conforme a RC07–RC10 de [05-restricciones](05-restricciones.md).

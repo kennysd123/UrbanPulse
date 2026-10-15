@@ -90,6 +90,8 @@ La misma consideración se aplica a:
 
 En el caso de salones y recreos, la disponibilidad de la fecha también debe considerarse antes de confirmar una reserva.
 
+Según DF-01 y DF-03, se verifica la disponibilidad del salón, ambiente o espacio definido por el propietario y la fecha solicitada. La confirmación del evento exige además condiciones aceptadas por el cliente dentro de UrbanPulse y adelanto simulado aprobado; la disponibilidad por sí sola no basta.
+
 ---
 
 ### AC04 — Seguridad
@@ -147,11 +149,11 @@ Sala + tiempo
 
 Salones
    ↓
-Fecha + servicios + adelanto
+Fecha + servicios + coordinación + aceptación + adelanto
 
 Recreos
    ↓
-Fecha + servicios + adelanto
+Ambiente o espacio + fecha + servicios + coordinación + aceptación + adelanto
 ```
 
 La arquitectura debe permitir que posteriormente pueda incorporarse otro tipo de establecimiento sin tener que modificar significativamente el núcleo de reservas.
@@ -190,7 +192,7 @@ Reservar / Solicitar
 Confirmar
 ```
 
-Para los salones y recreos, el flujo podrá incorporar pasos adicionales de coordinación y adelanto.
+Para salones y recreos, el flujo incorpora registro de cotización y condiciones por el propietario, aceptación del cliente dentro de UrbanPulse y adelanto simulado. La confirmación requiere condiciones aceptadas, adelanto aprobado y disponibilidad verificada (DF-02/DF-03). Canchas y karaoke utilizan confirmación directa sin adelanto obligatorio en el MVP, previa verificación de disponibilidad (DF-04). La cobertura explícita de DF-02 en HU/RF permanece pendiente de formalización.
 
 ---
 
@@ -208,13 +210,15 @@ Inicialmente se consideran:
 
 Estas integraciones deben mantenerse separadas de la lógica principal del negocio.
 
+El pago representa un sistema externo conceptual. Durante el MVP, UrbanPulse implementa su simulador detrás de una abstracción de integración, sin conexión a una pasarela financiera real. La separación arquitectónica no implica que el simulador deba desplegarse como sistema externo.
+
 El sistema no debe depender directamente de una implementación específica cuando esta pueda ser reemplazada posteriormente.
 
 ## 3. Estado de especificación y evaluación
 
-Los ocho atributos están identificados, pero sus descripciones no constituyen todavía escenarios medibles completos. No se establecen métricas ni umbrales en esta etapa.
+Los ocho atributos AC01–AC08 cuentan con los ocho escenarios EQ-01–EQ-08 documentados en [08-escenarios-atributos-calidad.md](08-escenarios-atributos-calidad.md). Los escenarios incluyen criterios observables y propuestas de verificación; permanecen pendientes de revisión y no acreditan pruebas ejecutadas. Los umbrales, métricas cuantitativas y condiciones de evaluación que aún no estén aprobados mantienen ese estado; no se establecen compromisos cuantitativos nuevos en esta etapa.
 
-| Atributo | Base existente | Definición pendiente para un escenario evaluable |
+| Atributo | Base existente | Definición o validación pendiente de evaluación |
 |---|---|---|
 | AC01 — Rendimiento | Búsquedas y consultas concurrentes. | Carga de referencia, entorno y tiempos de respuesta aceptables. |
 | AC02 — Disponibilidad | Acceso durante periodos de mayor demanda. | Periodos de servicio, condiciones de interrupción y medida de disponibilidad aceptable. |
@@ -225,4 +229,4 @@ Los ocho atributos están identificados, pero sus descripciones no constituyen t
 | AC07 — Usabilidad | Flujo comprensible de consulta y reserva o solicitud. | Tareas, contexto de evaluación y criterio observable de éxito. |
 | AC08 — Interoperabilidad | Mapas, redirección a WhatsApp y pago simulado desacoplados. | Condiciones de interacción, resultados y fallos a evaluar, sin elegir proveedores ni protocolos adicionales. |
 
-Los escenarios se completarán cuando se acuerden las condiciones pendientes. Las relaciones existentes con drivers se encuentran en [[06-driver-arquitectonicos]]. AC02 y AC07 no tienen actualmente un driver ni una respuesta arquitectónica explícita; esa cobertura queda pendiente de evaluación, sin inventar drivers o ADR.
+Las condiciones, procedimientos y medidas propuestos en los escenarios se validarán antes de utilizarlos como criterios de aceptación aprobados. En rendimiento, disponibilidad y usabilidad se mantiene: **Métrica cuantitativa pendiente de validación.** Las relaciones existentes con drivers se encuentran en [06-driver-arquitectonicos](06-driver-arquitectonicos.md). AC02 y AC07 no tienen actualmente un driver ni una respuesta arquitectónica explícita; esa cobertura queda pendiente de evaluación, sin inventar drivers o ADR.
