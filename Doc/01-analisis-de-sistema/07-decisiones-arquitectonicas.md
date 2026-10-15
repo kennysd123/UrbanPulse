@@ -72,7 +72,7 @@ cada establecimiento:
 Esta decisión permite que las reglas particulares de cada modalidad no\
 se mezclen innecesariamente.
 
-Las [decisiones funcionales DF-01–DF-04](05-restricciones.md#3-decisiones-funcionales-aprobadas-y-alcance-del-mvp) precisan las modalidades: en recreos se reserva un ambiente o espacio definido por el propietario; canchas y karaoke utilizan confirmación directa con disponibilidad verificada y sin adelanto obligatorio en el MVP. Los eventos conservan su proceso de cotización, condiciones y aceptación interna antes de confirmar, sin crear una ADR adicional.
+Las [decisiones funcionales DF-01–DF-06](05-restricciones.md#3-decisiones-funcionales-aprobadas-y-alcance-del-mvp) precisan las modalidades: en recreos se reserva un ambiente o espacio definido por el propietario; canchas y karaoke utilizan confirmación directa con disponibilidad verificada y con adelanto simulado obligatorio y disponibilidad válida al confirmar. Los eventos conservan su proceso de cotización, condiciones y aceptación interna antes de confirmar, sin crear una ADR adicional.
 
 ---
 
@@ -208,7 +208,7 @@ Los drivers de origen se conservan en la tabla inicial y se desarrollan en [06-d
 
 ## 3. Representaciones existentes pendientes de corrección
 
-En esta etapa se conservan los PNG y los documentos de arquitectura para su revisión posterior. Los siguientes detalles no constituyen decisiones confirmadas y deben interpretarse según las aclaraciones de esta base documental:
+Se conservan los PNG y el SVG sin modificación; los documentos de arquitectura se armonizan en esta revisión. Los siguientes detalles no constituyen decisiones confirmadas y deben interpretarse según las aclaraciones de esta base documental:
 
 | Representación | Información contradictoria o insuficientemente respaldada | Criterio vigente |
 |---|---|---|
@@ -219,4 +219,16 @@ En esta etapa se conservan los PNG y los documentos de arquitectura para su revi
 
 Google Maps aparece como ejemplo en las imágenes de estilo y enfoque; no se considera proveedor seleccionado. Las etiquetas de protocolos o implementación de los PNG no sustituyen una decisión documentada.
 
-En [../02-arquitectura-software/01-arquitectura-inicial](../02-arquitectura-software/01-arquitectura-inicial.md) quedan pendientes de armonización la vista de tres capas y las menciones de cancelación. En [../02-arquitectura-software/03-enfoque-arquitectonico](../02-arquitectura-software/03-enfoque-arquitectonico.md), la flecha textual de Dominio hacia Infraestructura no debe interpretarse como dependencia de código: rige ADR-002. Estos archivos se revisarán en otra etapa, sin rediseñar ahora toda la arquitectura ni crear vistas C4.
+Los documentos de arquitectura ya explicitan las cuatro capas, las dependencias hacia el núcleo y la exclusión de RF13. Las imágenes conservadas siguen sujetas al [inventario de sincronización](../diagramas/INVENTARIO-PENDIENTES.md); no se crean vistas C4.
+
+## 4. Consecuencias de DF-04–DF-06 y DP-01–DP-12
+
+| ADR existente | Precisión sin nueva decisión tecnológica |
+|---|---|
+| ADR-003 | Cancha/karaoke mantienen reserva directa con adelanto simulado obligatorio y disponibilidad válida. Eventos conservan solicitud, cotización y aceptación. |
+| ADR-004 | Confirmación exige disponibilidad válida y adelanto aprobado, más aceptación en eventos; no basta resultado del simulador. Mantener prohibición concurrente; mecanismo pendiente. |
+| ADR-006 | Simulador desacoplado de reglas; métodos informativos y recepción manual sin integración financiera real. |
+| ADR-007 | HU14/RF20 exige propietario autorizado de reserva confirmada propia; RF14 permite resumen autorizado de cliente/propietario. Autor y fecha también en correcciones. |
+| ADR-008 | Persistir conceptualmente importes fijados al iniciar, adelanto aplicado, saldo y registro único activo con historial; contratos y modelo de datos pendientes. |
+
+Se conservan nueve ADR. Las ampliaciones de origen DA05/DA08 están explicitadas en la sección 7 de drivers; no se aprueba algoritmo de concurrencia, motor, tablas o endpoints. RF13 sigue pendiente. El SVG de enfoque aún muestra “cancelar” y su referencia se advierte en arquitectura, sin modificar el archivo.

@@ -19,7 +19,7 @@ etapas del diseño.
 | **RC04** | **Base de datos relacional** | La información persistente del sistema debe almacenarse en una base de datos relacional. |
 | **RC05** | **Contexto local** | La primera versión del sistema estará orientada a establecimientos de entretenimiento y recreación de Huamanga. |
 | **RC06** | **Diferentes modalidades de reserva** | El sistema debe contemplar diferentes formas de reserva según el tipo de establecimiento y recurso. |
-| **RC07** | **Pago simulado** | El MVP debe utilizar un mecanismo de pago simulado y no depender inicialmente de una pasarela de pago real. |
+| **RC07** | **Pago simulado** | El MVP utiliza exclusivamente pagos simulados, sin cobros, transferencias, operaciones bancarias ni movimientos financieros reales. |
 | **RC08** | **Comunicación mediante WhatsApp** | El contacto entre cliente y propietario mediante WhatsApp debe realizarse mediante redirección, sin implementar un sistema de mensajería propio. |
 | **RC09** | **Proveedor externo de mapas** | La visualización de la ubicación de los establecimientos debe realizarse mediante un servicio externo de mapas. |
 | **RC10** | **Integraciones desacopladas** | Los servicios externos utilizados por UrbanPulse no deben determinar directamente las reglas principales del negocio. |
@@ -123,8 +123,8 @@ Actualmente se consideran:
 
 | Tipo de establecimiento | Modalidad |
 |---|---|
-| **Cancha** | Recurso + fecha + bloque horario; confirmación directa sin adelanto obligatorio en el MVP. |
-| **Karaoke** | Sala + fecha + intervalo de tiempo; confirmación directa sin adelanto obligatorio en el MVP. |
+| **Cancha** | Recurso + fecha + bloque horario; confirmación directa con adelanto simulado obligatorio y disponibilidad válida al confirmar. |
+| **Karaoke** | Sala + fecha + intervalo de tiempo; confirmación directa con adelanto simulado obligatorio y disponibilidad válida al confirmar. |
 | **Salón de eventos** | Fecha + servicios + coordinación + adelanto |
 | **Recreo** | Fecha + servicios + coordinación + adelanto |
 
@@ -152,7 +152,7 @@ APROBADO / RECHAZADO
 
 Esta decisión permite desarrollar y probar el flujo de reservas y adelantos sin depender inicialmente de un proveedor financiero real.
 
-El servicio de pago es un sistema externo conceptual representado mediante una abstracción de integración. Durante el MVP, UrbanPulse implementa el componente de simulación que satisface esa abstracción; no implica conexión con una pasarela financiera real ni exige un despliegue externo del simulador. Esta descripción delimita la solución y no acredita que el componente o sus pruebas ya se hayan ejecutado. El adelanto obligatorio corresponde a eventos de salones y recreos; canchas y karaoke mantienen DF-04.
+El servicio de pago es un sistema externo conceptual representado mediante una abstracción de integración. Durante el MVP, UrbanPulse implementa el componente de simulación que satisface esa abstracción; no implica conexión con una pasarela financiera real ni exige un despliegue externo del simulador. Esta descripción delimita la solución y no acredita que el componente o sus pruebas ya se hayan ejecutado. El adelanto simulado es obligatorio para canchas y karaoke según DF-04 y se aplica a eventos según condiciones aceptadas y DF-03. El propietario registra posteriormente la recepción simulada del saldo completo (DF-05).
 
 La integración con una pasarela de pago real podrá evaluarse en una etapa posterior.
 
@@ -229,13 +229,34 @@ La clasificación de pago como integración se refiere al contrato conceptual y 
 
 ## 3. Decisiones funcionales aprobadas y alcance del MVP
 
-Estas decisiones consolidan el alcance aprobado para las cuatro modalidades. No constituyen nuevas HU, RF, RC, drivers ni ADR y no modifican los enunciados de las 13 HU o de los 19 RF.
+Estas decisiones consolidan el alcance aprobado para las cuatro modalidades. Esta actualización incorpora HU14 y RF20 y explicita las ampliaciones de los elementos existentes; conserva los 10 RC, 8 AC, 8 DA, 9 ADR y 8 EQ.
 
 | Decisión | Alcance aprobado | Respaldo y límite de formalización |
 |---|---|---|
 | DF-01 | El recreo permite reservar un ambiente o espacio definido por el propietario para un evento privado. | HU05/HU07/HU08, RF07/RF09/RF10 y RC06 aportan contexto. No incluye compra de actividades, comidas o entradas ni reserva de habitaciones. |
-| DF-02 | El propietario registra la cotización y condiciones; el cliente las acepta dentro de UrbanPulse. | HU05/HU08 y RF07/RF10/RF12 aportan contexto, pero no expresan literalmente ambas acciones. **Precisión pendiente de formalización** de cobertura y criterios de aceptación, sin reescribir aquí las HU o los RF. WhatsApp solo complementa la coordinación. |
+| DF-02 | El propietario registra la cotización y condiciones; el cliente las acepta dentro de UrbanPulse. | HU05/HU08 y RF07/RF10/RF12 aportan contexto, pero no detallan ambas acciones y sus criterios de aceptación. **Precisión pendiente de formalización** de cobertura y criterios de aceptación, sin reescribir aquí las HU o los RF. WhatsApp solo complementa la coordinación. |
 | DF-03 | Confirmar un evento requiere conjuntamente condiciones aceptadas por el cliente, adelanto simulado aprobado y disponibilidad verificada. | HU05/HU08/HU09; RF07/RF10–RF12/RF18/RF19. Ni la aceptación de la solicitud por el propietario, ni la disponibilidad, ni el adelanto aprobado bastan por separado. |
-| DF-04 | Canchas y karaoke utilizan confirmación directa sin adelanto obligatorio en el MVP, previa verificación de disponibilidad. | RF04/RF06/RF12 y RC06. HU03/RF04 y HU04/RF06 conservan su asociación contextual pendiente; no se reformulan esas historias. |
+| DF-04 | Todas las reservas de cancha y karaoke requieren adelanto simulado obligatorio, configurado por el propietario para el recurso. El cliente conoce total y adelanto antes de iniciar. Solo se confirma con aprobación y disponibilidad válida al confirmar, sin confirmaciones incompatibles concurrentes. | Reserva directa sin solicitud de evento ni cotización obligatoria. S/ 10 es solo ejemplo local, nunca importe universal. HU07/HU09; RF04/RF06/RF09/RF11/RF12/RF18/RF19. |
+| DF-05 | El propietario autorizado registra manualmente la recepción simulada del saldo completo de una reserva confirmada: reserva, importe, método, propietario autor, fecha y hora. Cliente y propietario autorizados consultan el resumen. | HU14/RF20 y RF14 ampliado. No cambia Reserva ni resultado del adelanto; no representa transferencia real. |
+| DF-06 | Todo pago del MVP es simulación académica, sin cobros reales, transferencias, operaciones bancarias ni movimientos financieros. | Los métodos son categorías informativas; ni aprobación ni recepción declarada acreditan fondos reales ni son comprobantes bancarios. |
 
 La aprobación de estas decisiones no resuelve RF13, que permanece pendiente de validación funcional. La formalización de DF-02 y los detalles de estados, datos y criterios de aceptación deberán revisarse con la documentación funcional; no se inventan en esta corrección. Los escenarios correspondientes se consultan en [08-escenarios-atributos-calidad.md](08-escenarios-atributos-calidad.md).
+
+## 4. Políticas de pago aprobadas
+
+| Código | Política |
+|---|---|
+| DP-01 | Todos los pagos del MVP son simulados. |
+| DP-02 | Adelanto obligatorio para cancha y karaoke; en eventos, según las condiciones aceptadas, manteniendo DF-03. |
+| DP-03 | Precio total y adelanto aplicables quedan fijados al iniciar el adelanto simulado. Cambios posteriores del propietario no alteran esa operación. |
+| DP-04 | Saldo simulado = precio total acordado − adelanto simulado aprobado y aplicado a esa reserva. |
+| DP-05 | No se permiten pagos parciales del saldo durante el MVP. |
+| DP-06 | Una reserva permite un solo registro activo de recepción simulada del saldo completo, además de correcciones históricas. |
+| DP-07 | Efectivo, Yape, Plin y transferencia son categorías informativas, sin integraciones reales. |
+| DP-08 | Estados informativos mínimos del saldo: Pendiente de registro y Registrado como recibido en simulación. |
+| DP-09 | Toda corrección conserva historial, autor y fecha; no reemplaza silenciosamente registros previos. |
+| DP-10 | Cliente y propietario autorizados consultan total, adelanto, saldo y estado de registro. |
+| DP-11 | En cancha y karaoke se representa la liquidación restante el día del servicio; en salón y recreo, según condiciones aceptadas. |
+| DP-12 | Adelanto simulado rechazado o disponibilidad no válida impiden confirmar la reserva. |
+
+El saldo cero queda pendiente de representación: no registrar recepción de dinero inexistente. No se introducen fraccionamientos, devoluciones, reembolsos, créditos ni vencimientos. Siguen pendientes el mecanismo de concurrencia, precisión monetaria, contratos técnicos del simulador y procedimiento concreto de corrección con historial; no son nuevas decisiones arquitectónicas aprobadas.

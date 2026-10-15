@@ -1,1 +1,3 @@
-![Estilo arquitectónico](../diagramas/estilo-arquitectonico.png)
+![Diagrama del estilo arquitectónico de UrbanPulse](<../diagramas/estilo-arquitectonico.png>)
+
+UrbanPulse adopta un **monolito modular con principios de Clean Architecture**, organizado en cuatro capas: presentación, aplicación, dominio e infraestructura. La capa de aplicación coordina los casos de uso; el dominio concentra las reglas del negocio; y la infraestructura implementa la persistencia mediante ORM y las integraciones externas. La API REST sirve como punto de entrada al backend, manteniendo los módulos organizados por responsabilidad.

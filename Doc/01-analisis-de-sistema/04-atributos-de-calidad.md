@@ -192,7 +192,7 @@ Reservar / Solicitar
 Confirmar
 ```
 
-Para salones y recreos, el flujo incorpora registro de cotización y condiciones por el propietario, aceptación del cliente dentro de UrbanPulse y adelanto simulado. La confirmación requiere condiciones aceptadas, adelanto aprobado y disponibilidad verificada (DF-02/DF-03). Canchas y karaoke utilizan confirmación directa sin adelanto obligatorio en el MVP, previa verificación de disponibilidad (DF-04). La cobertura explícita de DF-02 en HU/RF permanece pendiente de formalización.
+Para salones y recreos, el flujo incorpora registro de cotización y condiciones por el propietario, aceptación del cliente dentro de UrbanPulse y adelanto simulado. La confirmación requiere condiciones aceptadas, adelanto aprobado y disponibilidad verificada (DF-02/DF-03). Canchas y karaoke utilizan confirmación directa con adelanto simulado obligatorio y disponibilidad válida al confirmar, previa verificación de disponibilidad (DF-04). La cobertura explícita de DF-02 en HU/RF permanece pendiente de formalización.
 
 ---
 
@@ -230,3 +230,14 @@ Los ocho atributos AC01–AC08 cuentan con los ocho escenarios EQ-01–EQ-08 doc
 | AC08 — Interoperabilidad | Mapas, redirección a WhatsApp y pago simulado desacoplados. | Condiciones de interacción, resultados y fallos a evaluar, sin elegir proveedores ni protocolos adicionales. |
 
 Las condiciones, procedimientos y medidas propuestos en los escenarios se validarán antes de utilizarlos como criterios de aceptación aprobados. En rendimiento, disponibilidad y usabilidad se mantiene: **Métrica cuantitativa pendiente de validación.** Las relaciones existentes con drivers se encuentran en [06-driver-arquitectonicos](06-driver-arquitectonicos.md). AC02 y AC07 no tienen actualmente un driver ni una respuesta arquitectónica explícita; esa cobertura queda pendiente de evaluación, sin inventar drivers o ADR.
+
+## 4. Aplicación de DF-04–DF-06 y DP-01–DP-12
+
+| Elemento existente | Precisión de alcance y evaluación |
+|---|---|
+| AC03 | Confirmar cancha/karaoke exige adelanto aprobado y disponibilidad válida, incluso bajo concurrencia. Mantener importes fijados (DP-03), fórmula de saldo (DP-04) y un registro activo (DP-06) con historial (DP-09). |
+| AC04 | Solo el propietario autorizado registra saldo de su reserva confirmada; cliente y propietario consultan su resumen autorizado (HU14/RF20/RF14). Conservar autor y fecha en registros y correcciones. |
+| AC07 | Mostrar total y adelanto antes de iniciar; distinguir adelanto, saldo y estado de registro, aprobación y confirmación. Identificar siempre simulación; no mostrar comprobantes bancarios ni evidencia de fondos reales. Saldo cero pendiente de representación. |
+| AC08 | Simulador detrás de abstracción; métodos efectivo, Yape, Plin y transferencia informativos. La recepción manual no invoca servicios financieros. |
+
+Se conservan ocho AC, sus identificadores y sus métricas pendientes; estas precisiones no acreditan pruebas ejecutadas.

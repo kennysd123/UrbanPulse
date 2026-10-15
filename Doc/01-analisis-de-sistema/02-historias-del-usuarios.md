@@ -26,6 +26,7 @@ Se utiliza la estructura:
 | **HU11** | Administrador | Como administrador, quiero gestionar los establecimientos registrados, para mantener información válida dentro de la plataforma. | Administración |
 | **HU12** | Cliente | Como cliente, quiero contactar al propietario mediante WhatsApp, para realizar consultas adicionales sobre disponibilidad, servicios o condiciones. | Comunicación |
 | **HU13** | Cliente | Como cliente, quiero visualizar la ubicación de un establecimiento en un mapa, para conocer dónde se encuentra antes de desplazarme o reservar. | Ubicación |
+| **HU14** | Propietario | Como propietario de un establecimiento, quiero registrar la recepción simulada del saldo restante de una reserva, indicando el importe y el método de pago, para llevar un control de las liquidaciones representadas en UrbanPulse. | Pagos simulados |
 
 ---
 
@@ -34,7 +35,7 @@ Se utiliza la estructura:
 UrbanPulse contempla diferentes formas de reserva debido a las
 características de los establecimientos.
 
-![Historias de usuario por modalidad](../diagramas/Historias%20de%20usuario%20por%20modalidad.png)
+![Mapa jerárquico de historias de usuario](<../diagramas/Mapa-jerárquico-de-historia- de-usuario.png>)
 
 ## 3. Historias relacionadas con el cliente
 
@@ -164,7 +165,7 @@ Dependiendo del establecimiento, los recursos pueden representar:
 | Salón | Ambiente / salón |
 | Recreo | Ambiente / espacio disponible |
 
-El propietario podrá definir los horarios en los que un recurso puede ser reservado.
+El propietario podrá definir los horarios en los que un recurso puede ser reservado. **Ampliación aprobada por DF-04/DP-02/DP-03:** configura el importe del adelanto por recurso de cancha o karaoke; el cliente conoce precio total y adelanto antes de iniciar la operación. Las modificaciones posteriores no alteran los importes fijados para una operación iniciada.
 
 ---
 
@@ -203,9 +204,9 @@ PAGO APROBADO
 PAGO RECHAZADO
 ```
 
-El resultado deberá actualizar el estado correspondiente de la reserva.
+El resultado se registra como resultado del adelanto simulado y se refleja en la situación de la reserva (RF19); su aprobación no confirma por sí sola.
 
-Según DF-03, la confirmación de salones y recreos requiere conjuntamente condiciones aceptadas por el cliente, adelanto simulado aprobado y disponibilidad verificada. El rechazo del adelanto no confirma el evento; su aprobación aislada tampoco. Según DF-04, canchas y karaoke tienen confirmación directa con verificación de disponibilidad y sin adelanto obligatorio en el MVP. HU09 se interpreta para el adelanto requerido por los eventos, sin imponerlo a esas modalidades.
+Según DF-03, confirmar salones y recreos requiere conjuntamente condiciones aceptadas por el cliente, adelanto simulado aprobado y disponibilidad válida al confirmar. **Ampliación de HU09 por DF-04:** el adelanto simulado es obligatorio también para canchas y karaoke, configurado por el propietario para cada recurso; conservan reserva directa, sin solicitud ni cotización obligatoria. El cliente conoce total y adelanto antes de operar y estos quedan fijados al iniciar la simulación (DP-03). Un rechazo o falta de disponibilidad impide confirmar en todas las modalidades.
 
 El servicio de pago es una integración conceptual; en el MVP su abstracción se implementa mediante un componente de simulación de UrbanPulse, sin conexión a una pasarela financiera real. No se afirma que ese componente esté ya implementado o probado.
 
@@ -225,6 +226,28 @@ La información podrá incluir:
 - Monto.
 - Adelanto.
 - Estado de la reserva.
+- **Ampliación de consulta por DF-05/DP-10:** precio total acordado, adelanto simulado aprobado y aplicado, saldo calculado y estado de su registro. El propietario autorizado también consulta este resumen mediante HU14/RF14. Todo se identifica como simulación académica.
+
+---
+
+### HU14 — Registrar recepción simulada del saldo
+
+**Como propietario de un establecimiento**, quiero registrar la recepción simulada del saldo restante de una reserva, indicando el importe y el método de pago, **para llevar un control de las liquidaciones representadas en UrbanPulse**.
+
+**Criterios de aceptación aprobados:**
+
+1. Solo el propietario autorizado del establecimiento puede registrar la recepción.
+2. La operación corresponde a una reserva confirmada.
+3. El importe coincide con el saldo simulado completo calculado para esa reserva.
+4. Selecciona efectivo, Yape, Plin o transferencia como categoría simulada.
+5. Se registra quién efectuó la operación y su fecha y hora.
+6. No se permiten dos recepciones activas del mismo saldo.
+7. Se muestra claramente que es una recepción simulada, sin evidencia de fondos reales.
+8. El registro no modifica el estado de Reserva ni el resultado del adelanto simulado.
+9. Cliente y propietario autorizados consultan el resumen de pagos simulados.
+10. Toda corrección conserva la trazabilidad anterior, autor y fecha; no reemplaza silenciosamente registros.
+
+No se admiten pagos parciales del saldo. Si el saldo calculado es cero, su representación queda pendiente y no se registra una recepción inexistente. Trazabilidad: RF20 (registro/correcciones), RF14 (consulta ampliada), DF-05/DF-06 y DP-01–DP-11.
 
 ---
 
@@ -305,10 +328,10 @@ El proveedor concreto de mapas se decidirá posteriormente.
 | Modalidad | Historias principales | Característica |
 |---|---|---|
 | **Descubrimiento** | HU01, HU02, HU13 | Buscar, consultar información y ubicación. |
-| **Cancha** | HU03, HU07, HU10 | Recurso + bloque horario. |
-| **Karaoke** | HU04, HU07, HU10 | Sala + intervalo de tiempo. |
-| **Salón de eventos** | HU05, HU08, HU09, HU10 | Fecha + servicios + coordinación + adelanto. |
-| **Recreo** | HU05, HU08, HU09, HU10 | Fecha + servicios + coordinación + adelanto. |
+| **Cancha** | HU03, HU07, HU09, HU10, HU14 | Recurso + bloque horario. |
+| **Karaoke** | HU04, HU07, HU09, HU10, HU14 | Sala + intervalo de tiempo. |
+| **Salón de eventos** | HU05, HU08, HU09, HU10, HU14 | Fecha + servicios + coordinación + adelanto. |
+| **Recreo** | HU05, HU08, HU09, HU10, HU14 | Fecha + servicios + coordinación + adelanto. |
 | **Administración** | HU06, HU07, HU08, HU11 | Gestión de establecimientos y reservas. |
 | **Comunicación** | HU12 | Redirección a WhatsApp. |
 
@@ -316,7 +339,7 @@ El proveedor concreto de mapas se decidirá posteriormente.
 
 ## 9. Flujo conceptual de las historias
 
-![Flujo conceptual de las historias](../diagramas/Flujo%20conceptual%20de%20las%20historias.png)
+![Flujo conceptual de las historias](<../diagramas/flujo-conceptual-de-las-histoias.png>)
 
 ## 10. Aclaraciones de alcance y trazabilidad
 
@@ -326,4 +349,15 @@ El proveedor concreto de mapas se decidirá posteriormente.
 
 Las denominaciones anteriores son las que deben utilizarse en la trazabilidad. Las imágenes existentes se conservan; no sustituyen las aclaraciones textuales ni acreditan funcionalidades pendientes.
 
-Las decisiones DF-01–DF-04 se encuentran en las [aclaraciones de alcance de las restricciones](05-restricciones.md#3-decisiones-funcionales-aprobadas-y-alcance-del-mvp). Su aprobación funcional no resuelve la cobertura contextual HU03/RF04 y HU04/RF06 ni formaliza silenciosamente DF-02 en los requisitos existentes.
+Las decisiones DF-01–DF-06 se encuentran en las [aclaraciones de alcance de las restricciones](05-restricciones.md#3-decisiones-funcionales-aprobadas-y-alcance-del-mvp). Su aprobación funcional no resuelve la cobertura contextual HU03/RF04 y HU04/RF06 ni formaliza silenciosamente DF-02 en los requisitos existentes.
+
+## 11. Trazabilidad de la ampliación de pagos simulados
+
+| Historia | RF | DF / DP | Alcance |
+|---|---|---|---|
+| HU07 | RF09 | DF-04; DP-02/DP-03 | Configurar adelanto por recurso; conservar importes de operaciones iniciadas. |
+| HU09 | RF11/RF18/RF19; RF04/RF06/RF12 para confirmación | DF-03/DF-04/DF-06; DP-01/DP-02/DP-03/DP-12 | Adelanto simulado en las cuatro modalidades; aprobación y disponibilidad conjuntas. |
+| HU10 y HU14 | RF14 ampliado | DF-05/DF-06; DP-10 | Consulta autorizada del total, adelanto aplicado, saldo y estado de registro. |
+| HU14 | RF20 | DF-05/DF-06; DP-04–DP-11 | Saldo completo, registro único activo, método informativo y corrección con historial. |
+
+Catálogo: 14 HU. HU03/HU04 mantienen sus enunciados de consulta; su vínculo con RF04/RF06 sigue siendo contextual y pendiente de precisión.

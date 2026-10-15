@@ -17,10 +17,10 @@ prioritariamente durante el diseño de la solución arquitectónica.
 | **DA02** | **Consistencia de disponibilidad** | AC03 / RF04 / RF06 / RF12 | La arquitectura debe evitar que un mismo recurso sea confirmado para reservas incompatibles durante el mismo periodo. |
 | **DA03** | **Extensibilidad de modalidades** | AC06 / RC06 | La solución debe permitir incorporar nuevos tipos de establecimientos o modalidades de reserva sin modificar significativamente el núcleo existente. |
 | **DA04** | **Rendimiento en consultas** | AC01 / RF01 / RF03 / RF05 | La arquitectura debe permitir responder adecuadamente las búsquedas y consultas de disponibilidad incluso cuando existan múltiples usuarios concurrentes. |
-| **DA05** | **Seguridad y control de acceso** | AC04 / RF08 / RF15 | La arquitectura debe separar las responsabilidades y permisos de clientes, propietarios y administradores. |
+| **DA05** | **Seguridad y control de acceso** | AC04 / RF08 / RF14 / RF15 / RF20 | La arquitectura debe separar las responsabilidades y permisos de clientes, propietarios y administradores. |
 | **DA06** | **Integración con servicios externos** | AC05 / AC08 / RC07 / RC08 / RC09 / RC10 / RF16–RF18 | La arquitectura debe permitir integrar mapas, WhatsApp y pago simulado sin acoplar estas dependencias con las reglas principales del negocio. |
 | **DA07** | **Comunicación mediante API REST** | RC03 | La arquitectura debe establecer una comunicación definida entre la aplicación web y el backend mediante una API REST. |
-| **DA08** | **Persistencia de información transaccional** | RC04 / RF04 / RF06 / RF07 / RF12 | La arquitectura debe garantizar el almacenamiento consistente de reservas, disponibilidad, establecimientos y operaciones relacionadas. |
+| **DA08** | **Persistencia de información transaccional** | RC04 / RF04 / RF06 / RF07 / RF11 / RF12 / RF14 / RF19 / RF20 | La arquitectura debe garantizar el almacenamiento consistente de reservas, disponibilidad, establecimientos y operaciones relacionadas. |
 
 ---
 
@@ -42,7 +42,7 @@ Actualmente se contemplan:
 | **Salón de eventos** | Fecha + servicios + coordinación + adelanto |
 | **Recreo** | Fecha + servicios + coordinación + adelanto |
 
-La lectura de estas modalidades se precisa mediante [DF-01–DF-04](05-restricciones.md#3-decisiones-funcionales-aprobadas-y-alcance-del-mvp): el recreo reserva un ambiente o espacio definido por el propietario; el propietario registra cotización y condiciones y el cliente las acepta dentro de UrbanPulse. Los eventos requieren esa aceptación, adelanto simulado aprobado y disponibilidad verificada; canchas y karaoke usan confirmación directa sin adelanto obligatorio en el MVP. DF-02 mantiene su precisión pendiente de formalización en HU/RF.
+La lectura de estas modalidades se precisa mediante [DF-01–DF-06](05-restricciones.md#3-decisiones-funcionales-aprobadas-y-alcance-del-mvp): el recreo reserva un ambiente o espacio definido por el propietario; el propietario registra cotización y condiciones y el cliente las acepta dentro de UrbanPulse. Los eventos requieren esa aceptación, adelanto simulado aprobado y disponibilidad verificada; canchas y karaoke usan confirmación directa con adelanto simulado obligatorio y disponibilidad válida al confirmar. DF-02 mantiene su precisión pendiente de formalización en HU/RF.
 
 Este driver tiene una influencia directa en el modelo de dominio y en
 la organización de la lógica de reservas.
@@ -168,7 +168,7 @@ El mecanismo tecnológico concreto para alcanzar el rendimiento requerido será 
 
 ## DA05 — Seguridad y control de acceso
 
-**Origen:** AC04 / RF08 / RF15
+**Origen:** AC04 / RF08 / RF14 / RF15 / RF20
 
 UrbanPulse tendrá diferentes tipos de actores con responsabilidades distintas.
 
@@ -293,7 +293,7 @@ Este driver condiciona:
 
 ## DA08 — Persistencia de información transaccional
 
-**Origen:** RC04 / RF04 / RF06 / RF07 / RF12
+**Origen:** RC04 / RF04 / RF06 / RF07 / RF11 / RF12 / RF14 / RF19 / RF20
 
 UrbanPulse deberá mantener información persistente relacionada con las operaciones principales del sistema.
 
@@ -374,8 +374,20 @@ La siguiente tabla reúne relaciones de origen y relaciones complementarias con 
 
 Las referencias de origen y las tablas complementarias se leen conjuntamente. DA01 incorpora AC05 y AC06, ya relacionados en la sección 4. DA06 explicita AC05 y RC08, ya presentes en las tablas complementarias, y RC07, que respalda el pago simulado descrito por el propio driver.
 
-La columna **Origen** de la sección 1 y los enunciados **Origen** de cada driver registran su procedencia explícita. Las secciones 4 y 5 describen además efectos o relaciones complementarias; no amplían automáticamente esa procedencia. En particular, DA07 tiene RC03 como origen y sus relaciones con AC05/AC08 son complementarias; DA08 tiene RC04 y RF04/RF06/RF07/RF12 como origen y sus relaciones con AC03/AC05 son complementarias. En DA01, DA02, DA03, DA04, DA05 y DA06, los AC de la sección 4 sí figuran como origen explícito. Esta distinción no agrega drivers ni cadenas de origen.
+La columna **Origen** de la sección 1 y los enunciados **Origen** de cada driver registran su procedencia explícita. Las secciones 4 y 5 describen además efectos o relaciones complementarias; no amplían automáticamente esa procedencia. En particular, DA07 tiene RC03 como origen y sus relaciones con AC05/AC08 son complementarias; DA08 tiene RC04 y RF04/RF06/RF07/RF11/RF12/RF14/RF19/RF20 como origen y sus relaciones con AC03/AC05 son complementarias. En DA01, DA02, DA03, DA04, DA05 y DA06, los AC de la sección 4 sí figuran como origen explícito. Esta distinción no agrega drivers ni cadenas de origen.
 
 AC02 — Disponibilidad y AC07 — Usabilidad continúan identificados en [04-atributos-de-calidad](04-atributos-de-calidad.md), pero no tienen driver explícito ni respuesta arquitectónica documentada. No se asignan a un driver existente sin justificación. Las limitaciones de cobertura de RF se registran en [03-requisitos-funcionales](03-requisitos-funcionales.md).
 
 La relación de cada driver con decisiones se mantiene en [07-decisiones-arquitectonicas](07-decisiones-arquitectonicas.md). Ninguna relación con una ADR convierte RF13 en funcionalidad confirmada ni amplía las responsabilidades del administrador a la gestión de usuarios.
+
+## 7. Influencia revisada de las decisiones de pagos simulados
+
+| Driver existente | Aplicación de la ampliación aprobada | Origen añadido explícitamente en esta revisión |
+|---|---|---|
+| DA01 | Reserva directa con adelanto obligatorio frente a solicitud/cotización/aceptación de eventos; no unificar recorridos. | DF-04, RC06; RF04/RF06 mantienen su origen. |
+| DA02 | Adelanto aprobado no sustituye disponibilidad válida al confirmar ni la prohibición concurrente. | DF-04, DP-12; RF12 mantiene su origen. |
+| DA05 | Autorizar propietario de reserva confirmada y consulta propia; autor y fecha de registro/corrección. | HU14/RF20; RF14 ampliado; DF-05/DP-09/DP-10. |
+| DA06 | Mantener simulador desacoplado y métodos informativos; recepción manual sin integración financiera. | DF-06/DP-01/DP-07; sin nuevos servicios externos. |
+| DA08 | Conservar importes fijados, adelanto aplicado, saldo, único registro activo e historial trazable. | RF11/RF14/RF19/RF20; DF-05/DP-03–DP-06/DP-09. |
+
+Esta tabla amplía explícitamente los orígenes de DA05 y DA08; las tablas anteriores ya reflejan los orígenes actualizados. RF11/RF14/RF19 cuentan ahora con origen DA08, RF14 además DA05 y RF20 con DA05/DA08. La cobertura aún pendiente se limita a RF02/RF09/RF10. No se agrega driver ni se selecciona mecanismo concurrente, tablas, motor o endpoints.
