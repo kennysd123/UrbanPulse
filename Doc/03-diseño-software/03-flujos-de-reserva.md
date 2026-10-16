@@ -32,48 +32,9 @@ Cliente y propietario son actores humanos. “Sistema” representa los casos de
 6. Para una reserva confirmada y saldo positivo, el propietario autorizado registra posteriormente el saldo completo simulado, representando la liquidación restante el día del servicio (DP-11). Indica método informativo; el sistema conserva reserva, importe, propietario, fecha y hora (L1). No cambia Reserva ni adelanto.
 7. Cliente y propietario autorizados consultan total, adelanto aprobado y aplicado, saldo y estado. Correcciones mediante L2 conservan historial, autor y fecha y un único registro activo. Con saldo cero no se inventa recepción; su representación queda pendiente.
 
-```mermaid
-sequenceDiagram
-    actor C as Cliente
-    actor O as Propietario
-    participant U as Sistema UrbanPulse
-    participant P as Simulador de adelantos
-    O->>U: Configurar recurso horarios precio y adelanto (RF09)
-    C->>U: Consultar recurso, fecha y bloque configurado (RF03)
-    U-->>C: Disponibilidad consultada precio total y adelanto
-    C->>U: Iniciar reserva directa y adelanto simulado (RF04, RF11)
-    U->>U: Fijar total y adelanto de la operación (DP-03)
-    U->>P: Simular adelanto (P1)
-    P-->>U: Resultado aprobado o rechazado
-    U->>U: Registrar resultado simulado (RF19)
-    alt Adelanto rechazado
-        U-->>C: Sin confirmación (P3, R2)
-    else Adelanto aprobado (P2)
-        U->>U: Verificar disponibilidad válida al confirmar (RN-02, RN-13)
-        alt Disponible y operación autorizada
-            U->>U: Confirmar reserva directa (R1)
-            U-->>C: Reserva confirmada y resumen simulado
-            opt Registro posterior de saldo positivo el día del servicio
-                O->>U: Registrar recepción simulada del saldo completo y método (RF20)
-                U->>U: Verificar propietario reserva confirmada importe y unicidad
-                U->>U: Conservar reserva importe método autor fecha y hora (L1)
-                U-->>O: Saldo registrado en simulación sin cambiar Reserva ni adelanto
-            end
-        else Disponibilidad no válida
-            U-->>C: Sin confirmación aunque adelanto aprobado (R2)
-        end
-    end
-    opt Consulta autorizada del cliente o propietario
-        C->>U: Consultar mi resumen simulado (RF14)
-        U-->>C: Total adelanto aplicado saldo y estado de registro
-        O->>U: Consultar resumen de reserva propia (RF14)
-        U-->>O: Resumen simulado autorizado
-    end
-```
-
 ![F-01 — Secuencia de reserva](../diagramas/F-01%20%E2%80%94%20Reserva-directa-de-cancha.png)
 
-PNG comprobado visualmente contra el Mermaid el 16/10/2026. Cancha: adelanto aprobado, disponibilidad válida y registro posterior del saldo completo positivo.
+Cancha: adelanto aprobado, disponibilidad válida y registro posterior del saldo completo positivo.
 
 El propietario configura la oferta y registra posteriormente el saldo; no aprueba cada reserva directa. PC-05 conserva pendiente el mecanismo de concurrencia. Los intentos de recepción no autorizados, duplicados o de importe parcial se rechazan sin crear otro registro activo ni alterar estados.
 
@@ -91,48 +52,9 @@ El propietario configura la oferta y registra posteriormente el saldo; no aprueb
 6. Para una reserva confirmada y saldo positivo, el propietario autorizado registra posteriormente el saldo completo simulado, representando la liquidación restante el día del servicio (DP-11). Indica método informativo; el sistema conserva reserva, importe, propietario, fecha y hora (L1). No cambia Reserva ni adelanto.
 7. Cliente y propietario autorizados consultan total, adelanto aprobado y aplicado, saldo y estado. Correcciones mediante L2 conservan historial, autor y fecha y un único registro activo. Con saldo cero no se inventa recepción; su representación queda pendiente.
 
-```mermaid
-sequenceDiagram
-    actor C as Cliente
-    actor O as Propietario
-    participant U as Sistema UrbanPulse
-    participant P as Simulador de adelantos
-    O->>U: Configurar recurso horarios precio y adelanto (RF09)
-    C->>U: Consultar sala, fecha e intervalo horario (RF05)
-    U-->>C: Disponibilidad consultada precio total y adelanto
-    C->>U: Iniciar reserva directa y adelanto simulado (RF06, RF11)
-    U->>U: Fijar total y adelanto de la operación (DP-03)
-    U->>P: Simular adelanto (P1)
-    P-->>U: Resultado aprobado o rechazado
-    U->>U: Registrar resultado simulado (RF19)
-    alt Adelanto rechazado
-        U-->>C: Sin confirmación (P3, R2)
-    else Adelanto aprobado (P2)
-        U->>U: Verificar disponibilidad válida al confirmar (RN-03, RN-13)
-        alt Disponible y operación autorizada
-            U->>U: Confirmar reserva directa (R1)
-            U-->>C: Reserva confirmada y resumen simulado
-            opt Registro posterior de saldo positivo el día del servicio
-                O->>U: Registrar recepción simulada del saldo completo y método (RF20)
-                U->>U: Verificar propietario reserva confirmada importe y unicidad
-                U->>U: Conservar reserva importe método autor fecha y hora (L1)
-                U-->>O: Saldo registrado en simulación sin cambiar Reserva ni adelanto
-            end
-        else Disponibilidad no válida
-            U-->>C: Sin confirmación aunque adelanto aprobado (R2)
-        end
-    end
-    opt Consulta autorizada del cliente o propietario
-        C->>U: Consultar mi resumen simulado (RF14)
-        U-->>C: Total adelanto aplicado saldo y estado de registro
-        O->>U: Consultar resumen de reserva propia (RF14)
-        U-->>O: Resumen simulado autorizado
-    end
-```
-
 ![F-02 — Secuencia de reserva](../diagramas/F-02%20%E2%80%94%20Reserva-directa-de-karaoke.png)
 
-PNG comprobado visualmente contra el Mermaid el 16/10/2026. Karaoke: sala e intervalo, adelanto aprobado, disponibilidad válida y registro posterior del saldo completo positivo.
+Karaoke: sala e intervalo, adelanto aprobado, disponibilidad válida y registro posterior del saldo completo positivo.
 
 El propietario configura la oferta y registra posteriormente el saldo; no aprueba cada reserva directa. PC-05 conserva pendiente el mecanismo de concurrencia. Los intentos de recepción no autorizados, duplicados o de importe parcial se rechazan sin crear otro registro activo ni alterar estados.
 
@@ -150,63 +72,9 @@ El propietario configura la oferta y registra posteriormente el saldo; no aprueb
 
 El orden aceptación de solicitud → cotización → aceptación del cliente → adelanto → evaluación es una **propuesta de recorrido**. DF-03 aprueba las condiciones conjuntas; PC-02/PC-03 conservan abiertos el momento de crear Reserva y el disparador de confirmación. La auto-interacción de evaluación del diagrama no decide que deba ejecutarse automáticamente al recibir el pago.
 
-```mermaid
-sequenceDiagram
-    actor C as Cliente
-    actor O as Propietario
-    participant U as Sistema UrbanPulse
-    participant P as Simulador de pagos de UrbanPulse
-    C->>U: Solicitar salón, fecha, personas y servicios (RF07, S1)
-    U-->>C: Solicitud en revisión, sin garantía de reserva
-    O->>U: Consultar y revisar solicitud (RF10, S2)
-    U-->>O: Datos de solicitud y disponibilidad consultada
-    alt Propietario rechaza solicitud
-        O->>U: Rechazar solicitud (S4)
-        U-->>O: Solicitud rechazada, sin reserva confirmada
-    else Propietario acepta solicitud
-        O->>U: Aceptar solicitud (S3)
-        O->>U: Registrar cotización y condiciones (DF-02)
-        C->>U: Consultar cotización y condiciones
-        U-->>C: Condiciones registradas
-        opt Cliente acepta condiciones dentro de UrbanPulse
-            C->>U: Registrar aceptación (DF-02)
-            U-->>C: Precio total y adelanto según condiciones aceptadas
-            C->>U: Iniciar adelanto simulado (RF11)
-            U->>U: Fijar total y adelanto para la operación (DP-03)
-            U->>P: Simular adelanto correspondiente (P1)
-            P-->>U: Resultado aprobado o rechazado
-            U->>U: Registrar resultado y reflejar situación (RF19)
-            alt Adelanto rechazado
-                U-->>C: Adelanto rechazado, evento sin confirmar (P3, R5)
-            else Adelanto aprobado
-                Note over U: Iniciador y automatización de confirmación pendientes PC-03
-                U->>U: Evaluar condiciones aceptadas y disponibilidad (R4/R6)
-                alt Todas las condiciones de DF-03 satisfechas
-                    U->>U: Confirmar reserva (R4)
-                    U-->>C: Reserva confirmada
-                    opt Registro posterior según condiciones aceptadas y saldo positivo
-                        O->>U: Registrar recepción simulada del saldo completo y método (RF20)
-                        U->>U: Verificar autorización reserva confirmada saldo y registro único
-                        U->>U: Guardar reserva importe método autor fecha y hora (L1)
-                        U-->>O: Recepción simulada sin cambiar Reserva ni adelanto
-                    end
-                else Falta disponibilidad u otra condición
-                    U-->>C: Sin confirmación, resolución pendiente (R6)
-                end
-            end
-        end
-    end
-    opt Consulta autorizada de resumen simulado
-        C->>U: Consultar mi reserva y resumen (RF14)
-        U-->>C: Total adelanto aplicado saldo y estado de registro
-        O->>U: Consultar resumen de reserva de mi establecimiento (RF14)
-        U-->>O: Resumen simulado autorizado
-    end
-```
-
 ![F-03 — Secuencia de reserva](../diagramas/F-03%20%E2%80%94%20Solicitud-y-confirmaci%C3%B3n-de-sal%C3%B3n.png)
 
-PNG comprobado visualmente contra el Mermaid el 16/10/2026. Salón: aceptación interna, adelanto aprobado y disponibilidad; recepción posterior del saldo según condiciones aceptadas. PC-03 sigue pendiente.
+Salón: aceptación interna, adelanto aprobado y disponibilidad; recepción posterior del saldo según condiciones aceptadas. PC-03 sigue pendiente.
 
 Sin aceptación del cliente el bloque opcional no se ejecuta en este recorrido; no se crea un estado de rechazo de cotización ni se presume vencimiento. “Pendiente de confirmación” es la situación conceptual del evento, sin decidir que ya exista una Reserva persistida. La forma de poner solicitudes a disposición del propietario no define notificaciones, correo o mensajería nuevos.
 
@@ -221,64 +89,9 @@ Sin aceptación del cliente el bloque opcional no se ejecuta en este recorrido; 
 5. El sistema confirma solo con condiciones aceptadas, adelanto aprobado y disponibilidad válida al confirmar del ambiente o espacio y fecha. El conflicto posterior al adelanto impide confirmar y queda pendiente de resolución.
 6. Posteriormente, según condiciones aceptadas y solo para reserva confirmada propia con saldo positivo, el propietario registra la recepción simulada del saldo completo, método informativo, reserva, importe, autor, fecha y hora (L1). Un solo registro activo; correcciones con historial (L2). Reserva y adelanto no cambian. Ambos actores autorizados consultan RF14. Saldo cero pendiente de representación sin recepción inventada.
 
-```mermaid
-sequenceDiagram
-    actor C as Cliente
-    actor O as Propietario
-    participant U as Sistema UrbanPulse
-    participant P as Simulador de pagos de UrbanPulse
-    O->>U: Definir ambiente o espacio y disponibilidad (DF-01, RF09)
-    C->>U: Consultar oferta particular del recreo (RF02)
-    U-->>C: Información y recursos, sin compra de comidas o entradas
-    C->>U: Solicitar evento privado, espacio, fecha, personas y servicios (S1)
-    O->>U: Revisar solicitud y disponibilidad del espacio (S2)
-    alt Propietario rechaza solicitud
-        O->>U: Registrar rechazo (S4)
-        U-->>O: Solicitud rechazada, sin reserva confirmada
-    else Propietario acepta solicitud
-        O->>U: Aceptar solicitud (S3)
-        O->>U: Registrar cotización, inclusiones y condiciones (DF-02)
-        C->>U: Consultar condiciones del evento
-        U-->>C: Cotización y condiciones registradas
-        opt Cliente acepta dentro de UrbanPulse
-            C->>U: Registrar aceptación (DF-02)
-            U-->>C: Precio total y adelanto según condiciones aceptadas
-            C->>U: Iniciar adelanto simulado (RF11)
-            U->>U: Fijar total y adelanto para la operación (DP-03)
-            U->>P: Simular adelanto del evento (P1)
-            P-->>U: Resultado aprobado o rechazado
-            U->>U: Registrar resultado y reflejar situación (RF19)
-            alt Adelanto rechazado
-                U-->>C: Sin confirmación por adelanto rechazado (P3, R5)
-            else Adelanto aprobado
-                Note over U: Disparador de confirmación pendiente PC-03
-                U->>U: Evaluar aceptación y disponibilidad del espacio y fecha
-                alt Conjunción de condiciones DF-03 satisfecha
-                    U->>U: Confirmar reserva del espacio (R4)
-                    U-->>C: Reserva confirmada
-                    opt Registro posterior según condiciones aceptadas y saldo positivo
-                        O->>U: Registrar recepción simulada del saldo completo y método (RF20)
-                        U->>U: Verificar autorización reserva confirmada saldo y registro único
-                        U->>U: Guardar reserva importe método autor fecha y hora (L1)
-                        U-->>O: Recepción simulada sin cambiar Reserva ni adelanto
-                    end
-                else Falta disponibilidad u otra condición
-                    U-->>C: Sin confirmación, resolución pendiente (R6)
-                end
-            end
-        end
-    end
-    opt Consulta autorizada de resumen simulado
-        C->>U: Consultar mi reserva y resumen (RF14)
-        U-->>C: Total adelanto aplicado saldo y estado de registro
-        O->>U: Consultar resumen de reserva de mi establecimiento (RF14)
-        U-->>O: Resumen simulado autorizado
-    end
-```
-
 ![F-04 — Secuencia de reserva](../diagramas/F-04%20%E2%80%94%20Solicitud-y-confirmaci%C3%B3n-de-evento-privado-en-recreo.png)
 
-PNG comprobado visualmente contra el Mermaid el 16/10/2026. Recreo: evento privado sobre un espacio concreto, aceptación interna, adelanto y disponibilidad; recepción posterior del saldo según condiciones aceptadas. PC-03 sigue pendiente.
+Recreo: evento privado sobre un espacio concreto, aceptación interna, adelanto y disponibilidad; recepción posterior del saldo según condiciones aceptadas. PC-03 sigue pendiente.
 
 El orden es la misma propuesta de F-03. PC-04 debe precisar incompatibilidades entre espacios y recursos compartidos. DF-01 ya define la unidad como ambiente o espacio del propietario; ese punto no se reabre como si aún fuera desconocido.
 

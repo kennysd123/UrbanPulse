@@ -6,9 +6,9 @@ Separar Solicitud de evento, Reserva, Adelanto simulado y Registro de liquidaci�
 
 Las referencias HU/RF/DF/AC/DA/ADR/EQ remiten a las [fuentes del catálogo](01-reglas-de-negocio.md#fuentes-y-criterio-de-trazabilidad). La lectura arquitectónica conserva Monolito Modular y Clean Architecture. Los diagramas describen comportamiento conceptual, sin elegir mecanismo concurrente, framework, base de datos o despliegue del simulador.
 
-**Fuente editable de referencia:** las tablas y los Mermaid de cada sección. Los cuatro PNG incorporados se comprobaron visualmente el 16/10/2026 y son coherentes con estas representaciones conceptuales. Esa correspondencia no aprueba estados propuestos ni acredita implementación; PC-02 y los demás pendientes descritos arriba siguen vigentes.
+**Diagramas de referencia:** los PNG incorporados representan visualmente las transiciones descritas por las tablas. No aprueban estados propuestos ni acreditan implementación; PC-02 y los demás pendientes descritos arriba siguen vigentes.
 
-**Límite de validación:** revisión estructural de los cuatro bloques y comparación visual con los PNG existentes. No se encontró `mmdc` en PATH ni archivos de Mermaid en las ubicaciones locales examinadas. No se declara validación sintáctica mediante parser ni renderizado de estos bloques durante esta auditoría.
+Las tablas conservan el detalle textual de las transiciones; los diagramas se mantienen como imágenes PNG.
 
 ## Hechos que deben distinguirse
 
@@ -53,18 +53,7 @@ Los ID S, R, P y L son referencias locales de transición. “Inicio” signific
 
 Una solicitud aceptada no transita a “reserva confirmada”: son conceptos distintos. Registrar condiciones y su aceptación por el cliente son hechos DF-02, sin transición adicional de Solicitud en esta propuesta. Reapertura, edición tras aceptación y rechazo de cotización por el cliente siguen pendientes PC-01/PC-09.
 
-PNG comprobado contra el Mermaid: Solicitud de evento: S1–S4; aceptar la solicitud no confirma la reserva.
-
 ![Solicitud de evento: S1–S4; aceptar la solicitud no confirma la reserva.](../diagramas/Transiciones-de-Solicitud.png)
-
-```mermaid
-stateDiagram-v2
-    state "En revisión y coordinación" as Revision
-    [*] --> Revision: S1 registrar solicitud
-    Revision --> Revision: S2 revisar y coordinar
-    Revision --> Aceptada: S3 propietario acepta solicitud
-    Revision --> Rechazada: S4 propietario rechaza solicitud
-```
 
 ## Transiciones de Reserva
 
@@ -81,29 +70,7 @@ RF19 se expresa registrando el resultado del adelanto y reflejando su efecto: an
 
 Cancha y karaoke no pasan por Solicitud de evento, pero sí requieren adelanto simulado obligatorio. R1 exige P2 y disponibilidad válida; R2 cubre también rechazo o ausencia de aprobación. Un intento fallido no presupone una Reserva persistida. R3–R6 conservan el recorrido de eventos y sus tres condiciones.
 
-PNG comprobado contra el Mermaid: Reserva: R1–R6; las situaciones intermedias son conceptuales y PC-02 sigue pendiente.
-
-![Reserva: R1–R6; las situaciones intermedias son conceptuales y PC-02 sigue pendiente.](../diagramas/Transiciones-de-Reserva.png)
-
-```mermaid
-stateDiagram-v2
-    state "Operación directa en curso" as Directa
-    state "Sin confirmación directa" as SinConfirmar
-    state "Pendiente de confirmación de evento" as Pendiente
-    [*] --> Directa: Cancha o karaoke
-    Directa --> Confirmada: R1 adelanto aprobado y disponibilidad válida
-    Directa --> SinConfirmar: R2 falta aprobación o disponibilidad
-    [*] --> Pendiente: R3 proceso de evento
-    Pendiente --> Confirmada: R4 aceptación y adelanto aprobado y disponibilidad válida
-    Pendiente --> Pendiente: R5 adelanto rechazado
-    Pendiente --> Pendiente: R6 aprobación sin disponibilidad u otra condición
-    note right of Directa
-        Situación conceptual sin persistencia decidida
-    end note
-    note right of Confirmada
-        Registrar saldo no cambia Reserva
-    end note
-```
+![Reserva: R1–R6; las situaciones intermedias son conceptuales y PC-02 sigue pendiente.](../diagramas/transiciones-de-reserva.png)
 
 ## Transiciones de Pago simulado
 
@@ -117,20 +84,7 @@ El orden “condiciones aceptadas antes de invocar pago” utilizado en los fluj
 
 Los contratos técnicos de asociación, precisión monetaria, fallos y resultados repetidos siguen pendientes PC-06/PC-08. No se diseña un callback, una política de reintentos ni un mecanismo de idempotencia.
 
-PNG comprobado contra el Mermaid: Adelanto simulado: P1–P3; la aprobación no confirma por sí sola ni mueve dinero real.
-
 ![Adelanto simulado: P1–P3; la aprobación no confirma por sí sola ni mueve dinero real.](../diagramas/Transiciones-de-Pago-simulado.png)
-
-```mermaid
-stateDiagram-v2
-    state "En procesamiento" as Procesando
-    [*] --> Procesando: P1 fijar total y adelanto e invocar simulador
-    Procesando --> Aprobado: P2 resultado aprobado
-    Procesando --> Rechazado: P3 resultado rechazado
-    note right of Aprobado
-        Sin movimiento real ni confirmación por sí solo
-    end note
-```
 
 ## Estados y transiciones no aprobados
 
@@ -145,7 +99,7 @@ stateDiagram-v2
 | Error técnico / tiempo agotado como resultado de pago | Ausencia de respuesta no se transforma en rechazo o aprobación; recuperación pendiente. |
 | Confirmada → otro estado | Ciclo posterior sin definir; no se supone inmutabilidad perpetua por omitirlo. |
 
-Los nodos iniciales de Mermaid no fijan el momento de persistencia. No se usan nodos finales para afirmar que el ciclo contractual terminó. Los escenarios alternativos y las cuatro modalidades se desarrollan en [flujos de reserva](03-flujos-de-reserva.md); todos los pendientes PC se registran en [reglas](01-reglas-de-negocio.md#restricciones-del-mvp-y-pendientes-contractuales).
+Los nodos iniciales representados en los diagramas no fijan el momento de persistencia. No se usan nodos finales para afirmar que el ciclo contractual terminó. Los escenarios alternativos y las cuatro modalidades se desarrollan en [flujos de reserva](03-flujos-de-reserva.md); todos los pendientes PC se registran en [reglas](01-reglas-de-negocio.md#restricciones-del-mvp-y-pendientes-contractuales).
 
 ## Registro de liquidación simulada del saldo
 
@@ -158,19 +112,4 @@ Máquina independiente de Solicitud, Reserva y Adelanto simulado. L1/L2 son iden
 
 El intento duplicado se rechaza sin crear otra recepción activa. La consulta autorizada del resumen (RF14/DP-10) no cambia estados. La forma técnica de corregir sigue pendiente; no se agregan estados Anulado, Reembolsado o Cancelado. Si el saldo es cero no se ejecuta L1: representación pendiente sin recepción ficticia.
 
-PNG comprobado contra el Mermaid: Registro de saldo simulado: L1/L2; una recepción activa y correcciones con historial, sin cambiar Reserva ni adelanto.
-
 ![Registro de saldo simulado: L1/L2; una recepción activa y correcciones con historial, sin cambiar Reserva ni adelanto.](../diagramas/Registro-de-saldo-simulado.png)
-
-```mermaid
-stateDiagram-v2
-    state "Pendiente de registro" as PendienteSaldo
-    state "Registrado como recibido en simulación" as Registrado
-    [*] --> PendienteSaldo: Saldo positivo de reserva confirmada
-    PendienteSaldo --> Registrado: L1 propietario autorizado registra saldo completo
-    Registrado --> Registrado: L2 corrección controlada con historial autor y fecha
-    note right of Registrado
-        Un registro activo sin cambiar Reserva ni adelanto
-        Métodos informativos sin movimiento financiero
-    end note
-```

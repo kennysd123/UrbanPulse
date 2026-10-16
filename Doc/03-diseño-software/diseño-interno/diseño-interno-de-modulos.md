@@ -115,113 +115,7 @@ Las clases e interfaces siguientes constituyen una **propuesta de diseño intern
 
 **Corrección OBS-01:** se descarta conservar todo `ContextoAdelanto` en la entidad. Es un contrato de consulta del puerto, no el modelo persistente de Reserva ni una entidad del módulo Pagos. Aplicación proyecta sus datos a `DatosReservaDirecta`; Reserva conserva una copia inmutable y una evidencia local `AdelantoAplicado`. Esta mantiene referencia de operación, importe aprobado y aplicado y naturaleza simulada, junto con titular, selección e importes fijados de Reserva. La asociación Reserva–operación se registra solo al persistir satisfactoriamente la confirmación. El detalle del intento, su resultado registrado y los antecedentes permanecen en Pagos y deben ser auditables por la referencia; no se eliminan por reducir el objeto de Reserva. Un candidato descartado no constituye un adelanto aplicado persistido. Correlación inequívoca, duplicados y conservación del vínculo siguen pendientes PC-02/PC-08; no se afirma que una referencia aislada los resuelva.
 
-```mermaid
-classDiagram
-    class Reserva {
-        -DatosReservaDirecta datos
-        +AdelantoAplicado adelantoAplicado
-        +DatosReservaDirecta datosPropios
-        +RecursoId recurso
-        +PeriodoReserva periodo
-        +confirmarDirecta(datos, operacionAdelantoId, resultado, disponible) Reserva$
-    }
-    class DatosReservaDirecta {
-        <<interface>>
-        +String clienteId
-        +String modalidad
-        +RecursoId recurso
-        +PeriodoReserva periodo
-        +String totalFijado
-        +String adelantoRequeridoFijado
-    }
-    class AdelantoAplicado {
-        <<interface>>
-        +String operacionId
-        +String importeAprobadoAplicado
-        +String resultado
-        +Boolean simulado
-    }
-    class RecursoId {
-        +String valor
-    }
-    class PeriodoReserva {
-        +String fecha
-        +String referenciaSeleccion
-    }
-    class ContextoAdelanto {
-        <<interface>>
-        +String operacionId
-        +String clienteId
-        +String modalidad
-        +RecursoId recurso
-        +PeriodoReserva periodo
-        +String totalFijado
-        +String adelantoFijado
-        +String resultado
-    }
-    class ConfirmarReservaCommand {
-        <<interface>>
-        +String operacionId
-        +String clienteId
-    }
-    class ConfirmarReservaUseCase {
-        +execute(command) Promise
-    }
-    class ReservaRepository {
-        <<interface>>
-        +confirmarSiCompatible(recurso, periodo, preparar) Promise
-    }
-    class DisponibilidadPort {
-        <<interface>>
-        +verificarAlConfirmar(recurso, periodo) Promise
-    }
-    class AdelantoSimuladoPort {
-        <<interface>>
-        +consultar(operacionId, clienteId) Promise
-    }
-    class ReservaController {
-        +confirmar(solicitud) Promise
-    }
-    class ReservaRepositoryAdapter {
-        +confirmarSiCompatible(recurso, periodo, preparar) Promise
-    }
-    class DisponibilidadInternaAdapter {
-        +verificarAlConfirmar(recurso, periodo) Promise
-    }
-    class AdelantoSimuladoInternoAdapter {
-        +consultar(operacionId, clienteId) Promise
-    }
-    class ReservasModule {
-        <<raiz de composicion>>
-        +componerReservas(disponibilidadApi, pagosApi) Object
-    }
-    Reserva "1" *-- "1" RecursoId : valor de recurso
-    Reserva "1" *-- "1" PeriodoReserva : valor de periodo
-    Reserva "1" *-- "1" DatosReservaDirecta : copia propia
-    Reserva "1" *-- "1" AdelantoAplicado : evidencia local
-    DatosReservaDirecta --> RecursoId : identifica
-    DatosReservaDirecta --> PeriodoReserva : identifica
-    ContextoAdelanto --> RecursoId : identifica
-    ContextoAdelanto --> PeriodoReserva : identifica
-    ReservaController --> ConfirmarReservaUseCase : usa
-    ConfirmarReservaUseCase ..> ConfirmarReservaCommand : recibe
-    ConfirmarReservaUseCase --> ReservaRepository : usa puerto
-    ConfirmarReservaUseCase --> DisponibilidadPort : usa puerto
-    ConfirmarReservaUseCase --> AdelantoSimuladoPort : usa puerto
-    ConfirmarReservaUseCase ..> Reserva : solicita confirmacion
-    ConfirmarReservaUseCase ..> ContextoAdelanto : consulta sin conservar en Reserva
-    ConfirmarReservaUseCase ..> DatosReservaDirecta : proyecta
-    ReservaRepository ..> Reserva : persiste
-    AdelantoSimuladoPort ..> ContextoAdelanto : devuelve
-    ReservaRepositoryAdapter ..|> ReservaRepository
-    DisponibilidadInternaAdapter ..|> DisponibilidadPort
-    AdelantoSimuladoInternoAdapter ..|> AdelantoSimuladoPort
-    ReservasModule ..> ReservaRepositoryAdapter : construye
-    ReservasModule ..> DisponibilidadInternaAdapter : construye
-    ReservasModule ..> AdelantoSimuladoInternoAdapter : construye
-    ReservasModule ..> ConfirmarReservaUseCase : construye
-    ReservasModule ..> ReservaController : construye
-```
+![Diagrama de clases propuesto para la confirmación directa de una reserva](../../diagramas/diagrama-de-clases.png)
 
 `confirmarSiCompatible` expresa una obligación de persistencia consistente; la función `preparar` debe ejecutarse dentro del ámbito de consistencia que se decida. Su firma no demuestra que exista dicho ámbito ni prescribe cómo coordinarlo. Una evidencia de disponibilidad aislada puede quedar obsoleta; el contrato exige impedir la doble confirmación y conservar la asociación de adelanto aplicado, pero falta diseñar cómo satisfacerlo. El adaptador de la sección 6.3 falla expresamente antes de ejecutar el callback: no ofrece una alternativa secuencial que aparente cumplir PC-05.
 
@@ -257,64 +151,7 @@ Recorrido principal: **reserva directa de cancha con adelanto simulado obligator
 
 La secuencia siguiente muestra **ejecución entre componentes internos**, no dependencias del código. El bloque delimitado es una obligación de diseño por satisfacer, no una garantía técnica ya implementada.
 
-```mermaid
-sequenceDiagram
-    actor C as Cliente
-    participant W as Web y presentación de inicio
-    participant D as API interna de Disponibilidad
-    participant G as API interna de Pagos Simulados
-    participant S as Simulador de UrbanPulse
-    participant R as ReservaController
-    participant U as ConfirmarReservaUseCase
-    participant P as AdelantoSimuladoInternoAdapter
-    participant Q as ReservaRepositoryAdapter
-    participant V as DisponibilidadInternaAdapter
-    participant E as Reserva
-    C->>W: Seleccionar cancha, fecha y bloque
-    W->>D: Consultar selección y configuración
-    D-->>W: Disponibilidad consultada, total y adelanto
-    W-->>C: Mostrar total y adelanto antes de iniciar
-    C->>W: Iniciar operación autenticada
-    W->>G: Iniciar adelanto sobre selección e importes informados
-    G->>G: Fijar importes de la operación (DP-03)
-    G->>S: Invocar simulación y registrar intento
-    S-->>G: Aprobado o rechazado
-    G->>G: Registrar resultado asociado (RF18/RF19)
-    G-->>W: Referencia de operación
-    W->>R: Solicitar confirmación con referencia e identidad autenticada
-    R->>U: execute(command)
-    U->>P: consultar(operacionId, clienteId)
-    P->>G: Consultar operación propia registrada
-    G-->>P: Contexto fijado y resultado, o sin resultado
-    P-->>U: Contexto o ausencia
-    alt Adelanto no aprobado o ausente
-        U-->>R: Sin confirmación, reflejar situación (RF19)
-    else Adelanto aprobado
-        U->>Q: confirmarSiCompatible(recurso, periodo, preparar)
-        Note over Q,D: PC-05: ámbito de consistencia por diseñar. Sin implementación garantizada.
-        rect rgb(245, 245, 245)
-            Q->>U: Ejecutar preparar dentro del ámbito pendiente
-            U->>V: verificarAlConfirmar(recurso, periodo)
-            V->>D: Consultar validez de selección al confirmar
-            D-->>V: Disponible o no disponible
-            V-->>U: Evidencia para evaluación
-            U->>U: Proyectar ContextoAdelanto a DatosReservaDirecta
-            U->>E: confirmarDirecta(datos, operacionAdelantoId, resultado, disponible)
-            alt Evidencia insuficiente
-                E-->>U: No cumple condiciones
-                U-->>Q: Interrumpir sin persistir confirmación
-            else Cumple condiciones locales
-                E-->>U: Reserva candidata con evidencia local del adelanto
-                U-->>Q: Reserva candidata
-                Q->>Q: Impedir incompatibles y persistir Reserva y vínculo de adelanto: pendiente
-            end
-        end
-        Q-->>U: Identificador si persiste, o fallo sin éxito declarado
-        U-->>R: Resultado solo después de persistencia satisfactoria
-    end
-    R-->>W: Resultado conceptual sin contrato HTTP definitivo
-    W-->>C: Mostrar situación de reserva y adelanto simulado
-```
+![Flujo de ejecución propuesto para confirmar una reserva](../../diagramas/Flujo-de-ejecución_confirmar-reserva.png)
 
 | Paso | Origen → destino | Acción | Capa | Trazabilidad |
 |---|---|---|---|---|
@@ -688,6 +525,4 @@ La siguiente matriz permite auditar el enlace entre necesidades y diseño sin cr
 
 **Auditoría correctiva OBS-01–OBS-04:** se conservan las seis secciones y sus subsecciones. Se sustituye la retención de todo el contexto por datos propios y evidencia mínima local; se descartan conservar solo una referencia sin importes auditables, copiar el modelo completo de Pagos y considerar un candidato como aplicación persistida. Se precisa la obligación de `confirmarSiCompatible` sin aprobar un mecanismo concurrente. Se refuerza la advertencia académica y se sincronizan árbol, responsabilidades, UML, secuencia, firmas y ejemplos. No se incorporan funcionalidades ni tecnologías aprobadas; RF13 y DF/DP/RN permanecen sin cambios.
 
-**Verificación documental:** se contrastaron nombres de archivos, clases y puertos entre árbol, tablas, UML, secuencia y fragmentos; se revisaron los límites del recorrido directo y de eventos, el resultado rechazado/ausente y el adelanto aprobado sin disponibilidad. Se comprueban automáticamente los encabezados originales, tres Mermaid sin duplicación, once bloques TypeScript, diecisiete archivos conceptuales y ocho enlaces locales. Los fragmentos concatenados se someten a comprobación estática estricta sin emitir archivos con TypeScript 5.9.3, disponible como dependencia local de una herramienta; su uso para revisión no selecciona el lenguaje ni esa herramienta para UrbanPulse. El resultado de esa comprobación y de `git diff --check` se registra en la entrega. Se verifica también el archivo aún sin seguimiento contra archivo vacío y se comparan huellas de los demás archivos para confirmar el alcance. No se encontraron `mmdc`, `mermaid` ni `@mermaid-js/mermaid-cli` en PATH o las dependencias locales examinadas: se revisan los tres diagramas textualmente, pero no se declara validación mediante parser ni renderizado. Estas verificaciones no prueban comportamiento ejecutable ni concurrencia. La referencia Marketplace sigue sin estar disponible para cotejo directo.
-
-
+**Verificación documental:** en esta edición se comprobó que las secciones 4 y 5 usan las imágenes PNG previstas, que el Mermaid conservado corresponde a la sección 3 y que los enlaces de imagen de los tres documentos modificados resuelven. `git diff --check` no reporta errores. No se encontraron `mmdc`, `mermaid` ni `@mermaid-js/mermaid-cli` en PATH o las dependencias locales examinadas; no se declara validación mediante parser ni renderizado. Estas verificaciones no prueban comportamiento ejecutable ni concurrencia. La referencia Marketplace sigue sin estar disponible para cotejo directo.
