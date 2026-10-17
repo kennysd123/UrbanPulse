@@ -1,10 +1,14 @@
 # UrbanPulse — Principios de diseño SOLID
 
-**Estado:** tercer entregable de Diseño Interno, pendiente de auditoría. Fecha: 16/10/2026. Aplicación conceptual sobre una propuesta documental; no acredita implementación, pruebas ni aprobación de clases o contratos concretos.
+**Estado: aprobado conceptualmente y cerrado documentalmente — reconciliado con ADR-010, ADR-011 y C3. Contratos, mecanismos e implementación pendientes.**
+
+**Antecedente:** tercer entregable de Diseño Interno, pendiente de auditoría antes de esta revisión. Fecha de revisión: 16/10/2026. Tras la auditoría conceptual favorable, sin hallazgos arquitectónicos bloqueantes, esta revisión queda aprobada conceptualmente y cerrada documentalmente. El cierre aprueba únicamente el análisis conceptual de SRP, OCP, LSP, ISP y DIP aplicado a Reservas y extendido a las responsabilidades técnicas de Redis y RabbitMQ: separación de consulta, visibilidad, reconstrucción y acceso a caché; publicación, recepción e invalidación técnica; obligaciones semánticas de los contratos futuros y dependencias hacia abstracciones. Conserva el consumidor interno dentro del backend y los ocho módulos funcionales, sin imponer una clase o interfaz por responsabilidad. No acredita implementación, pruebas ni aprobación de clases, contratos o mecanismos concretos.
 
 ## Objetivo
 
 Explicar cómo los principios SOLID orientan las responsabilidades y contratos internos de UrbanPulse. Son cinco criterios de diseño orientado a objetos que ayudan a revisar qué debe conocer cada componente, por qué cambia y qué obligaciones mantiene al colaborar con otros.
+
+La revisión mantiene Reservas como ejemplo y extiende los criterios a las responsabilidades técnicas de ADR-010/ADR-011, C2/C3 y los dos documentos de Diseño Interno cerrados conceptualmente. Se conservan la estructura principal, los ejemplos, las tablas técnicas de Reservas y los dos Mermaid; estos diagramas continúan limitados al ejemplo original y no representan el recorrido técnico de invalidación.
 
 | Sigla | Principio | Criterio de diseño |
 |---|---|---|
@@ -35,20 +39,30 @@ El registro posterior del **saldo completo simulado** corresponde al propietario
 
 ### Base documental y niveles de aprobación
 
-La lectura parte de [actores](../../01-analisis-de-sistema/01-actores.md), [HU](../../01-analisis-de-sistema/02-historias-del-usuarios.md), [RF](../../01-analisis-de-sistema/03-requisitos-funcionales.md), [AC](../../01-analisis-de-sistema/04-atributos-de-calidad.md) y [restricciones, DF y DP](../../01-analisis-de-sistema/05-restricciones.md). Se contrasta con [drivers DA](../../01-analisis-de-sistema/06-driver-arquitectonicos.md), [ADR](../../01-analisis-de-sistema/07-decisiones-arquitectonicas.md), [reglas RN y pendientes PC](../01-reglas-de-negocio.md), [estados](../02-estados-y-transiciones.md) y [flujos](../03-flujos-de-reserva.md). Los componentes proceden exclusivamente del [diseño interno de módulos](diseño-interno-de-modulos.md) y se interpretan junto con [patrones de diseño](patrones-de-diseño.md).
+La lectura parte de [actores](../../01-analisis-de-sistema/01-actores.md), [HU](../../01-analisis-de-sistema/02-historias-del-usuarios.md), [RF](../../01-analisis-de-sistema/03-requisitos-funcionales.md), [AC](../../01-analisis-de-sistema/04-atributos-de-calidad.md) y [restricciones, DF y DP](../../01-analisis-de-sistema/05-restricciones.md). Se contrasta con [drivers DA](../../01-analisis-de-sistema/06-driver-arquitectonicos.md), [ADR](../../01-analisis-de-sistema/07-decisiones-arquitectonicas.md), [reglas RN y pendientes PC](../01-reglas-de-negocio.md), [estados](../02-estados-y-transiciones.md) y [flujos](../03-flujos-de-reserva.md). Los componentes de Reservas proceden del [diseño interno de módulos](diseño-interno-de-modulos.md) y se interpretan junto con [patrones de diseño](patrones-de-diseño.md); las responsabilidades técnicas se contrastan además con las ADR y C2/C3 enlazados a continuación.
 
 | Nivel | Alcance en este documento |
 |---|---|
-| Aprobado | ADR-001–ADR-009; DF-01–DF-06 y DP-01–DP-12. Se conservan RN-01–RN-25 con sus niveles originales y RF13 pendiente. |
+| Aprobado conceptualmente | ADR-001–ADR-011 vigentes: las nueve primeras adoptadas y ADR-010/ADR-011 cerradas conceptualmente en sus alcances acotados; C2, C3, Diseño Interno de Módulos y Patrones cerrados conceptualmente. Análisis conceptual de los cinco principios SOLID aplicado a Reservas y a las responsabilidades técnicas de Redis/RabbitMQ, en el alcance de este cierre. DF-01–DF-06 y DP-01–DP-12 aprobadas; RN-01–RN-25 conserva sus niveles individuales y RF13 sigue pendiente. Los cierres no acreditan implementación ni aprueban mecanismos operativos. |
 | Derivado | Separar coordinación, reglas locales, adaptación y composición permite revisar razones de cambio y dependencias; no crea funcionalidades. |
-| Propuesto | Aplicación conceptual de SOLID a clases, firmas, DTO, puertos y composición del diseño interno. No constituye código implementado ni aprobación concreta. |
-| Futuro o pendiente | Strategy es candidato; PC-01–PC-12 permanecen abiertos. No se seleccionan tecnologías ni mecanismos de concurrencia. |
+| Propuesto | Clases, firmas, DTO, puertos, ubicación y composición concretas del diseño interno. La aplicación explicativa de SOLID queda aprobada conceptualmente en esta revisión, sin constituir código implementado ni aprobación de esos detalles. |
+| Decisión pendiente | PC-01–PC-12 y mecanismos de caché, visibilidad, publicación, consumo y recuperación. Redis/RabbitMQ están adoptados conceptualmente; sus contratos y configuración siguen pendientes. Strategy, Factory, State y Specification conservan su carácter candidato; Outbox continúa evaluado, no adoptado. |
 
 RN-10/RN-12 conservan su nivel derivado; RN-07/RN-17/RN-20 combinan aprobación y derivación; RN-23 conserva RF13 pendiente. Las restantes mantienen el nivel declarado en el catálogo. Los dos estados informativos del saldo aprobados por DP-08 no aprueban las demás máquinas propuestas.
 
 **Discrepancias y criterio aplicado.** El [README](../../../README.md) y la [arquitectura inicial](../../02-arquitectura-software/01-arquitectura-inicial.md) presentan la separación general de tres capas, frente a las cuatro oficiales de ADR-002, también presentes en [estilo](../../02-arquitectura-software/02-estilo-arquitectonico.md) y [enfoque](../../02-arquitectura-software/03-enfoque-arquitectonico.md). Se aplica ADR-002; no se reproduce la dependencia de Dominio hacia Infraestructura. La afirmación de armonización del catálogo ADR no coincide con el texto inicial actual, y sus referencias gráficas conservan desfases documentados. La mención de ORM en estilo no aprueba su selección. Patrones declara aprobación conceptual, mientras el diseño interno mantiene pendiente la aprobación concreta: aquí no se extiende aquella declaración a clases o firmas. Estas diferencias se informan sin modificar las fuentes ni impedir este análisis conceptual.
 
 La estructura sigue la solicitud para la Guía 004 del curso Arquitectura de Software (IS-488). No se aportó el contenido del ejemplo Marketplace ni de la guía para cotejo directo; no se afirma haberlos contrastado ni se trasladan clases o reglas de Pedidos.
+
+### Arquitectura vigente y estados contrastados
+
+Los registros de cierre de [ADR-010 — Redis](../../01-analisis-de-sistema/adr/ADR-010-cache-redis.md#registro-de-cierre-conceptual) y [ADR-011 — RabbitMQ](../../01-analisis-de-sistema/adr/ADR-011-mensajeria-rabbitmq.md#registro-de-cierre-conceptual) respaldan Redis/cache-aside exclusivamente para fichas públicas reconstruibles y RabbitMQ para invalidación técnica asíncrona. La base relacional mantiene los datos definitivos y el fallback ante fallos de Redis, sujeto a la disponibilidad de la propia base. No se cachean inicialmente disponibilidad, reservas, aceptación contractual, adelantos, saldos ni permisos como autoridad; las búsquedas públicas siguen como ampliación futura condicionada. Consultar una ficha no requiere pasar por el broker.
+
+El [C2 cerrado](../../04-modelo-c4/02-contenedores-c2.md) representa cinco contenedores: Aplicación Web, Backend UrbanPulse, Base de datos relacional, Redis y RabbitMQ. El [C3 cerrado](../../04-modelo-c4/03-componentes-c3.md) mantiene ocho módulos funcionales: Usuarios, Establecimientos, Recursos, Disponibilidad, Reservas, Solicitudes, Servicios y Pagos Simulados. Sus seis responsabilidades técnicas son puerto de acceso a caché pública, adaptador Redis, puerto de publicación de invalidaciones, adaptador de publicación RabbitMQ, consumidor técnico RabbitMQ y frontera autorizada de invalidación. Son responsabilidades conceptuales, sin correspondencia obligatoria con seis interfaces, clases o archivos. El consumidor permanece dentro del backend, sin otro despliegue, noveno módulo ni quinta capa.
+
+El [Diseño Interno, sección 6.6](diseño-interno-de-modulos.md#66-reconciliación-de-esta-revisión-y-pendientes) y Patrones están aprobados conceptualmente y cerrados documentalmente para responsabilidades y límites reconciliados, con sus antecedentes preservados. Clases, firmas, DTO, composición, contratos operativos y mecanismos siguen pendientes; su cierre no aprueba automáticamente esta revisión de Principios.
+
+**Desfases y efecto sobre esta revisión:** AGENTS.md y restricciones conservan referencias a nueve ADR y al marco previo sin caché aprobada, mientras el catálogo vigente reconoce once. El catálogo y las ADR aún describen C2 con tres contenedores y C3 anterior; C2 presenta la actualización de C3 como futura. Frente a ello, los registros explícitos de cierre de C2/C3, Diseño Interno y Patrones acreditan sus estados conceptuales actuales. Se aplican sus alcances expresos, sin inferir aprobación por fecha o Git ni corregir las fuentes. La discrepancia previa de tres frente a cuatro capas sigue regida por ADR-002. La aprobación histórica de Patrones para Reservas y su ampliación conceptual a Redis/RabbitMQ no aprueban contratos concretos ni mecanismos de esta revisión.
 
 ### Componentes del ejemplo propuesto
 
@@ -87,6 +101,20 @@ Una clase o componente debe concentrar una responsabilidad coherente y una razó
 
 Construir una candidata con evidencia mínima en memoria no acredita adelanto aplicado persistido. La asociación se conserva al persistir satisfactoriamente la confirmación; PC-02/PC-08 deben concretar su trazabilidad. La responsabilidad global RN-13 requiere colaboración con persistencia y Disponibilidad, y no puede quedar garantizada solo por `Reserva`.
 
+**Extensión a fichas públicas e invalidación (ADR-002/ADR-008/ADR-010/ADR-011).** Las siguientes responsabilidades tienen razones de cambio distintas. Su separación conceptual no impone una clase por fila ni fija su ubicación exacta:
+
+| Responsabilidad | Razón de cambio y límite |
+|---|---|
+| Consulta pública de Establecimientos | Coordinar la obtención de una ficha; no absorber transporte, persistencia concreta o todas las reglas de seguridad. |
+| Política de admisibilidad y visibilidad | Determinar qué contenido puede publicarse; un hit no concede autorización. Titular, política y mecanismo de retirada segura pendientes. |
+| Reconstrucción desde datos definitivos | Componer la proyección mediante repositorios y fronteras públicas autorizadas; sin acceder a tablas privadas ajenas. Composición y contratos pendientes. |
+| Acceso técnico Redis | Traducir lectura, carga e invalidación mediante abstracciones internas; no decidir reglas de negocio ni visibilidad por sí solo. |
+| Publicación de invalidaciones | Comunicar intenciones técnicas de cambios públicos confirmados desde casos de uso existentes y adaptarlas al broker; fiabilidad por diseñar. |
+| Recepción y validación RabbitMQ | Adaptar entrada técnica, validar forma, versión y alcance; recibir no equivale a completar el efecto. |
+| Coordinación de invalidación | Solicitar por la frontera autorizada el efecto sobre las fichas afectadas, separada de la recepción del transporte y respetando Aplicación. |
+
+Estas siete razones de cambio no redefinen las seis responsabilidades técnicas de C3. El consumidor no absorbe Reservas o Pagos Simulados ni crea un módulo funcional. Retirar visibilidad exige impedir divulgación de contenido ya no autorizado; TTL e invalidación asíncrona no bastan por sí solos, y su mecanismo sigue pendiente.
+
 ### O — Principio Abierto/Cerrado (OCP)
 
 Un componente debe admitir extensiones justificadas sin modificaciones innecesarias de su núcleo estable. La estabilidad se define respecto de variaciones conocidas; OCP no exige congelar contratos incompletos ni construir jerarquías por anticipado.
@@ -96,6 +124,10 @@ ADR-003 diferencia modalidades. El diseño interno desarrolla el recorrido direc
 **Escenario ilustrativo de extensión.** Al diseñar la confirmación de un evento en un ambiente de recreo, se evaluaría cómo obtener evidencia confiable de condiciones aceptadas, además del adelanto aprobado y la disponibilidad válida. El trabajo debería conservar el recorrido directo y revisar las fronteras realmente afectadas, sin imponer cotización a una cancha. El contrato del evento y su iniciador deben definirse antes de decidir su composición. No se presentan clases nuevas, firmas definitivas ni una reutilización directa de `confirmarDirecta()` para eventos.
 
 **Strategy es un candidato futuro**, ya identificado en patrones, para encapsular variaciones si su complejidad lo justifica. No está implementado ni aprobado como jerarquía concreta. OCP favorece una extensión controlada después de resolver contratos; no evita toda modificación ni autoriza nuevas reglas comerciales.
+
+**Extensión técnica por contratos (ADR-002/ADR-006/ADR-010/ADR-011).** Redis implementa conceptualmente una abstracción de caché; el adaptador RabbitMQ traduce publicación técnica mediante su puerto. Los casos de uso pueden conservar su coordinación al sustituir un detalle que respete el comportamiento del contrato, mientras la raíz de composición externa al núcleo suministra las implementaciones. No se exige Strategy, Factory ni otro patrón nuevo para esa sustitución.
+
+OCP no hace intercambiables todas las tecnologías ni deja sin efecto su adopción conceptual. Un cambio de implementación debe revisar semántica de ausencia y error, admisibilidad, efecto requerido y garantías de publicación/recuperación; si exige un contrato distinto, habrá que revisar el diseño y obtener la decisión correspondiente. Los contratos actuales de caché y mensajería siguen por definir, por lo que no se acredita sustituibilidad operativa.
 
 ### L — Principio de Sustitución de Liskov (LSP)
 
@@ -113,6 +145,19 @@ Una implementación debe poder reemplazar a otra sin romper las obligaciones que
 
 El adaptador actual de persistencia de la fuente es un **esqueleto no operativo**: lanza un error por PC-02/PC-05 antes de ejecutar `preparar`. No acredita cumplimiento de LSP en ejecución ni una persistencia funcional. Tampoco un sustituto en memoria demuestra la garantía concurrente. LSP sirve aquí para formular criterios de evaluación futura; declarar la interfaz no demuestra su cumplimiento.
 
+**Equivalencia semántica de caché y mensajería.** Son criterios de evaluación de futuras implementaciones, no interfaces nuevas ni garantías ya demostradas:
+
+| Distinción | Obligación semántica y límite |
+|---|---|
+| Cache miss / fallo técnico | Falta de copia no prueba ausencia definitiva del establecimiento. Un fallo de Redis no se convierte en dato inexistente: se recurre a persistencia por fronteras autorizadas; si la base falla tampoco se inventa ausencia (ADR-008/ADR-010). |
+| Copia existente / copia actualmente publicable | La presencia en Redis no acredita vigencia o visibilidad autorizada. Un sustituto debe respetar la política pública que se defina; TTL no prueba confidencialidad (ADR-007/ADR-010). |
+| Publicación solicitada / publicación confirmada | Pedir publicar expresa una intención, sin acreditar aceptación del broker ni atomicidad con el commit. Error o resultado incierto deben conservar su significado según el contrato futuro (ADR-011). |
+| Publisher confirm / mensaje procesado | La confirmación del broker reconoce otra etapa; no demuestra consumo ni invalidación de Redis (ADR-011). |
+| Mensaje entregado / invalidación completada | Recibir o validar no completa el efecto. Si falla Redis, la invalidación requerida no se considera completada (ADR-010/ADR-011). |
+| ACK / efecto requerido | El ACK debe ocurrir después de completar la invalidación requerida. Un sustituto no puede anticiparlo como éxito; un fallo tras el efecto y antes del ACK puede producir duplicados según las garantías concretas de entrega (ADR-011). |
+
+Idempotencia es requisito conceptual con mecanismo pendiente; repetir una eliminación no resuelve por sí solo repoblaciones concurrentes. Entrega al menos una vez es objetivo condicionado a conservación, publicación y recuperación, sin garantía acreditada de exactamente una vez. LSP exige no debilitar las obligaciones acordadas, pero no proporciona por sí mismo fiabilidad ni recuperación de intenciones nunca conservadas.
+
 ### I — Principio de Segregación de Interfaces (ISP)
 
 Los clientes no deben depender de métodos innecesarios. Una interfaz se justifica por la colaboración que requiere su cliente, no por reunir todas las operaciones disponibles del sistema.
@@ -126,6 +171,19 @@ Los clientes no deben depender de métodos innecesarios. Una interfaz se justifi
 Una interfaz gigante que incluya búsqueda de establecimientos, inicio de pagos, recepción/corrección de saldos y administración haría que confirmar una cancha dependiera de operaciones ajenas. Sus cambios afectarían implementaciones y sustitutos utilizados por Reservas sin necesidad funcional. Los tres puertos acotan esas dependencias y permiten revisar cada colaboración por separado.
 
 ISP no exige una interfaz por cada método del sistema ni suprime los controles de autorización. Se conservan exactamente las operaciones propuestas, sin agregar métodos a los puertos ni trasladar HU14/RF20 a la confirmación. Su suficiencia para eventos todavía debe evaluarse cuando se definan los contratos correspondientes.
+
+**Segregación de responsabilidades técnicas.** El cliente de una colaboración debe conocer únicamente lo necesario para ella, preservando las fronteras de ADR-001/ADR-002/ADR-008/ADR-010/ADR-011:
+
+| Colaboración | Separación requerida, con contratos pendientes |
+|---|---|
+| Acceso a caché pública | Lectura/carga de copias sin exigir al caso de uso administrar el broker o conocer pagos. |
+| Publicación | Comunicar intenciones técnicas sin incorporar operaciones de consumo, persistencia relacional o administración general. |
+| Consumo técnico | Recibir y validar mensajes sin exponer al productor los detalles del receptor ni conceder permisos de negocio por el mensaje. |
+| Invalidación autorizada | Delimitar fichas afectadas y solicitar su invalidación sin abrir tablas privadas o toda la gestión de establecimientos al consumidor. |
+| Persistencia relacional | Conservar datos propios definitivos por repositorios; una caché no reemplaza automáticamente el contrato Repository de negocio. |
+| Reservas y Pagos Simulados | Conservar operaciones de confirmación, consulta del adelanto y registro posterior de saldo separadas de caché y mensajería técnica. |
+
+Una interfaz general que mezcle caché, publicación, consumo, pagos y administración impondría dependencias innecesarias. Las seis responsabilidades de C3 no equivalen obligatoriamente a seis interfaces: número, propiedad, ubicación y contratos requieren diseño. No se fijan firmas, DTO o nombres físicos nuevos.
 
 ### D — Principio de Inversión de Dependencias (DIP)
 
@@ -168,6 +226,10 @@ flowchart LR
 
 **DIP e inyección son distintos.** DIP es el principio que determina hacia dónde apuntan las dependencias del código. La inyección es la técnica de proporcionar colaboradores, aquí por constructor y mediante composición manual propuesta. Inyectar una implementación concreta cuyo tipo conoce el caso de uso no demostraría inversión hacia abstracciones. No se selecciona contenedor, biblioteca o framework. Componer el esqueleto actual tampoco vuelve operativa la persistencia.
 
+**Extensión a Redis/RabbitMQ.** Aplicación consume abstracciones internas de caché, publicación e invalidación; Infraestructura implementa los contratos definidos hacia el núcleo. Dominio no conoce clientes Redis/RabbitMQ ni importa Infraestructura. La raíz de composición conecta implementaciones y abstracciones fuera del núcleo, sin biblioteca DI obligatoria. La propiedad y ubicación exactas de puertos y componentes siguen pendientes; no se trasladan automáticamente al Dominio todos los nuevos puertos por seguir el ejemplo de Reservas.
+
+La recepción técnica RabbitMQ pertenece a adaptación de Infraestructura y la coordinación permanece separada, respetando Aplicación y la frontera autorizada de invalidación. El consumidor se ensambla dentro del backend; no constituye quinta capa ni worker independiente. Las flechas de C3 representan comunicación en ejecución: el despacho puerto → adaptador no significa dependencia de código del núcleo hacia el adaptador. Los Mermaid existentes conservan correctamente esta orientación para Reservas, sin representar ni aprobar el ensamblado técnico nuevo (ADR-002/ADR-010/ADR-011).
+
 ### Tabla resumen SOLID
 
 Cada beneficio es una expectativa con un criterio de revisión conceptual, sin mediciones ni pruebas ejecutadas.
@@ -191,6 +253,24 @@ Los siguientes casos son **antipatrones ilustrativos**, no hallazgos de código 
 | LSP | Adaptador interpreta rechazo o respuesta ausente como aprobación. | Se falsea el resultado del adelanto y puede confirmarse sin una condición obligatoria. | Preservar resultado y ausencia; sin aprobación no confirmar; errores y recuperación siguen en PC-08. |
 | ISP | Una interfaz única mezcla consulta de establecimientos, pagos, saldo y administración. | Reservas y sus sustitutos dependen de operaciones innecesarias y reciben impacto de cambios ajenos. | Conservar puertos específicos de las colaboraciones actuales. |
 | OCP | Incorporar eventos modifica indiscriminadamente la lógica directa. | Se puede exigir cotización a una cancha o confirmar un salón sin aceptación interna al mezclar recorridos. | Diseñar la extensión tras resolver los contratos del evento, conservando DF-03/DF-04 y evaluando Strategy solo si se justifica. |
+
+### Riesgos técnicos como antipatrones ilustrativos
+
+Estos escenarios amplían el análisis conceptual; no se afirma que existan en código ejecutado. Cada alternativa expresa un criterio de diseño, sin aprobar su mecanismo:
+
+| Riesgo o antipatrón | Principios y decisiones | Consecuencia y criterio de revisión |
+|---|---|---|
+| Caché como fuente definitiva | SRP, LSP; ADR-008/ADR-010. | La pérdida de una copia aparentaría pérdida de negocio. Mantener base relacional definitiva y copias reconstruibles por fronteras autorizadas. |
+| Dominio accede directamente a clientes Redis/RabbitMQ | DIP, OCP; ADR-002/ADR-006/ADR-010/ADR-011. | Reglas dependen de detalles técnicos. Consumir abstracciones internas e inyectar implementaciones desde la composición. |
+| Redis decide por sí solo visibilidad pública | SRP, LSP; ADR-007/ADR-010. | Una copia antigua podría divulgar contenido retirado. Separar admisibilidad y acceso técnico; protección concreta pendiente, sin atribuir garantía a TTL. |
+| Invalidaciones ejecutan operaciones críticas de negocio | SRP, ISP, LSP; ADR-003/ADR-004/ADR-010/ADR-011. | Un reenvío técnico podría alterar aceptación, adelanto o saldo. Mantenerlos fuera de los mensajes de caché y preservar evidencia definitiva. |
+| Consumidor convertido en módulo funcional | SRP, ISP; ADR-001/ADR-011. | La adaptación técnica absorbería responsabilidades de negocio. Conservar ocho módulos y consumidor dentro del backend, sin módulo ni despliegue adicional. |
+| RabbitMQ confirma reservas | SRP, LSP; ADR-004/ADR-011. | Entrega o consumo se confundirían con condiciones de confirmación. Reservas coordina sus condiciones independientemente del broker; RN-13 obligatoria y PC-05 abierto. |
+| Acceso a tablas privadas de otros módulos | SRP, DIP; ADR-001/ADR-002/ADR-008. | Se eluden contratos y responsabilidades ajenas. Reconstruir fichas por repositorios propios y fronteras públicas internas. |
+| Error técnico interpretado como ausencia | LSP; ADR-008/ADR-010/ADR-011. | Redis caído aparentaría establecimiento inexistente o un envío incierto aparentaría resultado definitivo. Preservar las distinciones semánticas y diseñar errores/recuperación. |
+| Publicación considerada atómica con el commit | LSP, SRP; ADR-008/ADR-011. | Tras el commit puede perderse la intención antes de publicar. Publicación directa u Outbox siguen por decidir; RabbitMQ no aporta atomicidad relacional. |
+| ACK anticipado | LSP, SRP; ADR-011. | Se reconoce trabajo antes de completar el efecto y podría perderse la invalidación. Exigir ACK posterior al efecto; tratamiento de fallos y duplicados pendiente. |
+| Dependencias circulares Establecimientos–Recursos–Servicios | SRP, ISP, DIP; ADR-001/ADR-002/ADR-010/ADR-011. | Componer una ficha podría inducir llamadas recíprocas o acceso privado. Propiedad de proyección y contratos pendientes; Recursos/Servicios solo son productores candidatos si cambian campos incluidos, sin deducir ciclos. |
 
 **Pseudocódigo académico — comparación parcial.** El primer bloque concentra responsabilidades y elude la obligación global de compatibilidad. Las descripciones de operaciones no son nombres de métodos propuestos ni contratos nuevos.
 
@@ -286,13 +366,15 @@ La tabla conserva las cadenas respaldadas por los catálogos. La relación con c
 | RC03 — API REST | RC03 → DA07 → ADR-005; AC05/AC08 son relaciones complementarias de DA07. | SRP permite acotar traducción en Presentación sin mezclar reglas ni definir endpoints aquí. |
 | AC01 — Rendimiento | AC01 → DA04 → ADR-009. | Se preserva optimización de consultas como decisión; las abstracciones SOLID no demuestran rendimiento ni aprueban caché o métricas. |
 
+La tabla conserva las cadenas de origen anteriores: la adopción posterior de Redis corresponde a ADR-010 y apoya complementariamente AC01/DA04 para fichas públicas, sin convertir RF02 en origen de DA04 ni cachear disponibilidad. ADR-011 se apoya en el desacoplamiento de ADR-002/ADR-006 sin atribuir a DA06 una exigencia histórica de RabbitMQ. SOLID no es la fuente de aprobación de ambas tecnologías ni acredita rendimiento. Sus relaciones y límites se consultan en los cierres enlazados y en el catálogo vigente, sin inventar nuevas cadenas HU/RF/DA.
+
 La testabilidad se presenta como apoyo a AC05, sin inventar un AC o DA específico: recibir colaboradores permite plantear pruebas de ausencia o rechazo del adelanto y observar que no se solicita confirmación. Son posibilidades futuras, sin ensayos ejecutados. AC02 y AC07 no tienen driver ni respuesta arquitectónica explícita; no se completa esa cobertura por analogía.
 
 En trazabilidad funcional, HU09 → RF11/RF18/RF19 aporta adelanto simulado y efecto sobre confirmación; RF04/RF06/RF12 respaldan las condiciones del recorrido y figuran como origen de DA02 y DA08. HU03/RF04 y HU04/RF06 conservan asociaciones contextuales. HU14 → RF20 y HU10/HU14 → RF14 respaldan registro y consulta posteriores; RF14/RF20 figuran en DA05/DA08, sin convertirlos en métodos del caso de uso de confirmación. RF11/RF19 figuran como origen explícito de DA08; RF18, de DA06. RF02/RF09/RF10 siguen sin driver de origen explícito. DF-02 conserva pendiente su formalización detallada en HU/RF. Los escenarios EQ mantienen procedimientos y métricas pendientes de revisión y no acreditan pruebas realizadas.
 
 ### Pendientes conservados y alcance de las propuestas
 
-Se respetan las nueve ADR, las seis DF y las doce DP, sin alterar reglas ni seleccionar lenguaje, framework, ORM, motor, proveedor o infraestructura. La persistencia sigue siendo relacional. Los fragmentos son pseudocódigo académico; no se crea código en `src/`, clases definitivas de patrones futuros, nuevos métodos de puertos ni estados.
+Se respetan ADR-001–ADR-011, las seis DF y las doce DP, sin alterar reglas ni seleccionar lenguaje, framework, ORM, motor, proveedor o infraestructura adicional. Redis y RabbitMQ conservan exclusivamente el alcance conceptual adoptado por ADR-010/ADR-011; la persistencia definitiva sigue siendo relacional. Los fragmentos son pseudocódigo académico; no se crea código en `src/`, clases definitivas de patrones futuros, nuevos métodos de puertos ni estados.
 
 | Pendientes abiertos | Límite conservado |
 |---|---|
@@ -302,8 +384,14 @@ Se respetan las nueve ADR, las seis DF y las doce DP, sin alterar reglas ni sele
 | PC-09 / PC-10 | No aceptación, cambios, reapertura y ciclo posterior. RF13 sigue pendiente; no se habilitan cancelación, devolución, reembolso, expiración o cierre por inferencia. |
 | PC-11 / PC-12 | Permisos y mecanismos concretos de autenticación/autorización; cobertura HU/RF/DA y evaluación EQ. No se amplía al administrador a gestión de usuarios. |
 
-El procedimiento técnico de corrección del saldo con historial y unicidad activa, los contratos REST, la persistencia y el simulador siguen pendientes de diseño. Las únicas recomendaciones de esta entrega son evaluar responsabilidades y sustituciones con SOLID sobre los componentes ya propuestos y estudiar extensiones después de precisar sus contratos. No se incorporan pagos reales, integraciones financieras, comprobantes bancarios, fraccionamiento del saldo ni funcionalidades adicionales.
+El procedimiento técnico de corrección del saldo con historial y unicidad activa, los contratos REST, la persistencia y el simulador siguen pendientes de diseño. Las recomendaciones de esta revisión son evaluar responsabilidades, sustituciones y fronteras con SOLID sobre el ejemplo de Reservas y las responsabilidades técnicas conceptuales existentes, y estudiar extensiones después de precisar sus contratos. No se incorporan pagos reales, integraciones financieras, comprobantes bancarios, fraccionamiento del saldo ni funcionalidades adicionales.
+
+Permanecen pendientes proyección pública y titular, política y mecanismo seguro de retirada de publicación, ubicación de puertos/componentes, claves, TTL, evicción, versiones/generaciones, invalidación y repoblación concurrente; publicación fiable, esquemas, enrutamiento, durabilidad, publisher confirms, ACK, idempotencia concreta, reintentos limitados, eventual DLQ, recuperación y seguridad operativa. **Transactional Outbox es alternativa evaluada, no adoptada:** si se eligiera, cambio e intención deberían conservarse en la misma transacción relacional; despacho y recuperación seguirían por diseñar y los duplicados continuarían siendo posibles. TTL no sustituye conservación de intención, entrega fiable o confidencialidad. No se selecciona publicación directa ni Outbox en esta revisión.
+
+Strategy, Factory, State y Specification conservan su condición de candidatos en Patrones; no se incorporan por esta ampliación de SOLID. Observer y una topología publish-subscribe no quedan adoptados por usar RabbitMQ. La confirmación continúa independiente de Redis/RabbitMQ, con **RN-13 aprobada y obligatoria, PC-05 sin mecanismo concurrente aprobado, PC-01–PC-12 abiertos y RF13 pendiente**. Se preservan importes fijados al iniciar, saldo posterior completo con historial y sin parciales, y separación de Reserva, adelanto y registro del saldo. No se añaden cancelaciones, reembolsos, expiraciones ni retenciones.
+
+Los cierres conceptuales de ADR, C2/C3, Diseño Interno y Patrones conservan sus alcances y no prueban seguridad, consistencia, rendimiento o recuperación. Esta revisión de Principios queda aprobada conceptualmente y cerrada documentalmente tras la auditoría favorable comunicada en la solicitud de cierre, sin mecanismos operativos adoptados por el análisis SOLID ni pruebas ejecutadas. La aprobación comprende únicamente el análisis conceptual delimitado en la cabecera; contratos, clases, mecanismos e implementación siguen pendientes.
 
 SOLID aporta criterios concretos para mantener responsabilidades cohesionadas, dependencias explícitas y contratos sustituibles en UrbanPulse. Su utilidad para la mantenibilidad y evolución depende de conservar las reglas aprobadas y verificar posteriormente las implementaciones; la claridad del diseño no sustituye la garantía de consistencia ni su evaluación.
 
-**URBANPULSE — PRINCIPIOS SOLID DOCUMENTADOS — PENDIENTE DE AUDITORÍA — SIN COMMIT NI PUSH**
+**URBANPULSE — PRINCIPIOS DE DISEÑO SOLID APROBADOS CONCEPTUALMENTE — RECONCILIACIÓN ADR-010/ADR-011 CERRADA DOCUMENTALMENTE — SIN COMMIT NI PUSH.**

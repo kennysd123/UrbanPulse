@@ -1,8 +1,14 @@
 # UrbanPulse — Patrones de diseño
 
+**Estado: aprobado conceptualmente y cerrado documentalmente — reconciliado con ADR-010, ADR-011 y C3. Contratos, mecanismos operativos e implementación pendientes.**
+
+**Antecedente:** se conserva la aprobación conceptual previa del documento para Repository, Adapter e inyección de dependencias sobre el ejemplo de Reservas. Tras la auditoría conceptual favorable, sin hallazgos arquitectónicos bloqueantes, esta revisión queda aprobada conceptualmente y cerrada documentalmente. La aprobación actual amplía únicamente la cobertura conceptual de las responsabilidades de Redis y RabbitMQ; no aprueba clases, firmas, interfaces definitivas, bibliotecas, composición concreta ni mecanismos operativos, y no convierte los ejemplos en implementaciones acreditadas. Fecha de revisión: 16/10/2026.
+
 ## Objetivo
 
 Identificar, explicar y justificar las soluciones de diseño que organizan las responsabilidades y dependencias de UrbanPulse, tomando el módulo Reservas como referencia. Los patrones de diseño describen colaboraciones reutilizables para resolver problemas recurrentes; aquí permiten separar la coordinación de la confirmación, las reglas del dominio, la persistencia y la comunicación con otros módulos, sin incorporar funcionalidades.
+
+La revisión incorpora la consulta de fichas públicas de Establecimientos y la invalidación técnica de ADR-010/ADR-011, conforme a C2, C3 y el Diseño Interno de Módulos cerrado conceptualmente. Conserva la estructura principal, los ejemplos académicos y los tres diagramas Mermaid de Reservas; estos últimos no representan el recorrido de caché o mensajería.
 
 Su finalidad es favorecer la **mantenibilidad**, la **separación de responsabilidades**, el **bajo acoplamiento**, la **facilidad de pruebas**, la **extensibilidad** y la **independencia de tecnologías concretas**. Son beneficios esperados del diseño, no resultados medidos o pruebas ejecutadas.
 
@@ -27,12 +33,21 @@ El documento sigue el enfoque académico solicitado para la Guía 004 de Arquite
 
 | Nivel | Evidencia y alcance |
 |---|---|
-| Decisiones arquitectónicas aprobadas | ADR-001–ADR-009, API REST entre web y backend (ADR-005/RC03) y base de datos relacional sin motor definido (RC04). Se respetan DF-01–DF-06, DP-01–DP-12 y los niveles originales de RN-01–RN-25. |
-| Patrones evidenciados en el diseño interno propuesto | Repository, Adapter e inyección por constructor aparecen en sus contratos, adaptadores y composición. Están alineados con decisiones adoptadas, sin acreditar implementación ni pruebas. |
-| Recomendaciones todavía no aprobadas | Conservar la inyección manual y las fronteras propuestas al desarrollar el módulo; someter clases, firmas, DTO y composición a auditoría. Son recomendaciones de continuidad del diseño, sin aprobar un contenedor o un patrón adicional. |
+| Aprobado conceptualmente | ADR-001–ADR-011 vigentes: las nueve primeras adoptadas y ADR-010/ADR-011 cerradas conceptualmente en sus alcances acotados. C2, C3 y Diseño Interno de Módulos cerrados conceptualmente. REST web–backend (ADR-005/RC03), persistencia relacional sin motor definido (RC04), DF-01–DF-06 y DP-01–DP-12; RN conserva sus niveles individuales. Aprobación histórica de los patrones con el alcance indicado en la cabecera. |
+| Derivado | Separar persistencia definitiva y copias reconstruibles, coordinar por abstracciones y preservar las fronteras públicas internas. Estas consecuencias no aprueban contratos ni mecanismos concretos. |
+| Propuesto | Clases, firmas, DTO, carpetas, composición manual y realización concreta de responsabilidades técnicas. Repository, Adapter e inyección por constructor están evidenciados en el diseño ilustrativo de Reservas, sin implementación acreditada. Su extensión explicativa en esta revisión queda aprobada conceptualmente y cerrada documentalmente, sin aprobar esos detalles concretos. |
+| Pendiente de decisión o diseño | PC-01–PC-12; ubicación exacta de puertos y componentes, proyección y visibilidad pública, claves/TTL, repoblación concurrente, publicación directa u Outbox, idempotencia, recuperación y configuración operativa. No se aprueban por asociación con un patrón. |
 | Candidatos para iteraciones posteriores | Strategy, Factory, State y Specification requieren evaluar una necesidad concreta y resolver sus dependencias; no se incorporan automáticamente. |
 
-**Precisión de aprobación:** el contenido técnico está aprobado conceptualmente; la cabecera del diseño interno conserva el estado «pendiente de aprobación» para las clases y firmas concretas. Las ADR mantienen su carácter de decisiones adoptadas. La expresión «patrones aplicados» en este documento significa identificados en esa propuesta documental, sin acreditar implementación ni pruebas.
+**Precisión de aprobación:** el [Diseño Interno, sección 6.6](diseño-interno-de-modulos.md#66-reconciliación-de-esta-revisión-y-pendientes) está aprobado conceptualmente y cerrado documentalmente para responsabilidades, colaboraciones y límites reconciliados; clases, firmas, DTO, contratos operativos y mecanismos siguen pendientes. La expresión «patrones aplicados» identifica colaboraciones de ese diseño documental y su antecedente conceptual; no acredita implementación, pruebas ni aprobación de los detalles nuevos.
+
+### Arquitectura vigente y reconciliación de fuentes
+
+El [catálogo ADR-001–ADR-011](../../01-analisis-de-sistema/07-decisiones-arquitectonicas.md), junto con los registros de cierre de [ADR-010](../../01-analisis-de-sistema/adr/ADR-010-cache-redis.md#registro-de-cierre-conceptual) y [ADR-011](../../01-analisis-de-sistema/adr/ADR-011-mensajeria-rabbitmq.md#registro-de-cierre-conceptual), respalda Redis/cache-aside exclusivamente para fichas públicas reconstruibles y RabbitMQ para invalidación técnica asíncrona. La base relacional sigue siendo la persistencia definitiva y el respaldo ante fallos de Redis, sujeto a la disponibilidad de la propia base. Las consultas cacheadas no pasan por RabbitMQ; las búsquedas públicas siguen fuera del alcance inicial.
+
+El [C2 cerrado](../../04-modelo-c4/02-contenedores-c2.md) representa cinco contenedores: Aplicación Web, Backend UrbanPulse, Base de datos relacional, Redis y RabbitMQ. El [C3 cerrado](../../04-modelo-c4/03-componentes-c3.md) mantiene ocho módulos: Usuarios, Establecimientos, Recursos, Disponibilidad, Reservas, Solicitudes, Servicios y Pagos Simulados. Sus seis responsabilidades técnicas son puerto de acceso a caché pública, adaptador Redis, puerto de publicación de invalidaciones, adaptador de publicación RabbitMQ, consumidor técnico RabbitMQ y frontera autorizada de invalidación. No imponen seis clases o archivos; el consumidor permanece dentro del backend, sin worker independiente, noveno módulo ni quinta capa.
+
+**Conflictos y criterio aplicado:** AGENTS.md, restricciones y Principios conservan referencias a nueve ADR y a ausencia de caché aprobada; el catálogo vigente reconoce once. El catálogo y las ADR independientes aún describen C2 con tres contenedores y C3 anterior; C2 también presenta la actualización de C3 como futura, mientras los cierres explícitos de C2/C3 y del Diseño Interno ya registran su reconciliación. Se aplican esos alcances expresos, contrastados en sus fuentes, sin deducir aprobación por fecha o Git. El efecto aquí es reconocer el marco conceptual vigente y conservar pendientes sus mecanismos. Principios sigue pendiente de auditoría y aporta criterios SOLID, sin que esta revisión lo reconcilie automáticamente. No se modifican esas fuentes.
 
 La arquitectura inicial describe tres capas generales; ADR-002, estilo y enfoque establecen las cuatro capas oficiales: Presentación, Aplicación, Dominio e Infraestructura. Se aplica ADR-002 y se conserva esa discrepancia documental sin modificar las fuentes. Las tecnologías que aparezcan en representaciones históricas no se convierten en decisiones vigentes.
 
@@ -63,6 +78,10 @@ Los ejemplos de la fuente cubren **cancha y karaoke**. No existe en esas firmas 
 
 La operación `confirmarSiCompatible()` hace explícita la obligación RN-13 de impedir confirmaciones incompatibles, conservar los datos propios de Reserva y asociar el adelanto aprobado y aplicado. Declarar esa obligación no implementa la solución concurrente **PC-05**. El callback `preparar` identifica el punto de evaluación requerido; no crea por sí mismo atomicidad ni exclusividad.
 
+**Persistencia definitiva y caché pública (ADR-008/ADR-010).** Los repositorios abstraen la persistencia propia de cada módulo; la base relacional conserva los datos definitivos. Compartir el almacén no permite leer tablas privadas ajenas. Redis contiene copias reconstruibles de fichas públicas: una abstracción de caché no reemplaza automáticamente el contrato Repository de negocio ni sus obligaciones de integridad.
+
+Un **cache miss** significa que falta la copia, no que el establecimiento esté ausente de la fuente definitiva. La consulta obtiene los datos mediante repositorios y fronteras públicas autorizadas y construye la proyección antes de cargarla. Un **fallo técnico de Redis** debe distinguirse de la ausencia de copia y de datos definitivos: se recurre a persistencia; fallar al guardar una copia tampoco vuelve inexistente un resultado autorizado ya obtenido. Si falla la base, no se inventa ausencia ni se promete continuidad absoluta. Se precisan responsabilidades sin diseñar interfaces o métodos nuevos ni seleccionar ORM o motor relacional.
+
 ### Adapter
 
 `DisponibilidadInternaAdapter` implementa `DisponibilidadPort` y delega en `DisponibilidadApi.verificarSeleccion()`. `AdelantoSimuladoInternoAdapter` implementa `AdelantoSimuladoPort` y delega en `PagosSimuladosApi.consultarOperacionPropia()`. Ambos traducen el vocabulario local de Reservas hacia las **API públicas internas** de sus respectivos módulos.
@@ -71,19 +90,27 @@ El ejemplo fuente muestra delegación con valores de frontera compartidos por br
 
 ADR-002 respalda la dirección de las dependencias. ADR-006 adopta interfaces y adaptadores para integraciones externas; su principio de desacoplamiento orienta esta colaboración interna, sin convertirla en una integración externa aprobada adicional. `ReservaRepositoryAdapter` también realiza una adaptación de infraestructura, aunque se analiza principalmente por su responsabilidad Repository.
 
+**Redis.** El adaptador Redis implementa las abstracciones internas apropiadas para leer, cargar e invalidar copias públicas, conforme a ADR-010 y a las responsabilidades técnicas de C3. Traducir acceso a Redis no lo convierte en autoridad de autorización o visibilidad: entregar una copia no prueba que siga siendo publicable. La política de admisibilidad, la proyección, el titular y la frontera de invalidación permanecen por concretar; no se impone una única interfaz ni firmas nuevas.
+
+**RabbitMQ.** El adaptador de publicación traduce intenciones técnicas del núcleo hacia el broker a través de la abstracción interna correspondiente (ADR-011). Los productores son casos de uso existentes de gestión autorizada de Establecimientos; Recursos y Servicios siguen como candidatos condicionados a modificar campos incluidos en la ficha. No se añaden productores al resto de módulos por inferencia ni se sustituye su colaboración funcional por mensajes.
+
+La recepción y validación del transporte corresponden a adaptación técnica de Infraestructura; la coordinación de la invalidación se mantiene conceptualmente separada y respeta Aplicación y la frontera autorizada. El consumidor se ensambla dentro del mismo backend. Su reparto concreto y la ubicación de los puertos siguen pendientes. En dependencias de código, los adaptadores conocen los contratos hacia el núcleo; el despacho en ejecución hacia Redis o RabbitMQ no crea dependencias de Dominio hacia Infraestructura o clientes técnicos.
+
 ### Inyección de Dependencias
 
 El constructor de `ConfirmarReservaUseCase` recibe `ReservaRepository`, `DisponibilidadPort` y `AdelantoSimuladoPort`. La función `componerReservas()` actúa como **raíz de composición**: conoce las implementaciones, las construye y las suministra al caso de uso, que luego entrega a `ReservaController`.
 
 La **inversión de dependencias** es el principio que orienta el código hacia abstracciones del núcleo; la **inyección de dependencias** es la técnica que suministra esas colaboraciones. Repository organiza el acceso a persistencia y Adapter la traducción de contratos. Son responsabilidades distintas y complementarias. La propuesta usa composición manual y no acredita un contenedor ni una biblioteca de inyección.
 
+El mismo criterio se extiende conceptualmente a caché y publicación: los casos de uso reciben abstracciones; los adaptadores concretos se suministran desde la raíz de composición externa al núcleo. El consumidor técnico y su coordinación pueden ensamblarse dentro del backend sin otro despliegue. No es obligatorio seleccionar una biblioteca DI ni representar cada responsabilidad técnica mediante una clase. La propiedad y ubicación exactas de puertos, componentes y composición permanecen pendientes; el ejemplo `componerReservas()` se conserva limitado a Reservas y no incorpora Redis/RabbitMQ.
+
 ### Tabla comparativa
 
 | Patrón | Problema que resuelve | Aplicación en UrbanPulse | Componentes involucrados | Estado del diseño |
 |---|---|---|---|---|
-| Repository | Acoplamiento del caso de uso a persistencia concreta. | Solicitar confirmación compatible mediante un contrato de dominio. | `ConfirmarReservaUseCase`, `ReservaRepository`, `ReservaRepositoryAdapter`, `Reserva`. | ADR-008 adoptada; contratos y adaptador propuestos, pendientes de aprobación e implementación. PC-05 abierto. |
-| Adapter | Diferencias entre contratos locales y API de colaboradores. | Consultar disponibilidad y adelanto por fronteras públicas internas. | `DisponibilidadPort`, `DisponibilidadInternaAdapter`, `DisponibilidadApi`; `AdelantoSimuladoPort`, `AdelantoSimuladoInternoAdapter`, `PagosSimuladosApi`. | Evidenciado en la propuesta; contratos técnicos y traducciones pendientes. Sin pruebas acreditadas. |
-| Inyección de Dependencias | Construcción de implementaciones concretas dentro del caso de uso. | Recibir tres contratos por constructor y ensamblar en la raíz. | `componerReservas()`, tres adaptadores, `ConfirmarReservaUseCase`, `ReservaController`. | Técnica propuesta coherente con ADR-002; composición manual pendiente de aprobación. |
+| Repository | Acoplamiento del caso de uso a persistencia concreta. | Confirmación compatible y persistencia propia por módulo; distinguir datos definitivos de copias públicas. | `ConfirmarReservaUseCase`, `ReservaRepository`, `ReservaRepositoryAdapter`, `Reserva`; repositorios propios sin contratos nuevos. | ADR-008 adoptada; separación relacional/caché de ADR-010. Detalle propuesto y PC-05 abierto. |
+| Adapter | Diferencias entre contratos locales y colaboradores o detalles técnicos. | Consultar disponibilidad/adelanto; adaptar acceso Redis y publicación RabbitMQ, separando recepción y coordinación. | Puertos y adaptadores ilustrativos existentes; responsabilidades técnicas C3 sin clases nuevas. | Antecedente conceptual conservado; ADR-010/011 adoptadas en su alcance; extensión explicativa aprobada conceptualmente y cerrada documentalmente; contratos técnicos pendientes. |
+| Inyección de Dependencias | Construcción de implementaciones concretas dentro del caso de uso. | Recibir contratos y suministrar adaptadores desde la raíz; ensamblar consumidor dentro del backend. | `componerReservas()` y sus colaboradores como ejemplo; composición técnica por diseñar. | Coherente con ADR-002; composición concreta propuesta, sin biblioteca DI elegida. Extensión aprobada conceptualmente y cerrada documentalmente. |
 
 ## Cómo funciona cada patrón
 
@@ -269,9 +296,29 @@ EQ-03, EQ-04, EQ-05, EQ-06 y EQ-08 aportan contexto para evaluar consistencia, s
 
 **Costos y compromisos.** El diseño requiere más interfaces, adaptadores y código de composición, además de mantener coherentes los contratos locales y públicos. Una modificación de DTO puede exigir ajustar y revisar ambas fronteras. Estas abstracciones se justifican por las dependencias reales de Reservas; multiplicarlas sin una necesidad demostrable aumentaría el mantenimiento. La persistencia deberá satisfacer el contrato y demostrar PC-05 antes de considerar operativo el recorrido.
 
+### Seguridad y consistencia de caché e invalidación
+
+Estos límites proceden de los cierres de ADR-010/ADR-011 y del Diseño Interno; explicarlos mediante patrones no acredita funcionamiento ni garantías de seguridad.
+
+- **Visibilidad:** la retirada segura de publicación sigue pendiente de política y mecanismo que impidan divulgar contenido ya no autorizado. TTL e invalidación asíncrona no garantizan por sí solos confidencialidad; el adaptador no decide autorización. Se excluyen datos protegidos, reservas, aceptación contractual, adelantos, saldo y permisos como autoridad de caché.
+- **Repoblación:** una lectura antigua puede cargar su copia después de invalidar. La repoblación concurrente, el desorden y las reconstrucciones simultáneas requieren diseño; versiones o generaciones siguen como alternativas. No se afirma consistencia fuerte ni se fijan claves, TTL o algoritmos.
+- **Entrega y efecto:** duplicados e idempotencia concreta siguen pendientes de diseño; el procesamiento idempotente es requisito conceptual. Repetir una eliminación no resuelve por sí solo carreras de repoblación. El **ACK debe ocurrir después del efecto requerido**; si falla la invalidación en Redis, el efecto no se considera completado. **Publisher confirms no equivalen a consumo** ni a invalidación. Entrega al menos una vez es objetivo condicionado a conservación, publicación y recuperación; no se garantiza exactamente una vez.
+- **Recuperación:** RabbitMQ no hace atómicos el commit relacional y la publicación. Reintentos limitados, agotamiento, eventual DLQ, mensajes inválidos, durabilidad, vuelta a servicio y supervisión permanecen pendientes. TTL no conserva intenciones ni sustituye entrega fiable o recuperación; no se promete recuperar una intención nunca conservada.
+- **Aislamiento funcional:** Redis no confirma reservas, acredita disponibilidad ni retiene recursos. RabbitMQ no transporta pagos ni confirmaciones, ni altera Reserva, resultado del adelanto o registro del saldo. **RN-13 aprobada y PC-05 abierto** permanecen independientes de los patrones y del broker; PC-08 del simulador tampoco queda resuelto por reintentar invalidaciones. Todo pago continúa exclusivamente simulado y DP-03 conserva los importes fijados.
+
+ADR-010 aporta apoyo complementario a AC01/DA04 para fichas públicas y complementa ADR-009; no crea origen RF02 → DA04 ni cachea disponibilidad. ADR-011 se apoya en ADR-002/ADR-006 para desacoplamiento, sin atribuir a DA06 una exigencia histórica de RabbitMQ. AC02/AC07 y los vacíos de trazabilidad conservan sus estados; EQ sigue sin pruebas ni métricas acreditadas.
+
 ## Patrones previstos para siguientes iteraciones
 
 Los siguientes patrones son **candidatos a evaluación**, no decisiones adoptadas ni tareas de implementación autorizadas por esta documentación. Cada uno requiere una necesidad concreta que justifique su costo.
+
+### Transactional Outbox: alternativa arquitectónica pendiente
+
+**Transactional Outbox: alternativa evaluada, no adoptada.** Se distingue de los patrones con aprobación conceptual histórica y de los cuatro candidatos de diseño siguientes; no se añade a los patrones aprobados.
+
+En la publicación directa después del commit relacional, una caída antes de publicar puede perder la intención de invalidación; un fallo de red puede dejar el resultado incierto. RabbitMQ y sus publisher confirms no cierran esa ventana. Si se adoptara Outbox, cambio e intención podrían conservarse en la **misma transacción relacional**, con publicación posterior; registrar la intención después del commit no proporcionaría esa conservación conjunta.
+
+El ámbito transaccional, la propiedad modular, el despacho y la recuperación seguirían requiriendo diseño y aprobación. Una caída tras publicar y antes de registrar el envío podría producir duplicados: Outbox no los elimina automáticamente ni garantiza invalidación exactamente una vez o atomicidad con Redis. Permanece abierta la selección entre publicación directa y Outbox, sin escoger tablas, procesos, colas o mecanismos de despacho.
 
 ### Strategy
 
@@ -306,6 +353,8 @@ Una especificación evaluada sobre datos en memoria puede quedar obsoleta antes 
 
 No se concluye que todos deban implementarse. Una solución existente suficiente o una complejidad baja puede justificar descartar cualquiera de ellos.
 
+Strategy, Factory, State y Specification conservan sus estados anteriores y no se asignan a Redis/RabbitMQ por compatibilidad técnica. La adopción del broker tampoco declara aprobado Observer ni una topología publish-subscribe: exchanges, colas y enrutamiento siguen pendientes según ADR-011.
+
 ### Decisiones y pendientes conservados
 
 Se mantienen DF-01–DF-06 y DP-01–DP-12 completos: unidad reservable, aceptación interna y condiciones conjuntas; adelanto obligatorio según modalidad; importes fijados; saldo igual a total menos adelanto aprobado y aplicado; sin pagos parciales; un registro activo con correcciones históricas; métodos informativos; estados mínimos de registro; consulta autorizada; momento de liquidación según modalidad y prohibición de confirmar ante rechazo o indisponibilidad. Se respetan RN-01–RN-25 según sus niveles: RN-10/RN-12 son derivadas, RN-07/RN-17/RN-20 combinan aprobación y derivación, y RN-23 conserva RF13 pendiente. Las demás mantienen el estado declarado en el catálogo.
@@ -318,4 +367,8 @@ Se mantienen DF-01–DF-06 y DP-01–DP-12 completos: unidad reservable, aceptac
 | PC-09 / PC-10 | No aceptación, cambios, reapertura y ciclo posterior. No se habilitan cancelación, devolución, expiración o cierre por incorporar un patrón. |
 | PC-11 / PC-12 | Permisos y mecanismos concretos, cobertura HU/RF/DA y evaluación de escenarios. No se inventan relaciones para cerrar vacíos. |
 
-Se conservan Monolito Modular, Clean Architecture, API REST y persistencia relacional sin motor definido. No se seleccionan tecnologías ni endpoints; no se incorporan funcionalidades, contratos de persistencia adicionales o clases concretas nuevas. Ningún patrón autoriza pagos reales, cancelación, reembolso o fraccionamiento del saldo. La aprobación del adelanto sigue siendo independiente de la confirmación y la recepción posterior del saldo no modifica Reserva.
+Se conservan Monolito Modular, las cuatro capas de Clean Architecture, API REST y persistencia relacional sin motor definido, junto con el alcance conceptual aprobado de Redis y RabbitMQ por ADR-010/ADR-011. Esta revisión no selecciona tecnologías adicionales ni endpoints; no incorpora funcionalidades, contratos de persistencia adicionales o clases concretas nuevas. Ningún patrón autoriza pagos reales, cancelación, reembolso o fraccionamiento del saldo. La aprobación del adelanto sigue siendo independiente de la confirmación y la recepción posterior del saldo no modifica Reserva.
+
+Además de PC-01–PC-12, permanecen pendientes proyección pública y titular técnico, ubicación de abstracciones y coordinación, visibilidad segura, claves/TTL/evicción, repoblación concurrente, publicación directa u Outbox, esquemas de mensajes, configuración, confirms/ACK, idempotencia, recuperación y seguridad operativa. La aprobación conceptual histórica y los cierres de ADR, C2/C3 y Diseño Interno conservan sus alcances; el cierre actual se registra tras la auditoría conceptual favorable comunicada en la solicitud de cierre, sin aprobar los mecanismos nuevos. Se cierra exclusivamente la reconciliación documental de responsabilidades conceptuales, sin implementación ni pruebas operativas. Este cierre no acredita garantías de rendimiento, seguridad, consistencia ni recuperación.
+
+**URBANPULSE — PATRONES DE DISEÑO APROBADOS CONCEPTUALMENTE — RECONCILIACIÓN ADR-010/ADR-011 CERRADA DOCUMENTALMENTE — SIN COMMIT NI PUSH.**
