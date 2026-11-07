@@ -1,5 +1,7 @@
 # Drivers Arquitectónicos
 
+**Revisión de alcance financiero — 07/11/2026:** las decisiones funcionales de pagos reales sustituyen la exclusividad de simulación del MVP. Pago requerido significa pago total o adelanto configurado, verificado por el backend y aplicado una sola vez a la reserva. El proveedor sigue pendiente de validación; véanse [restricciones](05-restricciones.md) y [ADR-012](adr/ADR-012-modelo-pagos-mvp.md). No se acredita implementación ni aprobación de la integración de producción.
+
 Los drivers arquitectónicos representan aquellos requisitos, atributos
 de calidad y restricciones que tienen una influencia significativa en
 las decisiones de arquitectura de UrbanPulse.
@@ -18,7 +20,7 @@ prioritariamente durante el diseño de la solución arquitectónica.
 | **DA03** | **Extensibilidad de modalidades** | AC06 / RC06 | La solución debe permitir incorporar nuevos tipos de establecimientos o modalidades de reserva sin modificar significativamente el núcleo existente. |
 | **DA04** | **Rendimiento en consultas** | AC01 / RF01 / RF03 / RF05 | La arquitectura debe permitir responder adecuadamente las búsquedas y consultas de disponibilidad incluso cuando existan múltiples usuarios concurrentes. |
 | **DA05** | **Seguridad y control de acceso** | AC04 / RF08 / RF14 / RF15 / RF20 | La arquitectura debe separar las responsabilidades y permisos de clientes, propietarios y administradores. |
-| **DA06** | **Integración con servicios externos** | AC05 / AC08 / RC07 / RC08 / RC09 / RC10 / RF16–RF18 | La arquitectura debe permitir integrar mapas, WhatsApp y pago simulado sin acoplar estas dependencias con las reglas principales del negocio. |
+| **DA06** | **Integración con servicios externos** | AC05 / AC08 / RC07 / RC08 / RC09 / RC10 / RF16–RF18 | La arquitectura debe permitir integrar mapas, WhatsApp y pago electrónico real sin acoplar estas dependencias con las reglas principales del negocio. |
 | **DA07** | **Comunicación mediante API REST** | RC03 | La arquitectura debe establecer una comunicación definida entre la aplicación web y el backend mediante una API REST. |
 | **DA08** | **Persistencia de información transaccional** | RC04 / RF04 / RF06 / RF07 / RF11 / RF12 / RF14 / RF19 / RF20 | La arquitectura debe garantizar el almacenamiento consistente de reservas, disponibilidad, establecimientos y operaciones relacionadas. |
 
@@ -39,10 +41,10 @@ Actualmente se contemplan:
 |---|---|
 | **Cancha de gras** | Recurso + bloque horario |
 | **Karaoke** | Sala + intervalo de tiempo |
-| **Salón de eventos** | Fecha + servicios + coordinación + adelanto |
-| **Recreo** | Fecha + servicios + coordinación + adelanto |
+| **Salón de eventos** | Fecha + servicios + coordinación + pago total o adelanto |
+| **Recreo** | Fecha + servicios + coordinación + pago total o adelanto |
 
-La lectura de estas modalidades se precisa mediante [DF-01–DF-06](05-restricciones.md#3-decisiones-funcionales-aprobadas-y-alcance-del-mvp): el recreo reserva un ambiente o espacio definido por el propietario; el propietario registra cotización y condiciones y el cliente las acepta dentro de UrbanPulse. Los eventos requieren esa aceptación, adelanto simulado aprobado y disponibilidad verificada; canchas y karaoke usan confirmación directa con adelanto simulado obligatorio y disponibilidad válida al confirmar. DF-02 mantiene su precisión pendiente de formalización en HU/RF.
+La lectura de estas modalidades se precisa mediante [DF-01–DF-06](05-restricciones.md#3-decisiones-funcionales-aprobadas-y-alcance-del-mvp): el recreo reserva un ambiente o espacio definido por el propietario; el propietario registra cotización y condiciones y el cliente las acepta dentro de UrbanPulse. Los eventos requieren esa aceptación, pago requerido verificado y aplicado y disponibilidad verificada; canchas y karaoke usan confirmación directa con pago total o adelanto configurado y disponibilidad válida al confirmar. DF-02 mantiene su precisión pendiente de formalización en HU/RF.
 
 Este driver tiene una influencia directa en el modelo de dominio y en
 la organización de la lógica de reservas.
@@ -116,11 +118,11 @@ Sala + tiempo
 
 Salón
    ↓
-Fecha + servicios + coordinación + aceptación + adelanto
+Fecha + servicios + coordinación + aceptación + pago total o adelanto
 
 Recreo
    ↓
-Ambiente o espacio + fecha + servicios + coordinación + aceptación + adelanto
+Ambiente o espacio + fecha + servicios + coordinación + aceptación + pago total o adelanto
 ```
 
 En el futuro podría existir otro establecimiento con reglas diferentes.
@@ -206,17 +208,17 @@ Los mecanismos tecnológicos concretos de autenticación y autorización se defi
 
 **Origen:** AC05 / AC08 / RC07 / RC08 / RC09 / RC10 / RF16–RF18
 
-UrbanPulse contempla inicialmente tres integraciones, con pago como abstracción conceptual:
+UrbanPulse contempla mapas, WhatsApp y la integración de pagos reales detrás de una abstracción:
 
 | Servicio | Función |
 |---|---|
 | **Proveedor de mapas** | Visualizar la ubicación de establecimientos. |
 | **WhatsApp** | Redirigir al cliente para contactar al propietario. |
-| **Pago simulado** | Simular el resultado de un pago o adelanto. |
+| **Proveedor de pago** | Procesar total o adelanto para el propietario receptor; backend verifica resultados. Mercado Pago Marketplace Split 1:1 candidato pendiente. |
 
 Estas integraciones no deben convertirse en dependencias directas de las reglas centrales de reservas.
 
-El servicio de pago representa un sistema externo conceptual; en el MVP, UrbanPulse implementa un componente de simulación detrás de la abstracción de integración, sin conexión a una pasarela financiera real ni exigencia de despliegue externo. Mapas y WhatsApp mantienen su carácter de servicios externos. No se seleccionan proveedores ni se acredita implementación o pruebas.
+La propuesta de integración financiera de ADR-012 exige verificar resultados desde el backend y correlacionar operación, importe, moneda y propietario receptor, sin confiar en el navegador. Pagos y webhooks requieren procesamiento idempotente. No se aprueba aún el candidato ni se acredita implementación o pruebas. Mapas conserva proveedor pendiente y WhatsApp solo redirección.
 
 ### Flujo conceptual
 
@@ -226,7 +228,7 @@ El servicio de pago representa un sistema externo conceptual; en el MVP, UrbanPu
           ┌───────────┼───────────┐
           │           │           │
           ▼           ▼           ▼
-        Mapas      WhatsApp    Pago simulado
+        Mapas      WhatsApp    Pago electrónico
           │           │           │
           ▼           ▼           ▼
        Ubicación   Contacto    Resultado
@@ -334,9 +336,9 @@ Los drivers no tienen necesariamente el mismo nivel de influencia en las decisio
 | **Alta** | **DA03 — Extensibilidad** | La plataforma debe poder incorporar nuevas modalidades sin alterar significativamente las existentes. |
 | **Alta** | **DA05 — Seguridad** | Existen diferentes tipos de actores y niveles de acceso. |
 | **Media** | **DA04 — Rendimiento** | Las consultas deben responder adecuadamente bajo concurrencia. |
-| **Media** | **DA06 — Integraciones externas** | Mapas, WhatsApp y pago simulado deben mantenerse desacoplados. |
+| **Alta** | **DA06 — Integraciones externas** | Mapas, WhatsApp y pago electrónico real deben mantenerse desacoplados. |
 | **Media** | **DA07 — API REST** | Condiciona la comunicación entre frontend y backend. |
-| **Media** | **DA08 — Persistencia transaccional** | Es necesaria para mantener la información de reservas y disponibilidad. |
+| **Alta** | **DA08 — Persistencia transaccional** | Es necesaria para mantener la información de reservas y disponibilidad. |
 
 ---
 
@@ -366,13 +368,13 @@ La siguiente tabla reúne relaciones de origen y relaciones complementarias con 
 | **DA03 — Extensibilidad** | RC06 — Diferentes modalidades de reserva |
 | **DA04 — Rendimiento** | RC01 — Aplicación web / RC03 — API REST |
 | **DA05 — Seguridad** | RC01 — Aplicación web / RC03 — API REST |
-| **DA06 — Integraciones externas** | RC07 — Pago simulado / RC08 — WhatsApp / RC09 — Mapas / RC10 — Integraciones desacopladas |
+| **DA06 — Integraciones externas** | RC07 — Pagos reales y propietario receptor / RC08 — WhatsApp / RC09 — Mapas / RC10 — Integraciones desacopladas |
 | **DA07 — API REST** | RC03 — API REST |
 | **DA08 — Persistencia** | RC04 — Base de datos relacional |
 
 ## 6. Alcance de las relaciones y pendientes
 
-Las referencias de origen y las tablas complementarias se leen conjuntamente. DA01 incorpora AC05 y AC06, ya relacionados en la sección 4. DA06 explicita AC05 y RC08, ya presentes en las tablas complementarias, y RC07, que respalda el pago simulado descrito por el propio driver.
+Las referencias de origen y las tablas complementarias se leen conjuntamente. DA01 incorpora AC05 y AC06, ya relacionados en la sección 4. DA06 explicita AC05 y RC08, ya presentes en las tablas complementarias, y RC07, que respalda el pago electrónico real descrito por el propio driver.
 
 La columna **Origen** de la sección 1 y los enunciados **Origen** de cada driver registran su procedencia explícita. Las secciones 4 y 5 describen además efectos o relaciones complementarias; no amplían automáticamente esa procedencia. En particular, DA07 tiene RC03 como origen y sus relaciones con AC05/AC08 son complementarias; DA08 tiene RC04 y RF04/RF06/RF07/RF11/RF12/RF14/RF19/RF20 como origen y sus relaciones con AC03/AC05 son complementarias. En DA01, DA02, DA03, DA04, DA05 y DA06, los AC de la sección 4 sí figuran como origen explícito. Esta distinción no agrega drivers ni cadenas de origen.
 
@@ -380,14 +382,20 @@ AC02 — Disponibilidad y AC07 — Usabilidad continúan identificados en [04-at
 
 La relación de cada driver con decisiones se mantiene en [07-decisiones-arquitectonicas](07-decisiones-arquitectonicas.md). Ninguna relación con una ADR convierte RF13 en funcionalidad confirmada ni amplía las responsabilidades del administrador a la gestión de usuarios.
 
-## 7. Influencia revisada de las decisiones de pagos simulados
+## 7. Influencia revisada del modelo financiero
 
-| Driver existente | Aplicación de la ampliación aprobada | Origen añadido explícitamente en esta revisión |
+| Driver existente | Aplicación del alcance establecido y propuesta de respuesta | Origen y límite |
 |---|---|---|
-| DA01 | Reserva directa con adelanto obligatorio frente a solicitud/cotización/aceptación de eventos; no unificar recorridos. | DF-04, RC06; RF04/RF06 mantienen su origen. |
-| DA02 | Adelanto aprobado no sustituye disponibilidad válida al confirmar ni la prohibición concurrente. | DF-04, DP-12; RF12 mantiene su origen. |
-| DA05 | Autorizar propietario de reserva confirmada y consulta propia; autor y fecha de registro/corrección. | HU14/RF20; RF14 ampliado; DF-05/DP-09/DP-10. |
-| DA06 | Mantener simulador desacoplado y métodos informativos; recepción manual sin integración financiera. | DF-06/DP-01/DP-07; sin nuevos servicios externos. |
-| DA08 | Conservar importes fijados, adelanto aplicado, saldo, único registro activo e historial trazable. | RF11/RF14/RF19/RF20; DF-05/DP-03–DP-06/DP-09. |
+| DA01 | Directa en cancha/karaoke frente a cotización/aceptación en eventos; ambos admiten total o adelanto. | RC06, RF04/RF06, DF-03/DF-04; no unificar modalidades. |
+| DA02 | Pago verificado no sustituye disponibilidad; impedir incompatibles bajo concurrencia. | AC03/RF04/RF06/RF12 → ADR-004; ADR-012 propone coordinación con aplicación única, sin mecanismo aprobado. |
+| DA05 | Autorizar recepción/corrección/consulta según titularidad y conservar autor/fecha; proteger datos del proveedor. | RF14/RF20 como origen conservado; verificación financiera de RF18 es contexto de seguridad, no nuevo origen atribuido a DA05. |
+| DA06 | Adaptador financiero, verificación backend, webhooks idempotentes y propietario receptor; candidato por validar. | AC05/AC08/RC07/RC10/RF18 → ADR-006 y propuesta ADR-012. RF11/RF19 son contexto de integración. |
+| DA08 | Operación, resultado, aplicación única, registro de saldo e historial separados; pendientes de conciliación/devolución sin perder evidencia. | RC04/RF11/RF14/RF19/RF20 → ADR-008 y propuesta ADR-012. AC03/AC05 siguen complementarios. |
 
-Esta tabla amplía explícitamente los orígenes de DA05 y DA08; las tablas anteriores ya reflejan los orígenes actualizados. RF11/RF14/RF19 cuentan ahora con origen DA08, RF14 además DA05 y RF20 con DA05/DA08. La cobertura aún pendiente se limita a RF02/RF09/RF10. No se agrega driver ni se selecciona mecanismo concurrente, tablas, motor o endpoints.
+DA06 y DA08 pasan de prioridad media a alta por el impacto de fondos reales, duplicados y aprobaciones sin confirmación; se conserva el ID y se documenta la justificación. No se crea driver ni se completa el origen ausente de RF02/RF09/RF10. Las ampliaciones anteriores de RF14/RF20 a DA05 y RF11/RF14/RF19/RF20 a DA08 se conservan.
+
+## 8. Consumidor técnico y worker posterior
+
+ADR-010/ADR-011 conservan Redis para fichas públicas reconstruibles y RabbitMQ exclusivamente para invalidación técnica. Consumidor dentro del backend durante el MVP. El worker independiente está **Preparado arquitectónicamente, no obligatorio inicialmente**; su extracción posterior reutilizará fronteras de consumo e invalidación sin modificar dominio, sin convertirlo en microservicio ni agregar módulo funcional. No se aprueba ahora un proceso, contrato operativo o despliegue separado.
+
+No usar RabbitMQ automáticamente para confirmar pagos o conciliar: requeriría una decisión arquitectónica independiente. La propuesta financiera de ADR-012 no amplía ADR-011 ni selecciona Outbox, bloqueos, retenciones, motor o endpoints.

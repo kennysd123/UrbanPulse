@@ -1,18 +1,20 @@
 # UrbanPulse — Modelo C4 Nivel 4: Establecimientos y Redis
 
-**Estado: vista ilustrativa aprobada conceptualmente y cerrada documentalmente — Establecimientos y Redis. Clases, contratos, mecanismos operativos e implementación pendientes.**
+**Antecedente de estado:** vista ilustrativa de Establecimientos y Redis aprobada conceptualmente y cerrada documentalmente en su alcance técnico. Clases, contratos, mecanismos operativos e implementación pendientes; revisión actual pendiente de auditoría.
 
 **Base conceptual:** diseño técnico D1–D6 aprobado conceptualmente y cerrado documentalmente, con fecha de aprobación conceptual 16/10/2026. Esta vista no acredita implementación, configuración ni pruebas.
 
+**Revisión Tarea 3 — 07/11/2026; pendiente de auditoría.** Se conserva el antecedente de aprobación conceptual y cierre documental de la estructura anterior. La revisión financiera no hereda ese cierre: el alcance funcional está establecido por [RC/DF/DP vigentes](../01-analisis-de-sistema/05-restricciones.md), mientras la respuesta arquitectónica de [ADR-012](../01-analisis-de-sistema/adr/ADR-012-modelo-pagos-mvp.md) sigue propuesta. Mercado Pago Marketplace Split 1:1 es solamente candidato, sin capacidades verificadas ni aprobación de producción. No se acredita implementación, despliegue o pruebas.
+
 ## 1. Objetivo, alcance y exclusiones
 
-Desarrollar una segunda vista documental del cuarto nivel C4 para Establecimientos: consulta, admisibilidad, reconstrucción y carga segura de fichas públicas con Redis. Se utiliza UML de clases, presentado como PNG en la sección 3; esta vista no conserva el código fuente del diagrama ni introduce sintaxis `C4Code`. La vista detalla candidatos de código derivados de las responsabilidades de C3 y de los acuerdos D1–D6, sin convertirlos en contratos aprobados.
+Desarrollar una segunda vista documental del cuarto nivel C4 para Establecimientos: consulta, admisibilidad, reconstrucción y carga segura de fichas públicas con Redis. Se utiliza UML de clases con fuente Mermaid editable en la sección 3 y PNG conservado como antecedente, sin introducir sintaxis `C4Code`. La vista detalla candidatos de código derivados de las responsabilidades de C3 y de los acuerdos D1–D6, sin convertirlos en contratos aprobados.
 
-El alcance incluye la frontera de consulta, coordinación del caso de uso, composición de ficha, evidencia autoritativa, política de admisibilidad, coordinación de revisión y emisión, acceso a copias y frontera autorizada de invalidación. Esta última aparece solo como límite. El flujo completo de publicación y consumo RabbitMQ queda para el tercer C4, sin crear esa vista en esta entrega.
+El alcance incluye la frontera de consulta, coordinación del caso de uso, composición de ficha, evidencia autoritativa, política de admisibilidad, coordinación de revisión y emisión, acceso a copias y frontera autorizada de invalidación. Esta última aparece solo como límite. El flujo de publicación y consumo RabbitMQ se desarrolla en el [tercer C4](06-codigo-c4-invalidacion-rabbitmq.md), sin ampliarlo a finanzas.
 
 Se mantienen cuatro capas oficiales, ocho módulos funcionales y cinco contenedores C2. Establecimientos coordina la proyección; Recursos y Servicios conservan autoridad sobre sus datos. Redis contiene copias públicas reconstruibles y la base relacional conserva los datos definitivos. Los participantes aquí propuestos no crean módulos, capas o contenedores adicionales.
 
-Se excluyen disponibilidad reservable, reservas, cotizaciones particulares, aceptación contractual particular, adelantos, saldo, permisos y datos protegidos de las copias Redis. No se incorporan fotografías, valoraciones, contacto u otros campos fuera de D1. No se diseñan endpoints, DTO, esquemas de mensajes, formatos físicos de revisión, claves, TTL, comandos Redis, locks, mutex o transacciones distribuidas. Tampoco se implementa código ni se seleccionan tecnologías adicionales.
+Se excluyen disponibilidad reservable, reservas, cotizaciones particulares, aceptación contractual particular, pagos definitivos, adelantos, saldo, credenciales, evidencia financiera, conciliaciones, permisos y datos protegidos de las copias Redis. No se incorporan fotografías, valoraciones, contacto u otros campos fuera de D1. No se diseñan endpoints, DTO, esquemas de mensajes, formatos físicos de revisión, claves, TTL, comandos Redis, locks, mutex o transacciones distribuidas. Tampoco se implementa código ni se seleccionan tecnologías adicionales.
 
 ## 2. Fuentes y trazabilidad C3 ↔ D1–D6 ↔ C4
 
@@ -20,9 +22,9 @@ Se excluyen disponibilidad reservable, reservas, cotizaciones particulares, acep
 |---|---|
 | [AGENTS.md](../../AGENTS.md) | Jerarquía documental, cuatro capas, restricciones funcionales y preservación de fuentes. Sus desfases históricos se conservan y explican en la sección 9. |
 | [Diseño técnico D1–D6 cerrado](../03-diseño-software/diseño-interno/diseno-tecnico-fichas-publicas-redis.md) | Fuente inmediata de categorías, coordinación, visibilidad, revisiones, responsabilidades y semántica. Aprueba redacción y trazabilidad conceptual; no aprueba los candidatos de esta vista. |
-| [C1 — Contexto](01-contexto-c1.md), [C2 — Contenedores](02-contenedores-c2.md) y [C3 — Componentes](03-componentes-c3.md) | Vistas cerradas en sus respectivos alcances. C2 contiene cinco contenedores y C3 ocho módulos y seis responsabilidades técnicas. Esta vista abre una selección del backend sin modificar esas fuentes. |
-| [Primer C4 — Reservas](04-codigo-c4.md) | Vista ilustrativa cerrada para confirmación directa. No se amplía ni se reutilizan sus firmas para fichas públicas. |
-| [Catálogo ADR-001–ADR-011](../01-analisis-de-sistema/07-decisiones-arquitectonicas.md) | Monolito Modular, cuatro capas, REST web–backend, adaptadores, autorización y repositorios. ADR-009 conserva consultas de disponibilidad sin aprobación histórica de caché. |
+| [C1 — Contexto](01-contexto-c1.md), [C2 — Contenedores](02-contenedores-c2.md) y [C3 — Componentes](03-componentes-c3.md) | Cierres históricos en sus respectivos alcances; revisión financiera actual pendiente de auditoría. C2 contiene cinco contenedores y C3 ocho módulos y seis responsabilidades técnicas. Esta vista abre una selección del backend sin convertir sus relaciones en contratos concretos. |
+| [Primer C4 — Reservas](04-codigo-c4.md) | Vista ilustrativa de confirmación directa; revisión financiera pendiente de auditoría. No se amplía ni se reutilizan sus contratos para fichas públicas. |
+| [Catálogo ADR-001–ADR-012](../01-analisis-de-sistema/07-decisiones-arquitectonicas.md) | Monolito Modular, cuatro capas, REST web–backend, adaptadores, autorización y repositorios. ADR-009 conserva consultas de disponibilidad sin aprobación histórica de caché. |
 | [ADR-010 — Redis](../01-analisis-de-sistema/adr/ADR-010-cache-redis.md#registro-de-cierre-conceptual) y [ADR-011 — RabbitMQ](../01-analisis-de-sistema/adr/ADR-011-mensajeria-rabbitmq.md#registro-de-cierre-conceptual) | Alcances conceptuales adoptados, copias reconstruibles, fallback y transporte de invalidaciones. Seguridad, publicación, recuperación y mecanismos permanecen pendientes. |
 | [Diseño de módulos](../03-diseño-software/diseño-interno/diseño-interno-de-modulos.md), [Patrones](../03-diseño-software/diseño-interno/patrones-de-diseño.md) y [Principios SOLID](../03-diseño-software/diseño-interno/principios-de-diseño.md) | Cierres conceptuales de responsabilidades y límites, con contratos concretos pendientes. ISP/DIP y la separación de adaptación y coordinación orientan esta propuesta. |
 | [HU](../01-analisis-de-sistema/02-historias-del-usuarios.md), [RF](../01-analisis-de-sistema/03-requisitos-funcionales.md), [RN y PC](../03-diseño-software/01-reglas-de-negocio.md) y [restricciones DF/DP](../01-analisis-de-sistema/05-restricciones.md) | HU02 → RF02 respalda consulta informativa; HU06/RF08, HU07/RF09 y HU11/RF15 contextualizan cambios autorizados. No se alteran reglas ni pendientes. |
@@ -52,9 +54,71 @@ HU02 → RF02 tiene origen funcional explícito y correspondencia con consulta e
 
 Todos los nombres son candidatos nuevos. Los espacios `Presentacion`, `Aplicacion`, `Dominio` e `Infraestructura` pertenecen conceptualmente a Establecimientos; las fronteras colaboradoras pertenecen a sus módulos y `Ensamblado` está fuera del núcleo. Las ubicaciones de puertos y política son propuestas revisables, no una decisión de distribución definitiva.
 
+```mermaid
+classDiagram
+    namespace Establecimientos_Presentacion {
+        class ConsultaFichaPublica
+    }
+    namespace Establecimientos_Aplicacion {
+        class ConsultarFichaPublica
+        class ComponerFichaPublica
+        class CoordinarPublicacionFicha
+        class DatosPublicosPropios {
+            <<interface>>
+        }
+        class CopiasFichaPublica {
+            <<interface>>
+        }
+        class InvalidacionFichaPublica {
+            <<interface>>
+        }
+    }
+    namespace Establecimientos_Dominio {
+        class CriterioAdmisibilidadFicha
+    }
+    namespace Establecimientos_Infraestructura {
+        class DatosPublicosPropiosAdapter
+        class RedisFichaPublicaAdapter
+    }
+    namespace Fronteras_Publicas_Colaboradoras {
+        class RecursosPublicos {
+            <<interface>>
+        }
+        class ServiciosPublicos {
+            <<interface>>
+        }
+    }
+    namespace Ensamblado_Fuera_Del_Nucleo {
+        class ComponerConsultaFichas {
+            <<function>>
+        }
+    }
+    ConsultaFichaPublica --> ConsultarFichaPublica : delega y entrega coordinada
+    ConsultarFichaPublica --> CopiasFichaPublica : lectura y carga
+    ConsultarFichaPublica --> ComponerFichaPublica : reconstruccion autorizada
+    ConsultarFichaPublica --> CoordinarPublicacionFicha : admisibilidad y emision
+    ComponerFichaPublica --> DatosPublicosPropios : datos y revisiones propios
+    ComponerFichaPublica --> RecursosPublicos : solo si contribuye
+    ComponerFichaPublica --> ServiciosPublicos : solo si contribuye
+    CoordinarPublicacionFicha --> DatosPublicosPropios : evidencia autoritativa
+    CoordinarPublicacionFicha --> CriterioAdmisibilidadFicha : evalua reglas con evidencia
+    DatosPublicosPropiosAdapter ..|> DatosPublicosPropios
+    RedisFichaPublicaAdapter ..|> CopiasFichaPublica
+    RedisFichaPublicaAdapter ..|> InvalidacionFichaPublica
+    ComponerConsultaFichas ..> ConsultarFichaPublica : suministro de abstracciones
+    ComponerConsultaFichas ..> DatosPublicosPropiosAdapter : candidato
+    ComponerConsultaFichas ..> RedisFichaPublicaAdapter : candidato
+    note for CoordinarPublicacionFicha "D3/D4: admisibilidad, revision coherente e inicio de<br/>emision. Sincronizacion pendiente; hit no autoriza."
+    note for RedisFichaPublicaAdapter "Solo fichas publicas reconstruibles. No pagos,<br/>credenciales, evidencia financiera, disponibilidad,<br/>reservas o conciliaciones."
+```
+
+**Fuente editable recuperada en Tarea 3 a partir del inventario conceptual:** trece participantes candidatos, sin afirmar equivalencia exacta con el PNG. Se omiten firmas y nuevos algoritmos. La selección concreta de relaciones sigue ilustrativa; D1–D6 no se reabre.
+
+**PNG histórico conservado, pendiente de cotejo/exportación desde Mermaid.** No se identifican cambios financieros dentro del alcance técnico de esta vista que obliguen a rediseñarlo; no se inspeccionó visualmente y no se certifica su equivalencia. Todo supuesto de exclusividad simulada que conserve es desactualizado. La fuente editable anterior describe esta revisión.
+
 ![Diagrama C4: clases de Establecimientos y Redis](../diagramas/C4-2-diagrama-de-clase-establecimientos-redis.png)
 
-`<<interface>>` distingue abstracciones candidatas; no expresa aprobación. `<<candidato>>` marca clases propuestas. `<<function>>` representa una función candidata mediante una caja UML, sin crear una clase de ensamblado ni definir su firma. Se omiten miembros y parámetros deliberadamente. Las etiquetas de relaciones describen responsabilidades, no métodos ni orden de ejecución.
+`<<interface>>` distingue abstracciones candidatas; no expresa aprobación. Todas las clases siguen propuestas aunque no repitan un estereotipo. `<<function>>` representa una función candidata mediante una caja UML, sin crear una clase de ensamblado ni definir su firma. Se omiten miembros y parámetros deliberadamente. Las etiquetas de relaciones describen responsabilidades, no métodos ni orden de ejecución.
 
 **Advertencia obligatoria: dibujar una coordinación de emisión no demuestra que la garantía esté implementada.** `CoordinarPublicacionFicha` es un candidato ilustrativo; su aparición no demuestra sincronización efectiva entre la retirada de publicación, la evidencia autoritativa, la comprobación final y el inicio de emisión por el backend. El mecanismo y la cobertura de todos los ejecutores relevantes siguen pendientes. La asociación representa también la comprobación autoritativa final y su coordinación con la entrega efectiva, no solo una validación inicial. La realización física de ese enlace con Presentación sigue pendiente; ninguna flecha prueba exclusión concurrente.
 
@@ -147,7 +211,7 @@ La propuesta ubica provisionalmente los puertos de consulta en Aplicación y el 
 
 Las asociaciones a `RecursosPublicos` y `ServiciosPublicos` son **condicionales**: solo se usarían si la proyección necesitara sus datos o evidencia de publicabilidad/revisión. No son clases privadas de Establecimientos ni obligan a que Recursos o Servicios importen este módulo. No se crean ciclos funcionales ni acceso a tablas privadas ajenas. REST corresponde a web–backend; estas fronteras no adoptan HTTP interno.
 
-`InvalidacionFichaPublica` se muestra sin llamador de transporte dentro del diagrama, porque publicación y consumo quedan fuera. El consumidor técnico de ADR-011 permanecerá dentro del backend, con idempotencia requerida y ACK posterior al efecto requerido; publisher confirms no equivalen a consumo. Publicación, recuperación y mecanismo idempotente siguen pendientes; Outbox permanece evaluado, no adoptado. Esa frontera no demuestra coordinación de retirada/emisión ni modifica reservas o pagos. El tercer C4 abordará el recorrido RabbitMQ; esta entrega no lo diseña.
+`InvalidacionFichaPublica` se muestra sin llamador de transporte dentro del diagrama, porque publicación y consumo quedan fuera. El consumidor técnico de ADR-011 permanecerá dentro del backend, con idempotencia requerida y ACK posterior al efecto requerido; publisher confirms no equivalen a consumo. Publicación, recuperación y mecanismo idempotente siguen pendientes; Outbox permanece evaluado, no adoptado. Esa frontera no demuestra coordinación de retirada/emisión ni modifica reservas o pagos. El [tercer C4](06-codigo-c4-invalidacion-rabbitmq.md) detalla el recorrido RabbitMQ. Worker independiente: **Preparado arquitectónicamente, no obligatorio inicialmente**; se implementará posteriormente cuando las necesidades operativas lo justifiquen, sin contenedor adicional inicial ni cambios a Dominio.
 
 ## 8. Decisiones abiertas, escenarios y riesgos
 
@@ -175,8 +239,8 @@ También permanecen los escenarios de retirada de servicio, invalidación retras
 |---|---|
 | PC-01–PC-03 | Cotización/aceptación, creación y relaciones Reserva/Solicitud/Pago e iniciador de confirmación de eventos siguen abiertos; la ficha no los resuelve. |
 | PC-04–PC-05 | Alcance temporal, solapamientos y espacios compartidos, garantía concurrente y disponibilidad durante coordinación siguen abiertos. RN-13 es obligatoria; no se aprueban mecanismos, retenciones ni expiraciones. |
-| PC-06–PC-08 | Precisión/límites monetarios y saldo cero, resolución de adelanto aprobado sin otras condiciones, fallos/duplicados/correlación del simulador siguen abiertos. Fórmula y registro completo del saldo ya aprobados no se reabren. |
-| PC-09–PC-10 | No aceptación, cambios, reapertura y ciclo posterior pendientes. RF13 no habilita cancelación, devolución, expiración o cierre. |
+| PC-06–PC-08 | Precisión/límites monetarios y saldo cero, conciliación/devolución cuando corresponda ante pago aprobado sin confirmar, fallos/duplicados/correlación y aplicación única del pago siguen abiertos. Fórmula y registro completo del saldo ya aprobados no se reabren. |
+| PC-09–PC-10 | No aceptación, cambios, reapertura y ciclo posterior pendientes. RF13 no habilita cancelación, expiración o cierre de Reserva. Devolución financiera cuando corresponda según ADR-012 no aprueba ese ciclo; políticas y ejecución pendientes. |
 | PC-11–PC-12 | Permisos y mecanismos de identidad/autorización, cobertura HU/RF/DA y evaluación EQ pendientes; no se amplía al administrador a gestión de usuarios. |
 | Contratos y composición | Todos los trece nombres, su distribución, interfaces, colaboración, firmas, DTO y resultados concretos son candidatos pendientes. |
 | Fuentes públicas | Precios, horarios y contribuciones necesarias conservan sus condicionamientos D1/D2. |
@@ -185,23 +249,16 @@ También permanecen los escenarios de retirada de servicio, invalidación retras
 
 Riesgos persistentes: exposición por evidencia antigua, reconstrucciones obsoletas, mezcla incoherente de contribuciones, pérdida de metadatos, cobertura insuficiente de cambios, invalidación retrasada o perdida, reconstrucciones simultáneas y sobrecarga relacional durante fallback. No se aprueban tolerancias de divulgación tras retirada ni beneficios cuantitativos.
 
-Toda operación monetaria permanece exclusivamente simulada. DP-03 conserva total y adelanto conocidos antes y fijados al iniciar; la ficha informativa no los sustituye. El registro posterior del saldo completo por propietario autorizado de reserva confirmada propia conserva fórmula, una recepción activa e historial de correcciones (HU14/RF20; DP-04–DP-09). Registrar o corregir saldo no cambia Reserva ni resultado del adelanto y está separado de confirmación. No se inventa recepción para saldo cero. No hay pagos reales, parciales del saldo, reembolsos ni comprobantes bancarios.
+El alcance financiero vigente es pago electrónico real total o adelanto configurado, verificado por backend y aplicado una sola vez (RC07; DF-03–DF-06; DP-01–DP-12; ADR-012 propuesta). La ficha informativa no sustituye importes/opción/moneda/receptor mostrados y fijados al iniciar. Redis no almacena pagos definitivos, credenciales, evidencia financiera, conciliaciones, reservas o disponibilidad autoritativa. La recepción posterior completa positiva es declarada por propietario autorizado de reserva confirmada propia, separada de pago electrónico y confirmación; una recepción activa e historial, sin fraccionamientos ni recepción ficticia para cero. El procedimiento técnico sigue pendiente.
 
-La confirmación conserva disponibilidad válida y adelanto aprobado, más aceptación interna para eventos. Consultar o coordinar no retiene recursos (RN-12 derivada); caché y mensajes no garantizan RN-13 ni resuelven PC-05. No se añaden flujos de negocio, mensajería propia, compra de comidas/entradas/actividades o reserva de habitaciones.
+La confirmación exige pago requerido verificado y aplicado, disponibilidad válida y ausencia de incompatibilidades concurrentes, más aceptación interna para eventos. Consultar/coordinar no retiene recursos (RN-12/RN-13; PC-05). Caché y mensajes no resuelven garantías financieras. No se añaden mensajería propia, compra de comidas/entradas/actividades o reserva de habitaciones.
 
 ## 9. Reconciliación y estado documental
 
-Esta vista ilustrativa queda **aprobada conceptualmente y cerrada documentalmente** en cuanto a la representación y trazabilidad de las responsabilidades D1–D6. Se conservan los trece participantes como candidatos ilustrativos: el cierre no les transfiere la aprobación conceptual de D1–D6 ni aprueba sus clases concretas, relaciones como contratos obligatorios, firmas, ubicación definitiva, mecanismos operativos o ensamblado. Tampoco acredita implementación, configuración o pruebas.
+Se conserva el cierre conceptual de D1–D6 y de esta vista en su alcance técnico. Los trece participantes, relaciones, firmas, distribución de puertos y composición siguen candidatos; la recuperación de Mermaid no los convierte en clases aprobadas ni reabre algoritmos. D3/D4 sigue exigiendo admisibilidad/revisión coherente y coordinación con inicio de emisión; no prohibición absoluta adicional de toda escritura física tardía. Fallback, distinciones D6, categorías D1 y autoridad modular D2 permanecen intactos.
 
-| Desfase de fuentes | Criterio y efecto en esta vista |
-|---|---|
-| AGENTS.md y restricciones conservan nueve ADR y el marco previo sin caché aprobada; catálogo vigente y cierres reconocen ADR-010/011. | Se aplican alcances expresos de cierre: Redis/cache-aside y RabbitMQ acotados, sin adoptar mecanismos adicionales ni modificar fuentes. |
-| Catálogo y ADR independientes aún describen C2 con tres contenedores y C3 anterior; C2 anuncia revisión futura de C3. | C2/C3 cerrados vigentes representan cinco contenedores, ocho módulos y seis responsabilidades técnicas. Las referencias anteriores son desfases registrados, sin reabrir vistas. |
-| Diseño Interno/Patrones conservan referencias a Principios pendiente; el diseño D1–D6 preparaba un segundo C4 futuro. | Esta vista materializa y cierra documentalmente ese alcance. Se conservan las referencias históricas de Diseño Interno/Patrones sin modificar esos documentos ni declarar sincronización automática. |
-| README/arquitectura inicial describen tres capas y simulación externa frente a precisiones vigentes; el catálogo afirma armonización. | Rigen cuatro capas ADR-002 y simulador interno del MVP. Referencias gráficas históricas y menciones de ORM no seleccionan tecnologías; no se afirma inspección visual nueva. |
+La jerarquía aplicada es: solicitud explícita actual y Análisis vigente (actores, HU/RF, RC/DF/DP); decisiones estructurales ADR-001–ADR-011 y estado individual de ADR-012; RN/PC, estados y flujos; Diseño Interno; representación C4. Los informes son antecedentes auxiliares, no aprobaciones. Tarea 4 sincroniza AGENTS.md, README y los textos de arquitectura con pagos reales como objetivo y las cuatro capas de ADR-002. Las seis fuentes C1–C4 ya existen para revisión; sus PNG históricos siguen pendientes de actualización. Los ejemplos no seleccionan tecnología ni aprueban ADR-012.
 
-No se identifican contradicciones bloqueantes que impidan este cierre documental dentro del alcance autorizado. C1, C2, C3, primer C4, ADR, Diseño Interno, AGENTS.md y README se preservan. No se crea código fuente, exportaciones ni archivos auxiliares. Se mantienen todos los pendientes de D1–D6 y PC-01–PC-12, RF13 pendiente, RN-13 obligatoria y pagos exclusivamente simulados.
+El alcance financiero previo exclusivamente simulado se sustituye conforme [ADR-012](../01-analisis-de-sistema/adr/ADR-012-modelo-pagos-mvp.md) y reconciliación de Diseño (antecedente auxiliar local, fuera del repositorio), sin aprobación de producción. No se repiten como actuales los desfases históricos de nueve ADR/tres contenedores/C3 futuro: el catálogo ya reconoce doce registros (ADR-012 propuesta), cinco contenedores y ocho módulos. Tarea 4 sincroniza AGENTS/README y los textos de arquitectura general; auditoría documental y aprobación del responsable son estados distintos.
 
-La imagen PNG enlazada en la sección 3 no se valida visualmente en este documento. Las garantías D3/D4 no se deducen de la representación gráfica; mecanismos, implementación y evidencia operativa permanecen pendientes.
-
-**URBANPULSE — SEGUNDO C4 ESTABLECIMIENTOS/REDIS APROBADO CONCEPTUALMENTE — VISTA ILUSTRATIVA CERRADA DOCUMENTALMENTE — SIN COMMIT NI PUSH.**
+Consumidor de invalidación dentro del backend; worker posterior **Preparado arquitectónicamente, no obligatorio inicialmente**. No finanzas en Redis/RabbitMQ, ni microservicio o noveno módulo. PC-01–PC-12 y RF13 conservan pendientes; ninguna garantía o prueba se acredita por esta revisión. PNG intacto, sin revisión visual; verificación de Mermaid y enlaces registrada en el informe de Tarea 3 (antecedente auxiliar local, fuera del repositorio). Esta reconciliación queda pendiente de auditoría, sin renovar aprobación documental por crear el archivo.

@@ -1,5 +1,7 @@
 # UrbanPulse — Diseño técnico conceptual de fichas públicas con Redis
 
+**Nota de vigencia financiera — Tarea 2, 07/11/2026:** el cierre D1–D6 se conserva; las referencias a simulación exclusiva son antecedentes sustituidos por [RC/DF/DP revisados](../../01-analisis-de-sistema/05-restricciones.md) y [ADR-012](../../01-analisis-de-sistema/adr/ADR-012-modelo-pagos-mvp.md), cuyas decisiones arquitectónicas financieras siguen propuestas. No se reabren D1–D6 ni se aprueba integración de producción. Redis excluye toda operación/evidencia financiera definitiva. RabbitMQ solo transporta invalidaciones, con consumidor interno; worker independiente: **Preparado arquitectónicamente, no obligatorio inicialmente**. Extracción posterior por fronteras de consumo/coordinación/invalidación sin modificar Dominio, sin microservicio ni módulo adicional; no mensajería financiera sin nueva decisión.
+
 **Estado: enfoque D1–D6 aprobado conceptualmente y registro cerrado documentalmente — Establecimientos y Redis. Contratos, mecanismos operativos e implementación pendientes.**
 
 **Fecha de aprobación conceptual:** 16/10/2026.
@@ -8,7 +10,7 @@
 
 ## 1. Objetivo, alcance y estado de aprobación
 
-Registrar el enfoque conceptual D1–D6 aprobado expresamente por el responsable para la consulta y carga segura de fichas públicas de establecimientos con Redis. Esta especificación técnica complementa ADR-010 y ADR-011; no constituye una ADR-012 ni modifica las decisiones existentes. Prepara el alcance conceptual del segundo C4, sin crearlo ni reabrir C1, C2, C3 o la primera vista C4 de Reservas.
+Registrar el enfoque conceptual D1–D6 aprobado expresamente por el responsable para la consulta y carga segura de fichas públicas de establecimientos con Redis. Esta especificación técnica complementa ADR-010 y ADR-011; no constituye una nueva ADR ni modifica las decisiones técnicas de Redis existentes. Prepara el alcance conceptual del segundo C4, sin crearlo ni reabrir C1, C2, C3 o la primera vista C4 de Reservas.
 
 La autorización procede de los acuerdos detallados en la solicitud de registro. No se dispone en el contexto aportado de un informe previo de propuesta D1–D6; no se atribuyen a ese antecedente recomendaciones o aprobaciones adicionales. Las designaciones D1–D6 de este documento identifican exclusivamente los seis acuerdos técnicos de la solicitud; no reinterpretan las referencias históricas «D2» del catálogo RN.
 
@@ -30,13 +32,13 @@ Las fuentes se contrastan según sus alcances expresos de aprobación. Los enlac
 | [AGENTS.md](../../../AGENTS.md) | Jerarquía documental, cuatro capas, preservación de fuentes y trabajo preexistente. Su referencia a nueve ADR y ausencia de caché aprobada conserva un desfase frente a los cierres explícitos posteriores. |
 | [HU](../../01-analisis-de-sistema/02-historias-del-usuarios.md) y [RF](../../01-analisis-de-sistema/03-requisitos-funcionales.md) | HU02 → RF02 respalda consulta informativa. HU02 enumera las ocho categorías de D1. HU06 → RF08 respalda gestión del establecimiento; HU07 → RF09, recursos y horarios; HU11 → RF15, administración de establecimientos. HU05/RF07 aporta contexto de servicios solicitados, sin convertir oferta pública en cotización. |
 | [AC](../../01-analisis-de-sistema/04-atributos-de-calidad.md) y [drivers DA](../../01-analisis-de-sistema/06-driver-arquitectonicos.md) | AC01/DA04: contexto de rendimiento; AC04/DA05: límite de seguridad; AC03/DA02: consistencia de reservas; AC05/AC08 y DA06: contexto de mantenibilidad y desacoplamiento. No prueban cumplimiento. |
-| [Restricciones RC y decisiones DF/DP](../../01-analisis-de-sistema/05-restricciones.md) | RC03/RC04: REST web–backend y persistencia relacional; DF-01–DF-06 y DP-01–DP-12 conservan modalidades, aceptación interna y simulación exclusivamente académica. |
+| [Restricciones RC y decisiones DF/DP](../../01-analisis-de-sistema/05-restricciones.md) | RC03/RC04: REST web–backend y persistencia relacional; DF-01–DF-06 y DP-01–DP-12 conservan modalidades y aceptación interna; su alcance financiero vigente admite total o adelanto real verificado y aplicado, según ADR-012 propuesta. |
 | [Catálogo ADR-001–ADR-011](../../01-analisis-de-sistema/07-decisiones-arquitectonicas.md) | ADR-001/002: Monolito Modular y cuatro capas; ADR-005–008: REST, adaptadores, roles y repositorios. ADR-009 mantiene optimización de disponibilidad sin aprobación histórica de caché. |
 | [ADR-010 — Redis](../../01-analisis-de-sistema/adr/ADR-010-cache-redis.md#registro-de-cierre-conceptual) | Cierre conceptual de Redis/cache-aside para fichas públicas reconstruibles, fuente relacional definitiva, fallback y retirada segura de publicación; mecanismos pendientes. D1–D6 desarrolla conceptualmente ese ámbito mediante esta autorización complementaria. |
 | [ADR-011 — RabbitMQ](../../01-analisis-de-sistema/adr/ADR-011-mensajeria-rabbitmq.md#registro-de-cierre-conceptual) | Invalidación técnica asíncrona, consumidor dentro del backend, idempotencia y ACK posterior al efecto requeridos; publicación/recuperación pendientes y Outbox no adoptado. |
 | [C2 — Contenedores](../../04-modelo-c4/02-contenedores-c2.md) | Revisión cerrada con cinco contenedores: Aplicación Web, Backend UrbanPulse, Base de datos relacional, Redis y RabbitMQ. No acredita despliegue. |
 | [C3 — Componentes](../../04-modelo-c4/03-componentes-c3.md) | Ocho módulos y seis responsabilidades técnicas de caché/mensajería. Sus cajas no obligan a crear una interfaz o clase por responsabilidad. |
-| [Primer C4 — Reservas](../../04-modelo-c4/04-codigo-c4.md) | Vista ilustrativa cerrada para confirmación directa de cancha/karaoke. Permanece fuera del cambio; sus firmas no se reutilizan como contratos de fichas. |
+| [Primer C4 — Reservas](../../04-modelo-c4/04-codigo-c4.md) | Vista directa con cierre conceptual histórico y fuente financiera revisada; participantes candidatos. Sus contratos no se reutilizan como contratos de fichas. |
 | [Diseño de módulos](diseño-interno-de-modulos.md), [Patrones](patrones-de-diseño.md) y [Principios SOLID](principios-de-diseño.md) | Tres documentos cerrados conceptualmente y reconciliados con ADR-010/011 y C3. Fundamentan separación de consulta, reconstrucción, admisibilidad y adaptación. Contratos concretos siguen pendientes. |
 | [RN y PC](../01-reglas-de-negocio.md), [estados](../02-estados-y-transiciones.md) y [flujos](../03-flujos-de-reserva.md) | RN conserva sus niveles individuales; PC-01–PC-12 y RF13 mantienen sus límites. Las representaciones de estados y secuencias no aprueban mecanismos operativos. |
 | [Escenarios EQ](../../01-analisis-de-sistema/08-escenarios-atributos-calidad.md) | Antecedente de evaluación con procedimientos y métricas pendientes de revisión; no acredita pruebas ejecutadas. |
@@ -70,7 +72,7 @@ El acuerdo comprende **ocho categorías de información**, condicionado en todos
 
 La invalidación indicada corresponde a cambios efectivos de datos incluidos o de su publicabilidad; no convierte modificaciones no confirmadas en información definitiva. Su cobertura, incluida la gestión administrativa pertinente y los cambios de contribuciones, deberá concretarse. Una retirada parcial invalida la proyección compuesta completa conforme a D3.
 
-Horarios informativos **no son disponibilidad reservable**. Precios informativos **no son cotizaciones aceptadas ni importes fijados de una operación iniciada**; DP-03 conserva la obtención de valores autorizados, su presentación previa y fijación al iniciar la simulación. Los servicios públicos no se agregan automáticamente a cotizaciones (RN-07). Las condiciones generales no representan aceptación contractual particular dentro de UrbanPulse (DF-02/DF-03).
+Horarios informativos **no son disponibilidad reservable**. Precios informativos **no son cotizaciones aceptadas ni importes fijados de una operación iniciada**; DP-03 conserva la obtención de valores autorizados, su presentación previa y fijación al iniciar la operación de pago. Los servicios públicos no se agregan automáticamente a cotizaciones (RN-07). Las condiciones generales no representan aceptación contractual particular dentro de UrbanPulse (DF-02/DF-03).
 
 No se incluyen fotografías, valoraciones, identidad privada, contacto ni campos adicionales sin aprobación posterior. Aunque HU06 y C3 contemplen contacto en otras funciones, eso no lo incorpora a esta proyección mínima. No se deciden obligatoriedad, formatos, coordenadas, moneda o esquema JSON. Los datos técnicos de revisión de D4 no amplían las ocho categorías ni se convierten por defecto en contenido público.
 
@@ -207,12 +209,12 @@ Publicación y recuperación permanecen pendientes. La publicación directa post
 | PC-04 | Alcance temporal, solapamientos, extremos y espacios compartidos; horarios informativos no resuelven disponibilidad. |
 | PC-05 | Garantía de concurrencia y disponibilidad durante coordinación. RN-13 sigue obligatoria y sin mecanismo aprobado; caché y broker no la satisfacen. |
 | PC-06 | Precisión monetaria, límites y representación del saldo cero. Fórmula y registro manual completo del saldo ya aprobados no se reabren. |
-| PC-07 | Adelanto aprobado sin disponibilidad u otras condiciones: no confirmar; resolución posterior pendiente, sin devolución inventada. |
-| PC-08 | Fallos, ausencias, reintentos, duplicados y asociación de resultados del simulador. No quedan resueltos por invalidaciones técnicas. |
+| PC-07 | Pago aprobado sin confirmación: conservar evidencia para conciliación y devolución cuando corresponda; responsables, política y recuperación pendientes. |
+| PC-08 | Contratos del proveedor, fallos, incertidumbre, reintentos, duplicados entre canales, desorden y aplicación única. No quedan resueltos por invalidaciones técnicas. |
 | PC-09 | No aceptación, cambios y reapertura sin nuevas transiciones o permisos inferidos. |
-| PC-10 | RF13 y ciclo posterior pendientes; sin habilitar cancelación, devolución, expiración o cierre de reservas. |
-| PC-11 | Matriz de permisos y mecanismos de autenticación/autorización; D3 no adopta esos mecanismos ni amplía al administrador a gestión de usuarios. |
-| PC-12 | Cobertura HU/RF/DA y evaluación EQ; sin nuevas relaciones, métricas o cumplimiento inferidos. |
+| PC-10 | RF13 y ciclo posterior pendientes; devolución financiera cuando corresponda se diseña separada de cancelar Reserva, sin garantía o ejecución presumidas. |
+| PC-11 | Matriz de permisos, autenticación/autorización y seguridad/vinculación de receptor; D3 no adopta mecanismos ni amplía al administrador a usuarios. |
+| PC-12 | Cobertura HU/RF/DA, evaluación EQ y coherencia de integraciones/responsabilidades técnicas; consultar catálogo RN/PC actualizado sin inferir cumplimiento. |
 
 Permanecen abiertos los mecanismos de visibilidad, cobertura de ejecutores y punto de emisión; identidad y coherencia de revisiones; propiedad y ubicación exacta de puertos; contratos y composición; fuentes públicas de precios/horarios; claves, TTL, evicción, capacidad, clientes, seguridad operativa y recuperación. La aprobación de direcciones conceptuales D3/D4 no selecciona bloqueo, mutex, exclusión, comparación, escritura condicional, transacción distribuida ni protocolo operativo. Las propuestas de origen modular de D1 siguen condicionadas; no se añaden alternativas como decisiones adoptadas.
 
@@ -220,13 +222,15 @@ Permanecen abiertos los mecanismos de visibilidad, cobertura de ejecutores y pun
 
 Redis se limita a las fichas públicas: se excluyen reservas, disponibilidad, adelantos, saldo, aceptación particular, permisos y datos protegidos. La evidencia relacional de admisibilidad no convierte permisos o reglas de autorización en contenido de la copia pública. Las búsquedas públicas siguen fuera del alcance inicial de caché.
 
-DF-03/DF-04 mantienen confirmación con adelanto simulado aprobado y disponibilidad válida, más aceptación interna del cliente en eventos. Consultar o coordinar no retiene recursos (RN-12 derivada). DP-03 mantiene total/adelanto conocidos antes y fijados al iniciar; precios informativos no alteran esos importes.
+DF-03/DF-04 mantienen confirmación con pago total o adelanto configurado verificado y aplicado y disponibilidad válida, más aceptación interna del cliente en eventos. Consultar o coordinar no retiene recursos (RN-12 derivada). DP-03 muestra y fija total, adelanto, opción, importe, moneda y receptor al iniciar; precios informativos no alteran esos datos.
 
-Toda operación monetaria es exclusivamente simulada (DF-06/DP-01/DP-07). HU14/RF20 y DP-04–DP-09 conservan registro posterior del saldo completo por propietario autorizado de reserva confirmada propia, fórmula total menos adelanto aprobado y aplicado, una recepción activa e historial de correcciones con autor/fecha. Registrar/corregir saldo no cambia Reserva ni resultado del adelanto (DF-05/RN-16). No hay parciales, fondos reales, comprobantes bancarios ni recepción ficticia de saldo cero.
+El objetivo financiero real procede de DF-06/DP-01 y ADR-012, con candidato e integración de producción pendientes de validación. HU14/RF20 y DP-04–DP-09 conservan recepción posterior del saldo completo positivo por propietario autorizado de confirmada propia, fórmula total menos pago verificado y aplicado, una recepción activa e historial con autor/fecha. Método declarado, fecha de recepción y referencia aplicable no acreditan confirmación del proveedor. Registrar/corregir saldo no cambia Reserva ni resultado electrónico; no fraccionar ni inventar recepción de cero.
 
-No se añaden módulos, funcionalidades, estados, tecnologías o decisiones operativas; no se habilitan pagos reales, reembolsos, mensajería propia, compra de comidas/entradas/actividades, reserva de habitaciones o gestión administrativa de usuarios.
+Este registro técnico no implementa pagos o devoluciones ni amplía Redis/RabbitMQ al ámbito financiero. Conserva D1–D6 sin nuevos módulos, estados, tecnologías o mecanismos operativos; mensajería propia, compra de comidas/entradas/actividades, habitaciones y gestión administrativa de usuarios siguen fuera del alcance.
 
 ### Discrepancias documentales y efecto
+
+**Antecedentes del registro D1–D6:** las cuatro primeras filas describen el estado anterior a tareas 1–4, no contradicciones vigentes de los textos. Tarea 4 sincroniza AGENTS.md, README y arquitectura general; catálogo de doce ADR con ADR-012 propuesta, cinco contenedores y ocho módulos. Las seis fuentes C1–C4 ya existen y se revisaron para pagos reales; los PNG y los mecanismos pendientes conservan su tratamiento individual.
 
 | Fuentes y contenido en conflicto | Criterio respaldado | Efecto en este registro |
 |---|---|---|
@@ -240,7 +244,7 @@ Las discrepancias identificadas no bloquean este registro acotado. Las referenci
 
 ## 11. Implicaciones para el segundo C4
 
-El límite aprobado conceptualmente es desarrollar posteriormente **consulta y carga segura de la ficha pública**, con una **frontera conceptual de invalidación**. Este documento prepara esa vista; no la crea y no aprueba de antemano sus clases, firmas, relaciones concretas o composición.
+El límite aprobado conceptualmente es **consulta y carga segura de la ficha pública**, con una **frontera conceptual de invalidación**. La [segunda vista C4 existente](../../04-modelo-c4/05-codigo-c4-establecimientos-redis.md) ya desarrolla ese límite con fuente Mermaid ilustrativa; la [tercera](../../04-modelo-c4/06-codigo-c4-invalidacion-rabbitmq.md) separa el transporte técnico. D1–D6 no aprueba clases, firmas, relaciones concretas o composición.
 
 | Base C3 / acuerdo | Responsabilidad que deberá poder explicarse en el segundo C4 | Límite |
 |---|---|---|
@@ -250,7 +254,7 @@ El límite aprobado conceptualmente es desarrollar posteriormente **consulta y c
 | Frontera autorizada de invalidación | Solicitud conceptual de invalidación del ámbito afectado, incluida la proyección completa ante retirada parcial. | No exige una clase por caja ni desarrolla el flujo completo RabbitMQ. |
 | Puerto/adaptador de publicación y consumidor técnico de C3 | Contexto existente de ADR-011 para reconocer el origen de solicitudes técnicas. | Fuera del desarrollo completo de publicación/consumo en el segundo C4; Outbox y recuperación pendientes. |
 
-C1, C2, C3 y el primer C4 permanecen cerrados en sus alcances respectivos y no se modifican. Se conserva Monolito Modular, ocho módulos, cinco contenedores de contexto y dependencias hacia el núcleo. No se añade módulo funcional de caché/proyección, quinta capa, microservicio o worker independiente.
+Los cierres históricos C1–C4 conservan sus alcances técnicos; las seis fuentes revisadas no heredan aprobación financiera. Se conserva Monolito Modular, ocho módulos, cinco contenedores de contexto y dependencias hacia el núcleo. No se añade módulo funcional de caché/proyección, quinta capa ni microservicio. Consumidor interno; worker independiente: **Preparado arquitectónicamente, no obligatorio inicialmente**; implementación posterior sin modificar Dominio.
 
 ## 12. Registro de aprobación y estado documental
 
@@ -264,6 +268,6 @@ C1, C2, C3 y el primer C4 permanecen cerrados en sus alcances respectivos y no s
 | No adoptado | Transactional Outbox. | Alternativa evaluada; publicación y recuperación permanecen pendientes según ADR-011. |
 | Aprobado y cerrado documentalmente | Redacción y trazabilidad de este registro complementario. | Cierre basado en la auditoría conceptual favorable, sin contradicciones arquitectónicas bloqueantes, comunicada en la solicitud del responsable. Preserva D1–D6 y delimita el segundo C4 a consulta, admisibilidad, reconstrucción, carga segura y frontera conceptual de invalidación. No aprueba contratos concretos, algoritmos, configuración, implementación ni garantías operativas verificadas. |
 
-No se modifican ADR-010/011, C1, C2, C3, primer C4 ni los tres documentos cerrados de Diseño Interno. No se introducen clases o firmas, implementación, configuración o dependencias instaladas. No se registran pruebas operativas ni cumplimiento de EQ. PC-01–PC-12, RF13 y los mecanismos indicados conservan sus estados. No se ejecutan operaciones de incorporación al índice, commit o push por este registro.
+El cierre histórico D1–D6 no modificó ADR-010/011, C1–C4 ni los tres documentos de Diseño Interno; las revisiones posteriores de tareas 1–4 se distinguen de ese antecedente. No se introducen clases o firmas, implementación, configuración o dependencias instaladas. No se registran pruebas operativas ni cumplimiento de EQ. PC-01–PC-12, RF13 y los mecanismos indicados conservan sus estados. No se ejecutan operaciones de incorporación al índice, commit o push por este registro.
 
 **URBANPULSE — DISEÑO TÉCNICO D1–D6 APROBADO CONCEPTUALMENTE — REGISTRO CERRADO DOCUMENTALMENTE — ESTABLECIMIENTOS Y REDIS — SIN COMMIT NI PUSH.**

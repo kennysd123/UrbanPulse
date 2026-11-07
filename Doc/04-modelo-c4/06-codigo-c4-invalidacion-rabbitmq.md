@@ -1,8 +1,10 @@
 # UrbanPulse — Modelo C4 Nivel 4: Invalidación técnica con RabbitMQ
 
-**Estado: vista ilustrativa aprobada conceptualmente y cerrada documentalmente — invalidación técnica con RabbitMQ. Participantes, contratos, mecanismos operativos e implementación pendientes.**
+**Antecedente de estado:** vista ilustrativa de invalidación técnica con RabbitMQ aprobada conceptualmente y cerrada documentalmente en su alcance técnico. Participantes, contratos, mecanismos operativos e implementación pendientes; revisión actual pendiente de auditoría.
 
 No acredita implementación, configuración, despliegue, pruebas ni garantías operativas.
+
+**Revisión Tarea 3 — 07/11/2026; pendiente de auditoría.** Se conserva el antecedente de aprobación conceptual y cierre documental de la estructura anterior. La revisión financiera no hereda ese cierre: el alcance funcional está establecido por [RC/DF/DP vigentes](../01-analisis-de-sistema/05-restricciones.md), mientras la respuesta arquitectónica de [ADR-012](../01-analisis-de-sistema/adr/ADR-012-modelo-pagos-mvp.md) sigue propuesta. Mercado Pago Marketplace Split 1:1 es solamente candidato, sin capacidades verificadas ni aprobación de producción. No se acredita implementación, despliegue o pruebas.
 
 ## 1. Objetivo, alcance y exclusiones
 
@@ -16,7 +18,7 @@ La vista se limita a:
 - La coordinación de Establecimientos con la ficha pública y las protecciones de consulta D3/D4, como referencias al segundo C4 cuando corresponda.
 - Las ventanas de fallo, duplicados y recuperación que siguen abiertas.
 
-Se conservan el Monolito Modular, cuatro capas oficiales, ocho módulos funcionales y cinco contenedores C2. RabbitMQ y Redis son infraestructura de apoyo; no se añade una quinta capa, módulo funcional, worker independiente, microservicio o contenedor de backend adicional. La base relacional conserva la fuente definitiva; Redis se limita a copias reconstruibles de fichas públicas.
+Se conservan el Monolito Modular, cuatro capas oficiales, ocho módulos funcionales y cinco contenedores C2. RabbitMQ y Redis son infraestructura de apoyo; no se añade una quinta capa, módulo funcional, worker independiente inicial, microservicio o contenedor de backend adicional. Worker posterior: **Preparado arquitectónicamente, no obligatorio inicialmente**; se implementará cuando las necesidades operativas lo justifiquen. Fronteras de recepción, coordinación e invalidación permiten extracción posterior sin modificar Dominio. La base relacional conserva la fuente definitiva; Redis se limita a copias reconstruibles de fichas públicas.
 
 Se excluyen operaciones de negocio por mensajes, confirmaciones de Reserva, pagos, cotizaciones, aceptación contractual, saldo y cualquier cambio a esos procesos. No se añaden casos de uso de negocio, permisos, llamadas funcionales circulares ni acceso a tablas o clases privadas ajenas. No se definen firmas, propiedades, DTO, esquemas de eventos, colas, exchanges, routing keys, configuración, bibliotecas ni mecanismos operativos. Transactional Outbox permanece evaluado, **no adoptado**.
 
@@ -33,12 +35,12 @@ Se excluyen operaciones de negocio por mensajes, confirmaciones de Reserva, pago
 
 | Fuente | Evidencia usada y límite |
 |---|---|
-| [AGENTS.md](../../AGENTS.md) | Jerarquía documental, cuatro capas, ocho módulos, PC-01–PC-12, RF13 y límites funcionales. Conserva referencias históricas anteriores a ADR-010/011; no revoca sus cierres posteriores. |
-| [Catálogo ADR-001–ADR-011](../01-analisis-de-sistema/07-decisiones-arquitectonicas.md) | Monolito Modular, cuatro capas, cinco contenedores objetivo y alcance adoptado de Redis/RabbitMQ; mecanismos operativos pendientes. |
+| [AGENTS.md](../../AGENTS.md) | Jerarquía documental, cuatro capas, ocho módulos, PC-01–PC-12, RF13 y límites funcionales. Sus referencias financieras se sincronizan en Tarea 4; se conservan jerarquía, seguridad y cierres técnicos Redis/RabbitMQ. |
+| [Catálogo ADR-001–ADR-012](../01-analisis-de-sistema/07-decisiones-arquitectonicas.md) | Monolito Modular, cuatro capas, cinco contenedores objetivo y alcance adoptado de Redis/RabbitMQ; mecanismos operativos pendientes. |
 | [ADR-010 — Redis](../01-analisis-de-sistema/adr/ADR-010-cache-redis.md#registro-de-cierre-conceptual) | Redis/cache-aside solo para fichas públicas, reconstruibles y con fuente relacional definitiva. Invalidación asíncrona y TTL genérico no garantizan por sí solos confidencialidad. |
 | [ADR-011 — RabbitMQ](../01-analisis-de-sistema/adr/ADR-011-mensajeria-rabbitmq.md#registro-de-cierre-conceptual) | Puerto interno y adaptador en Infraestructura; consumidor técnico interno; idempotencia requerida; ACK posterior al efecto. Publicación directa y Outbox sin resolver; no hay atomicidad relacional. |
 | [C2](02-contenedores-c2.md) y [C3](03-componentes-c3.md) | Cinco contenedores, ocho módulos y seis responsabilidades técnicas conceptuales. No prueban despliegue ni fijan clases. |
-| [C4 de Reservas](04-codigo-c4.md) | Vista ilustrativa de confirmación directa, cerrada en su alcance. No se reutilizan sus contratos para invalidación. |
+| [C4 de Reservas](04-codigo-c4.md) | Vista ilustrativa de confirmación directa; revisión financiera pendiente de auditoría. No se reutilizan sus contratos para invalidación. |
 | [Segundo C4: Establecimientos y Redis](05-codigo-c4-establecimientos-redis.md) | `InvalidacionFichaPublica`, `RedisFichaPublicaAdapter` y `CoordinarPublicacionFicha` son candidatos ilustrativos de esa vista; se referencian, no se convierten en elementos definitivos ni se aprueba una implementación Redis compartida. |
 | [Diseño técnico D1–D6](../03-dise%C3%B1o-software/dise%C3%B1o-interno/diseno-tecnico-fichas-publicas-redis.md) | Establecimientos coordina la proyección; Recursos y Servicios conservan autoridad de datos; D3/D4 exigen protección de consulta y revisiones, con mecanismos pendientes. |
 | [Diseño interno de módulos](../03-dise%C3%B1o-software/dise%C3%B1o-interno/dise%C3%B1o-interno-de-modulos.md), [Patrones](../03-dise%C3%B1o-software/dise%C3%B1o-interno/patrones-de-dise%C3%B1o.md) y [Principios SOLID](../03-dise%C3%B1o-software/dise%C3%B1o-interno/principios-de-dise%C3%B1o.md) | Cierres conceptuales sobre las capas, fronteras, adaptadores y responsabilidades; no aprueban clases ni mecanismos concretos nuevos. |
@@ -48,7 +50,64 @@ No se crean cadenas nuevas HU → RF → DA. HU02 → RF02 es contexto de consul
 
 ## 3. Vista UML de participantes candidatos
 
-El diagrama distingue capas y fronteras. `<<candidato>>` marca participantes propuestos, incluidas referencias cruzadas al segundo C4; no son clases aprobadas. `<<contexto>>` identifica RabbitMQ como referencia externa al código del backend, no como clase del Dominio. Las flechas expresan colaboraciones/dependencias conceptuales, no secuencia temporal, entrega garantizada ni atomicidad.
+El diagrama distingue capas y fronteras. Todos los participantes de código son propuestos, incluidas las clases sin estereotipo y las referencias cruzadas al segundo C4; no son clases aprobadas. `<<contexto>>` identifica RabbitMQ como referencia externa al código del backend, no como clase del Dominio. Las flechas expresan colaboraciones/dependencias conceptuales, no secuencia temporal, entrega garantizada ni atomicidad.
+
+```mermaid
+classDiagram
+    direction LR
+    namespace Productores_Aplicacion {
+        class CasoUsoEstablecimientos
+        class CasoUsoRecursos
+        class CasoUsoServicios
+    }
+    namespace Aplicacion_Tecnica_Backend {
+        class PuertoPublicacionInvalidaciones {
+            <<interface>>
+        }
+        class ConsumidorInvalidaciones
+        class InvalidacionFichaPublica {
+            <<interface>>
+        }
+    }
+    namespace Infraestructura_Backend {
+        class PublicadorRabbitMQAdapter
+        class ReceptorRabbitMQ
+        class RedisFichaPublicaAdapter
+    }
+    namespace Contexto_C2_y_C4_02 {
+        class RabbitMQ {
+            <<contexto>>
+        }
+        class CoordinarPublicacionFicha {
+            <<candidato>>
+        }
+    }
+    namespace Ensamblado_Fuera_Del_Nucleo {
+        class ComponerInvalidaciones {
+            <<function>>
+        }
+    }
+    CasoUsoEstablecimientos --> PuertoPublicacionInvalidaciones : cambio publico confirmado
+    CasoUsoRecursos --> PuertoPublicacionInvalidaciones : solo contribucion incluida
+    CasoUsoServicios --> PuertoPublicacionInvalidaciones : solo oferta incluida
+    PublicadorRabbitMQAdapter ..|> PuertoPublicacionInvalidaciones
+    PublicadorRabbitMQAdapter --> RabbitMQ : publicacion en ejecucion
+    RabbitMQ --> ReceptorRabbitMQ : entrega en ejecucion
+    ReceptorRabbitMQ --> ConsumidorInvalidaciones : delega validacion y coordinacion
+    ConsumidorInvalidaciones --> InvalidacionFichaPublica : efecto requerido
+    RedisFichaPublicaAdapter ..|> InvalidacionFichaPublica
+    ComponerInvalidaciones ..> PublicadorRabbitMQAdapter : suministro
+    ComponerInvalidaciones ..> ReceptorRabbitMQ : consumidor interno
+    ComponerInvalidaciones ..> ConsumidorInvalidaciones : suministro
+    ComponerInvalidaciones ..> RedisFichaPublicaAdapter : candidato compartido
+    note for ConsumidorInvalidaciones "Dentro del backend MVP. Duplicados e idempotencia; ACK<br/>despues del efecto. Publicacion y recuperacion<br/>pendientes. Outbox no adoptado."
+    note for CoordinarPublicacionFicha "Referencia C4-02 sin llamada obligatoria del<br/>consumidor. D3/D4 protege consulta independientemente<br/>del transporte."
+    note for ReceptorRabbitMQ "Worker independiente: Preparado arquitectonicamente, no<br/>obligatorio inicialmente. Extraccion posterior, sin<br/>nuevo contenedor actual."
+```
+
+Fuente editable recuperada del inventario conceptual, sin afirmar equivalencia exacta con el PNG ni introducir firmas o garantías. Todos los participantes de código siguen candidatos. Esta selección abre Aplicación e Infraestructura; Presentación y Dominio conservan sus responsabilidades oficiales, sin inventar clases allí para completar cajas. Las flechas desde el broker representan entrega, no dependencia de su código al núcleo.
+
+**PNG histórico conservado, pendiente de cotejo/exportación desde Mermaid.** No se inspeccionó visualmente. Si conserva exclusividad simulada o interpreta la ausencia inicial de worker como prohibición de extracción futura, ese contenido es desactualizado; no sustituye las notas vigentes ni acredita aprobación financiera.
 
 ![Diagrama C4: invalidacion tecnica con RabbitMQ](../diagramas/C4-3-diagrama-de-clase-invalidacion-rabbitmq.png)
 
@@ -148,16 +207,16 @@ La prioridad es cualitativa, considerando impacto y dependencia arquitectónica,
 
 Se mantienen expresamente pendientes: publicación directa frente a conservación duradera; Outbox no adoptado; contrato/esquema de evento; semántica de publisher confirms; idempotencia; ACK y errores; reintentos y recuperación; configuración/durabilidad del broker; claves, TTL y protocolo de invalidación Redis; D3/D4; fuentes públicas de precios/horarios; PC-01–PC-12. RN-13 sigue obligatoria y PC-05 abierto; RF13 sigue pendiente. TTL no sustituye conservación de intención, entrega fiable, recuperación ni protección de contenido retirado.
 
-Los mensajes no transportan órdenes de reservar, confirmar, simular adelantos, registrar saldo, cotizar o aceptar condiciones. Todo pago sigue exclusivamente simulado; la invalidación no cambia Reserva, resultado del adelanto o registro del saldo. Consultas y coordinación no retienen recursos ni resuelven RN-13/PC-05.
+Los mensajes no transportan órdenes de reservar, confirmar, procesar cobros o webhooks financieros, registrar saldo, cotizar o aceptar condiciones. El alcance financiero real total/adelanto se rige por ADR-012, con proveedor candidato y producción sin aprobar; la invalidación no cambia Reserva, resultado del pago o registro del saldo. Ampliar RabbitMQ a pagos, confirmación o webhooks financieros exige nueva decisión arquitectónica, sin herencia de ADR-011. Consultas y coordinación no retienen recursos ni resuelven RN-13/PC-05.
 
 ## 9. Reconciliación y estado documental
 
-Esta vista ilustrativa queda **aprobada conceptualmente y cerrada documentalmente** en cuanto a la representación de responsabilidades y fronteras. El cierre no altera ADR, C1, C2, C3, los dos C4 existentes, Diseño Interno, AGENTS ni requisitos. Mantiene ocho módulos funcionales, cinco contenedores C2 y cuatro capas. El consumidor permanece dentro del Backend UrbanPulse; las colaboraciones de módulos son fronteras públicas internas y no accesos a datos privados ajenos. Las dependencias de código se orientan al núcleo; la raíz de composición no es una quinta capa.
+Se conserva el cierre conceptual de la vista técnica y de ADR-011, sin trasladarlo a clases/firmas/contratos o arquitectura financiera. La fuente Mermaid recupera el inventario de responsabilidades con participantes candidatos; no acredita código o equivalencia visual exacta con PNG. Consumidor dentro del Backend UrbanPulse durante el MVP; no noveno módulo, quinta capa o microservicio. Worker independiente: **Preparado arquitectónicamente, no obligatorio inicialmente**; implementación posterior por necesidad operativa, con fronteras de recepción/coordinación/invalidación y sin modificar Dominio.
 
-El segundo C4 mantiene `InvalidacionFichaPublica`, `RedisFichaPublicaAdapter` y `CoordinarPublicacionFicha` como candidatos ilustrativos. Aquí se los cita como referencias cruzadas, sin duplicar funcionalidad aprobada ni afirmar que un único adaptador Redis realice lectura, carga e invalidación. El C4 de Reservas conserva su alcance de confirmación directa y no se extiende.
+El segundo C4 mantiene `InvalidacionFichaPublica`, `RedisFichaPublicaAdapter` y `CoordinarPublicacionFicha` como candidatos. No se obliga al consumidor a invocar la coordinación de consulta D3/D4 ni se aprueba un adaptador Redis único. Publicación, entrega, recepción, efecto y ACK siguen diferenciados; duplicados, idempotencia requerida y ACK tras efecto se preservan. Publicación fiable, conservación de intención, recuperación, reintentos/DLQ, configuración y sincronización D3/D4 siguen pendientes. Outbox evaluado, no adoptado; ninguna atomicidad entre sistemas o entrega exactamente una vez acreditada.
 
-La aprobación conceptual de ADR-011 sustenta las responsabilidades del broker y el consumidor, no su implementación. Siguen abiertos publicación directa frente a conservación duradera, idempotencia, errores, ACK, recuperación, contratos, configuración y coordinación D3/D4. Transactional Outbox permanece **evaluado, no adoptado**. No se afirma publicación fiable, atomicidad entre sistemas, entrega exactamente una vez, seguridad o pruebas ejecutadas.
+La jerarquía aplicada es: solicitud explícita actual y Análisis vigente (actores, HU/RF, RC/DF/DP); decisiones estructurales ADR-001–ADR-011 y estado individual de ADR-012; RN/PC, estados y flujos; Diseño Interno; representación C4. Los informes son antecedentes auxiliares, no aprobaciones. Tarea 4 sincroniza AGENTS.md, README y los textos de arquitectura con pagos reales como objetivo y las cuatro capas de ADR-002. Las seis fuentes C1–C4 ya existen para revisión; sus PNG históricos siguen pendientes de actualización. Los ejemplos no seleccionan tecnología ni aprueban ADR-012.
 
-El cierre conceptual favorable no convierte participantes candidatos en clases definitivas ni aprueba contratos, firmas, ubicación concreta, mecanismos operativos o implementación. Las relaciones UML conservan su carácter de representación ilustrativa de responsabilidades y fronteras, no de contratos obligatorios. Se preservan las obligaciones conceptuales y los mecanismos pendientes, sin cambiar el alcance funcional. PC-01–PC-12, RF13 y RN-13/PC-05 conservan sus estados.
+La evolución real total/adelanto de [ADR-012](../01-analisis-de-sistema/adr/ADR-012-modelo-pagos-mvp.md) no amplía RabbitMQ a cobros, conciliación, webhooks o confirmación. Tal extensión exige nueva decisión arquitectónica. Proveedor y producción no aprobados; devolución financiera cuando corresponda no aprueba RF13/cancelación. PC-01–PC-12 y RN-13/PC-05 conservan sus estados. No se reabren D1–D6 ni se altera el alcance de los cinco contenedores y ocho módulos.
 
-**URBANPULSE — TERCER C4 RABBITMQ APROBADO CONCEPTUALMENTE — VISTA ILUSTRATIVA CERRADA DOCUMENTALMENTE — SIN COMMIT NI PUSH.**
+PNG preservado sin inspección visual nueva; revisión textual/Mermaid y límites registrados en el informe Tarea 3 (antecedente auxiliar local, fuera del repositorio). La revisión queda pendiente de auditoría, sin código, configuración, despliegue, pruebas operativas o aprobación nueva por su escritura.

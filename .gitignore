@@ -20,3 +20,15 @@ pnpm-debug.log*
 dist/
 build/
 coverage/
+# Auxiliares locales de Codex (rutas exactas)
+/REVISION-ETAPA-01.diff
+/ actualizar analisis arquitectura y diagramas de UrbanPulse
+/Doc/01-analisis-de-sistema/09-informe-actualizacion-pagos-reales.md
+/Doc/03-diseño-software/04-informe-actualizacion-pagos-simulados.md
+/Doc/03-diseño-software/05-informe-reconciliacion-pagos-reales.md
+/Doc/03-diseño-software/06-informe-auditoria-cierre-sprint-01.md
+/Doc/03-diseño-software/07-preparacion-commit-documental-sprint-01.md
+/Doc/04-modelo-c4/07-informe-actualizacion-modelo-c4.md
+/Doc/04-modelo-c4/08-informe-validacion-visual-c4.md
+/Doc/diagramas/INVENTARIO-PENDIENTES.md
+/Doc/03-diseño-software/diseño-interno/.gitkeep

@@ -1,5 +1,7 @@
 # Requisitos Funcionales — UrbanPulse
 
+**Revisión de alcance financiero — 07/11/2026:** las decisiones funcionales de pagos reales sustituyen la exclusividad de simulación del MVP. Pago requerido significa pago total o adelanto configurado, verificado por el backend y aplicado una sola vez a la reserva. El proveedor sigue pendiente de validación; véanse [restricciones](05-restricciones.md) y [ADR-012](adr/ADR-012-modelo-pagos-mvp.md). No se acredita implementación ni aprobación de la integración de producción.
+
 Los requisitos funcionales describen las funciones que el sistema
 UrbanPulse debe realizar para satisfacer las necesidades identificadas
 en las historias de usuario.
@@ -18,23 +20,23 @@ debe permitir realizar.
 | **RF01** | El sistema debe permitir buscar establecimientos mediante criterios como categoría, ubicación y disponibilidad. | Descubrimiento |
 | **RF02** | El sistema debe permitir consultar la información de un establecimiento. | Establecimientos |
 | **RF03** | El sistema debe permitir consultar la disponibilidad de una cancha por fecha y horario. | Canchas |
-| **RF04** | El sistema debe permitir reservar directamente una cancha por recurso, fecha y bloque configurado, solo con adelanto simulado aprobado y disponibilidad válida al confirmar. | Canchas |
+| **RF04** | El sistema debe permitir reservar directamente una cancha por recurso, fecha y bloque configurado, solo con pago total o adelanto configurado verificado y aplicado y disponibilidad válida al confirmar, impidiendo confirmaciones incompatibles concurrentes. | Canchas |
 | **RF05** | El sistema debe permitir consultar la disponibilidad de una sala de karaoke por fecha y horario. | Karaoke |
-| **RF06** | El sistema debe permitir reservar directamente karaoke por sala, fecha e intervalo, solo con adelanto simulado aprobado y disponibilidad válida al confirmar. | Karaoke |
+| **RF06** | El sistema debe permitir reservar directamente karaoke por sala, fecha e intervalo, solo con pago total o adelanto configurado verificado y aplicado y disponibilidad válida al confirmar, impidiendo confirmaciones incompatibles concurrentes. | Karaoke |
 | **RF07** | El sistema debe permitir solicitar la reserva de un salón o recreo indicando fecha, cantidad de personas y servicios requeridos. | Salones / Recreos |
-| **RF08** | El sistema debe permitir al propietario gestionar la información de su establecimiento y sus condiciones, identificando el carácter simulado de todos los pagos del MVP. | Gestión de establecimientos |
-| **RF09** | El sistema debe permitir al propietario autorizado gestionar recursos, horarios y disponibilidad y configurar el importe del adelanto por recurso de cancha o karaoke, sin alterar importes fijados de operaciones ya iniciadas. | Gestión de disponibilidad |
+| **RF08** | El sistema debe permitir al propietario gestionar la información de su establecimiento y sus condiciones de pago, identificando al propietario receptor sin presumir una vinculación financiera validada. | Gestión de establecimientos |
+| **RF09** | El sistema debe permitir al propietario autorizado gestionar recursos, horarios y disponibilidad y configurar el adelanto por recurso de cancha o karaoke, sin alterar importes fijados de operaciones iniciadas; en eventos rigen las condiciones aceptadas. | Gestión de disponibilidad |
 | **RF10** | El sistema debe permitir al propietario gestionar las solicitudes de reserva de salones y recreos. | Gestión de solicitudes |
-| **RF11** | El sistema debe permitir iniciar y registrar el adelanto simulado, obligatorio en cancha y karaoke y según condiciones aceptadas en eventos, mostrando previamente total y adelanto y fijando ambos al iniciar la operación. | Pagos |
-| **RF12** | El sistema debe permitir confirmar una reserva solo con disponibilidad válida y adelanto simulado aprobado; en eventos exige además condiciones aceptadas por el cliente dentro de UrbanPulse. | Reservas |
+| **RF11** | El sistema debe permitir elegir, iniciar y registrar un pago electrónico real del total o del adelanto configurado, mostrando y fijando total, adelanto, importe elegido y propietario receptor antes de enviarlo; los reintentos de la misma operación deben ser idempotentes. | Pagos |
+| **RF12** | El sistema debe permitir confirmar una reserva solo con pago requerido verificado por backend y aplicado una vez y disponibilidad válida, aun bajo concurrencia; en eventos exige además condiciones aceptadas por el cliente dentro de UrbanPulse. El adelanto configurado es suficiente para la condición de pago. | Reservas |
 | **RF13** | El sistema debe permitir cancelar una reserva de acuerdo con las condiciones definidas por el establecimiento. **Pendiente de validación funcional; sin HU de origen.** | Reservas |
-| **RF14** | El sistema debe permitir al cliente consultar sus reservas y estados y al cliente y propietario autorizados consultar el resumen simulado de total acordado, adelanto aprobado y aplicado, saldo y estado de registro. | Reservas |
+| **RF14** | El sistema debe permitir al cliente consultar sus reservas y estados y al cliente y propietario autorizados consultar total, operación de pago, importe verificado y aplicado, pendiente y registro posterior del saldo, distinguiendo aprobación de confirmación y recepción declarada de verificación electrónica. | Reservas |
 | **RF15** | El sistema debe permitir al administrador gestionar los establecimientos registrados en la plataforma. | Administración |
 | **RF16** | El sistema debe permitir visualizar la ubicación de un establecimiento mediante un proveedor externo de mapas. | Ubicación |
 | **RF17** | El sistema debe permitir redirigir al cliente hacia WhatsApp para contactar al propietario. | Comunicación |
-| **RF18** | El sistema debe permitir simular aprobación o rechazo del adelanto, sin cobros, transferencias ni integraciones financieras reales. | Pago simulado |
-| **RF19** | El sistema debe reflejar el resultado del adelanto simulado en la situación de la reserva, sin confirmar por aprobación aislada ni cambiar el estado de Reserva por registrar el saldo. | Reservas / Pagos |
-| **RF20** | El sistema debe permitir al propietario autorizado registrar manualmente la recepción simulada del saldo completo de una reserva confirmada, indicando el importe y el método de pago seleccionado, y conservando la trazabilidad de las operaciones y correcciones, sin ejecutar transacciones financieras reales. | Pagos simulados |
+| **RF18** | El sistema debe verificar en backend los resultados del proveedor, validando autenticidad y correlación de notificaciones y contrastando estado, operación, importe, moneda y propietario receptor mediante el proveedor. Debe procesar pagos y webhooks idempotentemente; nunca confiar solo en el navegador. | Pagos electrónicos |
+| **RF19** | El sistema debe reflejar el resultado verificado del pago en la situación de la reserva, sin confirmar por aprobación aislada ni aplicar dos veces un pago. Debe conservar trazabilidad de pagos aprobados sin confirmación para conciliación y devolución cuando corresponda, sin borrar la aprobación ni fingir devolución completada. | Reservas / Pagos |
+| **RF20** | El sistema debe permitir al propietario autorizado registrar la recepción posterior del saldo completo positivo de una reserva confirmada propia, con método, importe, fecha y referencia cuando corresponda, autor y fecha/hora del registro; una recepción activa e historial de correcciones, sin modificar Reserva ni el resultado electrónico. | Pagos |
 
 ---
 
@@ -52,9 +54,9 @@ La siguiente relación registra la cobertura identificada en [02-historias-del-u
 | **HU06 — Administrar establecimiento** | RF08 |
 | **HU07 — Administrar recursos y disponibilidad** | RF09 |
 | **HU08 — Gestionar solicitudes** | RF10, RF12 |
-| **HU09 — Realizar adelanto** | RF11, RF18, RF19 |
+| **HU09 — Pagar total o adelanto** | RF11, RF18, RF19 |
 | **HU10 — Consultar reservas** | RF14 (consulta del resumen ampliada por DP-10) |
-| **HU14 — Registrar recepción simulada del saldo** | RF20; RF14 para consulta del propietario |
+| **HU14 — Registrar recepción posterior del saldo completo** | RF20; RF14 para consulta del propietario |
 | **HU11 — Gestionar establecimientos** | RF15 |
 | **HU12 — Contactar mediante WhatsApp** | RF17 |
 | **HU13 — Visualizar ubicación** | RF16 |
@@ -79,22 +81,22 @@ La aparición de cancelación en la arquitectura inicial o en los PNG no resuelv
 
 ## 5. Continuidad de la trazabilidad
 
-Las [decisiones funcionales DF-01–DF-06](05-restricciones.md#3-decisiones-funcionales-aprobadas-y-alcance-del-mvp) precisan el alcance con las ampliaciones explícitas de los RF existentes y la incorporación de RF20. DF-01 delimita RF07 al ambiente o espacio definido por el propietario para un evento privado en recreos. DF-03 precisa RF12: un evento solo se confirma con condiciones aceptadas por el cliente, adelanto simulado aprobado y disponibilidad verificada; RF19 no convierte un resultado aprobado de pago en confirmación automática. DF-04 precisa RF04/RF06 como confirmación directa con adelanto simulado obligatorio y disponibilidad válida al confirmar, manteniendo sus asociaciones HU contextuales pendientes.
+Las [DF-01–DF-06 y DP-01–DP-12](05-restricciones.md) mantienen sus identificadores y registran la sustitución del alcance simulado. RF04/RF06/RF12 aplican pago requerido verificado y aplicado, disponibilidad válida y prohibición de confirmaciones incompatibles concurrentes; eventos requieren además aceptación interna. El pago total y el adelanto configurado satisfacen la condición de pago; una aprobación aislada no confirma.
 
-**Precisión pendiente de formalización — DF-02:** RF07, RF10 y RF12 aportan contexto para solicitudes, gestión y confirmación, pero no detallan el registro de cotización y sus criterios de aceptación. RF12 ya explicita la aceptación interna como condición, sin resolver todos sus detalles. La decisión funcional está aprobada; su cobertura explícita y criterios de aceptación en HU/RF deben formalizarse posteriormente, sin crear requisitos adicionales para esa formalización pendiente. WhatsApp no sustituye la aceptación interna.
+**DF-02 continúa pendiente de formalización detallada:** HU05/HU08 y RF07/RF10/RF12 aportan contexto para cotización y aceptación. No se inventa cobertura directa de ambas acciones ni se sustituye la aceptación interna con WhatsApp.
 
-RF11/RF18/RF19 utilizan la abstracción de pago simulado implementada por UrbanPulse durante el MVP; no requieren conectarse con una pasarela financiera real ni acreditan implementación o pruebas realizadas.
+RF11 cubre inicio e idempotencia de operación; RF18 verifica al proveedor y deduplica notificaciones; RF19 distingue resultado, aplicación y confirmación y conserva pendientes de conciliación/devolución. RF14 muestra el resumen autorizado; RF20 registra recepción posterior completa. La identificación y vinculación del propietario receptor son condiciones para habilitar pagos, sin afirmar que RF08 apruebe una implementación OAuth o cubra por sí solo todo el onboarding.
 
-La cadena documental se consulta en [02-historias-del-usuarios](02-historias-del-usuarios.md) → este documento → [04-atributos-de-calidad](04-atributos-de-calidad.md) / [05-restricciones](05-restricciones.md) → [06-driver-arquitectonicos](06-driver-arquitectonicos.md) → [07-decisiones-arquitectonicas](07-decisiones-arquitectonicas.md). Las relaciones explícitas se registran en las tablas de drivers y ADR; no se presume cobertura completa por la sola existencia de un requisito.
+La cadena se consulta en [HU](02-historias-del-usuarios.md) → este documento → [AC](04-atributos-de-calidad.md) / [RC](05-restricciones.md) → [DA](06-driver-arquitectonicos.md) → [ADR](07-decisiones-arquitectonicas.md) → [EQ](08-escenarios-atributos-calidad.md). La matriz de ADR-012 distingue origen y contexto.
 
-Las relaciones directas RF → driver actualmente documentadas cubren RF01, RF03–RF08, RF11, RF12 y RF14–RF20. RF02, RF09 y RF10 no tienen todavía una relación de origen explícita en las tablas de drivers; esto no invalida sus HU de origen. La ampliación explícita de DA05/DA08 añade RF11/RF14/RF19/RF20; la influencia de RF02/RF09/RF10 sigue pendiente. RF13 permanece fuera de la cadena confirmada.
+Se conservan los orígenes de DA: RF18 en DA06 para integración; RF11/RF19 en DA08 para persistencia y trazabilidad; RF14/RF20 en DA05 y DA08. RF11/RF19 son contexto de DA06, sin añadirles un origen implícito. RF02/RF09/RF10 continúan sin origen explícito en drivers; RF04/RF06 conservan HU contextual y RF13 queda fuera del alcance confirmado. AC02/AC07 siguen sin driver explícito.
 
-## 6. Control de alcance y cantidades
+## 6. Control de alcance e identificadores
 
-Se conservan RF01–RF19 y se incorpora RF20: **20 RF catalogados, 19 aprobados y RF13 pendiente**. La petición de “20 RF aprobados” no es compatible con conservar RF13 sin aprobar y no agregar RF21; se registra esta inconsistencia sin cambiar su estado.
+**20 RF catalogados: 19 de alcance establecido y RF13 pendiente.** No se crea RF21 ni se aprueba cancelación por introducir devolución financiera de un pago aprobado sin confirmación. La integración de producción, sus contratos y los mecanismos técnicos permanecen por aprobar y validar; el alcance funcional no acredita implementación.
 
-Las formulaciones ampliadas de RF04/RF06/RF08/RF09/RF11/RF12/RF14/RF18/RF19 explicitan DF-04–DF-06 y DP-01–DP-12. RF14 cubre DP-10 para ambos actores autorizados; no se crea RF21. HU07 respalda configuración, HU09 adelantos, HU10 consulta del cliente y HU14 registro, correcciones y consulta del propietario. HU03/HU04 conservan su alcance literal de consulta.
+Se reformulan RF04/RF06/RF08/RF09/RF11/RF12/RF14/RF18/RF19/RF20 bajo sus mismos ID. RF18 deja de simular resultados y pasa a exigir verificación del proveedor e idempotencia. RF19 añade conciliación y devolución cuando corresponda; RF20 conserva recepción completa, autorización, unicidad activa e historial, y añade la fecha de recepción y referencia aplicable. El resto de RF conserva su significado.
 
-RF20 registra reserva asociada, importe completo del saldo, método (efectivo, Yape, Plin o transferencia), propietario autor, fecha y hora. Exige reserva confirmada propia, un solo registro activo y correcciones con historial, autor y fecha; no admite fraccionamiento ni cambia Reserva o adelanto. El caso de saldo cero queda pendiente de representación sin recepción inventada. Métodos y resultados son simulados, sin comprobantes bancarios ni evidencia de fondos reales (DF-06).
+Importe pendiente = total acordado − pago verificado y aplicado. La recepción manual posterior se consulta separadamente y no se vuelve a descontar como si fuera el mismo pago electrónico. Pago total aplicado implica pendiente cero, sin recepción ficticia. No se habilitan pagos parciales posteriores del saldo. Contratos monetarios, representación de cero, correcciones, recuperación y política de devolución siguen pendientes en ADR-012 y el informe de esta revisión.
 
-RF20 tiene influencia revisada sobre DA05 (autorización) y DA08 (trazabilidad persistente), desarrollada como ampliación en el documento de drivers. No se le atribuye una integración financiera ni se completan relaciones antiguas por analogía.
+**Historial:** la exclusividad de simulación de RF11/RF18/RF20 y la obligatoriedad de adelanto como única opción de RF04/RF06/RF12 quedan sustituidas para el MVP objetivo por la solicitud del 07/11/2026. Sus antecedentes se conservan en Git y en el registro de sustitución de [restricciones](05-restricciones.md#5-registro-de-sustitución-y-pendientes).

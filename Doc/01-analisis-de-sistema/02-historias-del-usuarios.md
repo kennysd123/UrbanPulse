@@ -1,5 +1,7 @@
 # Historias de Usuario — UrbanPulse
 
+**Revisión de alcance financiero — 07/11/2026:** las decisiones funcionales de pagos reales sustituyen la exclusividad de simulación del MVP. Pago requerido significa pago total o adelanto configurado, verificado por el backend y aplicado una sola vez a la reserva. El proveedor sigue pendiente de validación; véanse [restricciones](05-restricciones.md) y [ADR-012](adr/ADR-012-modelo-pagos-mvp.md). No se acredita implementación ni aprobación de la integración de producción.
+
 Las historias de usuario describen las principales necesidades de los
 actores que interactúan con UrbanPulse.
 
@@ -21,12 +23,12 @@ Se utiliza la estructura:
 | **HU06** | Propietario | Como propietario, quiero registrar y administrar mi establecimiento, para ofrecer sus servicios en UrbanPulse. | Gestión de establecimiento |
 | **HU07** | Propietario | Como propietario, quiero administrar los recursos, horarios y disponibilidad, para evitar reservas sobre recursos no disponibles. | Disponibilidad |
 | **HU08** | Propietario | Como propietario, quiero gestionar las solicitudes de reserva de salones y recreos, para confirmar las condiciones del evento. | Salones / Recreos |
-| **HU09** | Cliente | Como cliente, quiero realizar el pago simulado del adelanto requerido, para confirmar una reserva. | Pago |
+| **HU09** | Cliente | Como cliente, quiero pagar el precio completo o un adelanto configurado por el propietario, para obtener la confirmación cuando se cumplan las condiciones de la reserva. | Pago |
 | **HU10** | Cliente | Como cliente, quiero consultar mis reservas y su estado, para conocer las actividades que tengo programadas. | Reservas |
 | **HU11** | Administrador | Como administrador, quiero gestionar los establecimientos registrados, para mantener información válida dentro de la plataforma. | Administración |
 | **HU12** | Cliente | Como cliente, quiero contactar al propietario mediante WhatsApp, para realizar consultas adicionales sobre disponibilidad, servicios o condiciones. | Comunicación |
 | **HU13** | Cliente | Como cliente, quiero visualizar la ubicación de un establecimiento en un mapa, para conocer dónde se encuentra antes de desplazarme o reservar. | Ubicación |
-| **HU14** | Propietario | Como propietario de un establecimiento, quiero registrar la recepción simulada del saldo restante de una reserva, indicando el importe y el método de pago, para llevar un control de las liquidaciones representadas en UrbanPulse. | Pagos simulados |
+| **HU14** | Propietario | Como propietario de un establecimiento, quiero registrar la recepción posterior del saldo completo de una reserva confirmada, indicando método, importe, fecha y referencia cuando corresponda, para mantener un control trazable de los pagos recibidos. | Pagos |
 
 ---
 
@@ -117,7 +119,7 @@ Puede requerir:
 4. Seleccionar o solicitar servicios.
 5. Coordinar las condiciones con el establecimiento.
 6. Conocer el precio o cotización.
-7. Realizar el adelanto requerido.
+7. Elegir y realizar el pago total o el adelanto configurado.
 8. Confirmar la reserva.
 
 Ejemplo de servicios:
@@ -191,24 +193,24 @@ DF-02 precisa que el propietario registra la cotización y las condiciones del e
 
 ## 5. Historias relacionadas con pagos y reservas
 
-### HU09 — Realizar adelanto mediante pago simulado
+### HU09 — Pagar el total o un adelanto configurado
 
-**Como cliente**, quiero realizar el pago simulado del adelanto requerido, **para confirmar una reserva**.
+**Como cliente**, quiero pagar el precio completo o un adelanto configurado por el propietario, **para obtener la confirmación cuando se cumplan las condiciones de la reserva**.
 
-Durante el MVP no se utilizará inicialmente una pasarela de pago real.
+**Criterios de aceptación del alcance solicitado:**
 
-El sistema utilizará un servicio de pago simulado que podrá devolver resultados como:
+1. Antes de iniciar, se muestran total, adelanto configurado, modalidad elegida, importe a pagar y propietario receptor. Los importes y condiciones aplicables quedan fijados al iniciar; cambios posteriores no alteran la operación (DP-03).
+2. El cliente puede elegir pagar el total o el adelanto configurado. Ningún importe o porcentaje universal se presume.
+3. El backend verifica la aprobación con el proveedor y su asociación a la operación, reserva, propietario receptor, moneda e importe esperados. Una redirección o respuesta del navegador no confirma el pago.
+4. El pago verificado se aplica como máximo una vez. Reintentos y webhooks repetidos no duplican cobro solicitado, aplicación ni confirmación; tampoco se cuenta dos veces el mismo pago notificado por canales distintos.
+5. La reserva directa de cancha/karaoke exige pago requerido verificado y aplicado y disponibilidad válida al confirmar; no requiere solicitud ni cotización de evento. Salón/recreo exige además cotización y condiciones aceptadas dentro de UrbanPulse. Un adelanto suficiente permite confirmar sin esperar al saldo.
+6. Se impiden confirmaciones incompatibles incluso bajo concurrencia. Aprobación de pago y confirmación de Reserva son hechos distintos.
+7. Un pago aprobado sin reserva confirmada conserva correlación, importe, receptor, motivo y situación pendiente para conciliación y devolución cuando corresponda. No se inventa una cancelación de Reserva ni se da por ejecutado el reembolso.
+8. Los fondos corresponden al propietario receptor; UrbanPulse no los recauda para redistribuirlos manualmente en el MVP.
 
-```text
-PAGO APROBADO
-PAGO RECHAZADO
-```
+Los pagos electrónicos son reales en el alcance objetivo. Mercado Pago Marketplace Split 1:1 es **proveedor candidato**; elegibilidad en Perú, vinculación de propietarios, métodos, reembolsos y liquidación requieren verificación antes de aprobar producción. Los dobles de prueba no sustituyen ese objetivo ni acreditan integración operativa.
 
-El resultado se registra como resultado del adelanto simulado y se refleja en la situación de la reserva (RF19); su aprobación no confirma por sí sola.
-
-Según DF-03, confirmar salones y recreos requiere conjuntamente condiciones aceptadas por el cliente, adelanto simulado aprobado y disponibilidad válida al confirmar. **Ampliación de HU09 por DF-04:** el adelanto simulado es obligatorio también para canchas y karaoke, configurado por el propietario para cada recurso; conservan reserva directa, sin solicitud ni cotización obligatoria. El cliente conoce total y adelanto antes de operar y estos quedan fijados al iniciar la simulación (DP-03). Un rechazo o falta de disponibilidad impide confirmar en todas las modalidades.
-
-El servicio de pago es una integración conceptual; en el MVP su abstracción se implementa mediante un componente de simulación de UrbanPulse, sin conexión a una pasarela financiera real. No se afirma que ese componente esté ya implementado o probado.
+Trazabilidad: RF11/RF18/RF19, condiciones RF04/RF06/RF12; DF-03/DF-04/DF-06 y DP-01–DP-04/DP-12. La solución de concurrencia, idempotencia y recuperación queda por diseñar y validar en [ADR-012](adr/ADR-012-modelo-pagos-mvp.md).
 
 ---
 
@@ -226,28 +228,25 @@ La información podrá incluir:
 - Monto.
 - Adelanto.
 - Estado de la reserva.
-- **Ampliación de consulta por DF-05/DP-10:** precio total acordado, adelanto simulado aprobado y aplicado, saldo calculado y estado de su registro. El propietario autorizado también consulta este resumen mediante HU14/RF14. Todo se identifica como simulación académica.
+- **Consulta por DF-05/DP-10:** total acordado, modalidad e importe del pago verificado y aplicado, pendiente calculado y registro posterior del saldo. Se distinguen estado de Reserva, operación de pago, aplicación y recepción posterior. El propietario autorizado consulta el mismo resumen mediante HU14/RF14; una aprobación sin confirmación se presenta sin simular éxito de la reserva.
 
 ---
 
-### HU14 — Registrar recepción simulada del saldo
+### HU14 — Registrar recepción posterior del saldo completo
 
-**Como propietario de un establecimiento**, quiero registrar la recepción simulada del saldo restante de una reserva, indicando el importe y el método de pago, **para llevar un control de las liquidaciones representadas en UrbanPulse**.
+**Como propietario de un establecimiento**, quiero registrar la recepción posterior del saldo completo de una reserva confirmada, indicando método, importe, fecha y referencia cuando corresponda, **para mantener un control trazable de los pagos recibidos**.
 
-**Criterios de aceptación aprobados:**
+**Criterios de aceptación conservados y actualizados:**
 
-1. Solo el propietario autorizado del establecimiento puede registrar la recepción.
-2. La operación corresponde a una reserva confirmada.
-3. El importe coincide con el saldo simulado completo calculado para esa reserva.
-4. Selecciona efectivo, Yape, Plin o transferencia como categoría simulada.
-5. Se registra quién efectuó la operación y su fecha y hora.
-6. No se permiten dos recepciones activas del mismo saldo.
-7. Se muestra claramente que es una recepción simulada, sin evidencia de fondos reales.
-8. El registro no modifica el estado de Reserva ni el resultado del adelanto simulado.
-9. Cliente y propietario autorizados consultan el resumen de pagos simulados.
-10. Toda corrección conserva la trazabilidad anterior, autor y fecha; no reemplaza silenciosamente registros.
+1. Solo el propietario autorizado del establecimiento registra sobre una reserva confirmada propia.
+2. Importe pendiente = total acordado − pago verificado y aplicado; puede ser resultado de un adelanto o ser cero tras pago total. El registro posterior exige pendiente positivo y el importe completo, sin fraccionamiento.
+3. Se conservan reserva, método, importe, fecha de recepción, referencia cuando corresponda, propietario autor y fecha/hora del registro. La referencia no convierte la declaración en confirmación electrónica del proveedor.
+4. Efectivo, Yape, Plin o transferencia son métodos declarados del saldo; no se presupone que el candidato los admita como medios electrónicos integrados.
+5. Una sola recepción activa; reintentos no la duplican. Correcciones conservan antecedentes, autor y fecha, sin sustitución silenciosa.
+6. Registrar o corregir saldo no cambia el estado de Reserva ni el resultado de la operación electrónica. Cliente y propietario autorizados consultan el resumen y distinguen recepción declarada de pago verificado.
+7. Con pago total aplicado, el pendiente es cero y no se registra recepción ficticia. La etiqueta visual para ese caso y el procedimiento técnico de corrección quedan pendientes de diseño.
 
-No se admiten pagos parciales del saldo. Si el saldo calculado es cero, su representación queda pendiente y no se registra una recepción inexistente. Trazabilidad: RF20 (registro/correcciones), RF14 (consulta ampliada), DF-05/DF-06 y DP-01–DP-11.
+La recepción posterior del saldo y el pago electrónico inicial son responsabilidades separadas. Su representación conjunta debe evitar descontar el mismo importe dos veces (DP-04/DP-10). Trazabilidad: RF20/RF14, DF-05 y DP-04–DP-11.
 
 ---
 
@@ -351,13 +350,13 @@ Las denominaciones anteriores son las que deben utilizarse en la trazabilidad. L
 
 Las decisiones DF-01–DF-06 se encuentran en las [aclaraciones de alcance de las restricciones](05-restricciones.md#3-decisiones-funcionales-aprobadas-y-alcance-del-mvp). Su aprobación funcional no resuelve la cobertura contextual HU03/RF04 y HU04/RF06 ni formaliza silenciosamente DF-02 en los requisitos existentes.
 
-## 11. Trazabilidad de la ampliación de pagos simulados
+## 11. Trazabilidad de la evolución a pagos reales
 
 | Historia | RF | DF / DP | Alcance |
 |---|---|---|---|
 | HU07 | RF09 | DF-04; DP-02/DP-03 | Configurar adelanto por recurso; conservar importes de operaciones iniciadas. |
-| HU09 | RF11/RF18/RF19; RF04/RF06/RF12 para confirmación | DF-03/DF-04/DF-06; DP-01/DP-02/DP-03/DP-12 | Adelanto simulado en las cuatro modalidades; aprobación y disponibilidad conjuntas. |
-| HU10 y HU14 | RF14 ampliado | DF-05/DF-06; DP-10 | Consulta autorizada del total, adelanto aplicado, saldo y estado de registro. |
-| HU14 | RF20 | DF-05/DF-06; DP-04–DP-11 | Saldo completo, registro único activo, método informativo y corrección con historial. |
+| HU09 | RF11/RF18/RF19; RF04/RF06/RF12 para confirmación | DF-03/DF-04/DF-06; DP-01/DP-02/DP-03/DP-12 | Pago total o adelanto en las cuatro modalidades; verificación y aplicación única, disponibilidad y demás condiciones conjuntas; fondos del propietario receptor. |
+| HU10 y HU14 | RF14 ampliado | DF-05/DF-06; DP-10 | Consulta autorizada del total, pago aplicado, pendiente y estado de registro. |
+| HU14 | RF20 | DF-05/DF-06; DP-04–DP-11 | Saldo completo, registro único activo, método, importe, fecha y referencia cuando corresponda; corrección con historial. |
 
 Catálogo: 14 HU. HU03/HU04 mantienen sus enunciados de consulta; su vínculo con RF04/RF06 sigue siendo contextual y pendiente de precisión.

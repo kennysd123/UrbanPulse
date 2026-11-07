@@ -1,117 +1,137 @@
 # UrbanPulse — Modelo C4, nivel 1: contexto del sistema
 
-**Estado:** aprobado conceptualmente y cerrado documentalmente. No acredita implementación, despliegue ni pruebas ejecutadas.
+**Revisión Tarea 3 — 07/11/2026; pendiente de auditoría.** Se conserva el antecedente de aprobación conceptual y cierre documental de la estructura anterior. La revisión financiera no hereda ese cierre: el alcance funcional está establecido por [RC/DF/DP vigentes](../01-analisis-de-sistema/05-restricciones.md), mientras la respuesta arquitectónica de [ADR-012](../01-analisis-de-sistema/adr/ADR-012-modelo-pagos-mvp.md) sigue propuesta. Mercado Pago Marketplace Split 1:1 es solamente candidato, sin capacidades verificadas ni aprobación de producción. No se acredita implementación, despliegue o pruebas.
 
 ## 1. Objetivo
 
-Representar a UrbanPulse como un único sistema y mostrar las personas que interactúan directamente con él, los sistemas externos respaldados por los requisitos y las responsabilidades visibles desde el exterior. El límite funcional comprende el descubrimiento de establecimientos, la consulta de información y disponibilidad, las modalidades de reserva y la administración autorizada, incluidos los adelantos y registros de saldo exclusivamente simulados.
+Representar UrbanPulse como un único sistema para descubrir entretenimiento y recreación en Huamanga, consultar información/disponibilidad y reservar según modalidad. Incluye pagos electrónicos reales completos o adelantos configurados, para el propietario receptor, y registro posterior separado del saldo. C1 no muestra capas, módulos, almacenes, REST o componentes técnicos.
 
-El C1 es una vista de alto nivel dirigida a participantes técnicos y del negocio. No muestra capas, módulos, componentes, controladores, puertos, adaptadores, tablas, bases de datos ni casos de uso técnicos. La aplicación web y su backend pertenecen al mismo sistema representado; la API REST no es un sistema externo.
-
-El alcance se contrasta con el [catálogo de actores](../01-analisis-de-sistema/01-actores.md), las [historias de usuario](../01-analisis-de-sistema/02-historias-del-usuarios.md), los [requisitos funcionales](../01-analisis-de-sistema/03-requisitos-funcionales.md) y las [restricciones y decisiones DF/DP](../01-analisis-de-sistema/05-restricciones.md). Se preservan los estados de aprobación de esas fuentes.
-
-La ubicación sigue la organización C4 de la Guía 004 de Arquitectura de Software, páginas 8 y 12, adaptando `docs/04-modelo-c4` a la carpeta existente `Doc`. Se conserva el nombre solicitado `01-contexto-c1.md`. La guía fue consultada como referencia académica local; sus ejemplos de Marketplace no constituyen requisitos de UrbanPulse y no se adopta su instrucción de realizar un commit.
+Se contrasta con [actores](../01-analisis-de-sistema/01-actores.md), [HU](../01-analisis-de-sistema/02-historias-del-usuarios.md), [RF](../01-analisis-de-sistema/03-requisitos-funcionales.md) y [restricciones](../01-analisis-de-sistema/05-restricciones.md).
 
 ## 2. Diagrama
 
-![Diagrama C1: contexto de UrbanPulse](../diagramas/C1-Diagrama-de-contexto-UrbanPulse.png)
+Fuente Mermaid editable; interacciones funcionales, sin contratos ni secuencia temporal. El rectángulo único UrbanPulse es el límite del sistema. La notación `flowchart` permite distribuir las relaciones sin superponer etiquetas. WhatsApp, mapas y pagos están fuera; Redis y RabbitMQ no son actores externos del contexto.
 
-**Leyenda:** `Person` representa un rol humano; `System`, el único sistema UrbanPulse y su límite funcional; `System_Ext`, un sistema ajeno a ese límite. Las flechas `Rel` expresan interacciones funcionales dirigidas, sin definir protocolos, orden temporal ni contratos técnicos. Las consultas incluyen las respuestas mostradas al usuario y no requieren flechas de retorno separadas.
+```mermaid
+---
+title: UrbanPulse - Contexto objetivo
+config:
+  flowchart:
+    nodeSpacing: 100
+    rankSpacing: 130
+    wrappingWidth: 400
+    curve: linear
+---
+flowchart LR
+    cliente["<b>Cliente</b><br/>[Persona]<br/>Busca, reserva y elige total o<br/>adelanto"]
+    propietario["<b>Propietario del establecimiento</b><br/>[Persona]<br/>Gestiona oferta y saldo; receptor de<br/>fondos"]
+    admin["<b>Administrador</b><br/>[Persona]<br/>Gestiona y supervisa<br/>establecimientos"]
+    urban["<b>UrbanPulse</b><br/>[Sistema]<br/>Reservas por modalidad y pagos<br/>reales para propietario receptor"]
+    whatsapp["<b>WhatsApp</b><br/>[Sistema externo]<br/>Contacto externo por redirección"]
+    mapas["<b>Proveedor de mapas</b><br/>[Sistema externo]<br/>Selección y mecanismo pendientes"]
+    pagos["<b>Proveedor de pagos electrónicos</b><br/>[Sistema externo]<br/>Externo; proveedor y producción sin<br/>aprobar"]
+    cliente -->|"Consulta, reserva, acepta condiciones<br/>y solicita pago"| urban
+    propietario -->|"Gestiona oferta, solicitudes y<br/>recepción posterior completa"| urban
+    admin -->|"Gestiona y supervisa establecimientos"| urban
+    urban -->|"Redirige al contacto del propietario"| whatsapp
+    urban -->|"Visualiza ubicación registrada"| mapas
+    urban -->|"Solicita operaciones para receptor y<br/>verifica resultados"| pagos
+    pagos -->|"Notifica resultados para verificación"| urban
+    classDef internal fill:#e4f0ff,stroke:#245580,color:#102c46
+    classDef external fill:#f1f1f1,stroke:#666,color:#222
+    classDef person fill:#d5e5f5,stroke:#163e67,color:#102c46
+    class urban internal
+    class whatsapp,mapas,pagos external
+    class cliente,propietario,admin person
+```
 
-Los sistemas externos están confirmados en el alcance documental, sin que ello acredite una integración implementada. La interacción con WhatsApp consiste en una redirección o apertura del servicio externo desde el navegador o dispositivo del cliente, sin comunicación servidor a servidor ni mensajería integrada en UrbanPulse (HU12/RF17/RC08). La conversación posterior entre cliente y propietario ocurre fuera de UrbanPulse y no se detalla en esta vista. La relación con mapas no decide si se utilizará navegación, incrustación u otro mecanismo.
+**Leyenda:** las cajas rotuladas Persona representan roles humanos; Sistema identifica el único UrbanPulse; Sistema externo identifica cada sistema fuera de su límite. Las flechas expresan interacción funcional dirigida, sin protocolo u orden temporal; incluyen respuesta sin exigir flecha inversa. Web/backend y REST quedan internos al sistema de C1.
 
-El diagrama se presenta como imagen PNG. Esta vista no conserva el código Mermaid fuente ni afirma que la imagen se haya generado desde él.
+**Pendiente visible:** proveedor sin selección definitiva; Mercado Pago Marketplace Split 1:1 solo candidato. Producción, vinculación del receptor y contratos por validar. La flecha al proveedor no acredita integración ni recaudación propia de UrbanPulse.
+
+**PNG histórico desactualizado respecto del modelo financiero vigente:** omite la integración externa y conserva el alcance anterior. Se conserva sin reemplazar; no es la vista vigente ni se acredita revisión visual en esta tarea.
+
+![Antecedente C1 desactualizado](../diagramas/C1-Diagrama-de-contexto-UrbanPulse.png)
 
 ## 3. Personas (usuarios)
 
-Los nombres se toman del catálogo oficial. «Propietario» es la forma abreviada de «Propietario del establecimiento» en HU/RF.
+| Actor | Responsabilidad | Evidencia y límite |
+|---|---|---|
+| Cliente | Buscar, consultar disponibilidad/ubicación, reservar cancha/karaoke, solicitar salón/recreo, aceptar condiciones dentro de UrbanPulse, elegir total/adelanto y consultar resumen propio. | HU01–HU05/HU09/HU10/HU12/HU13; RF01–RF07/RF11/RF14/RF16–RF19. RF04/RF06 contextuales con HU03/HU04. No registra recepción del saldo. |
+| Propietario del establecimiento | Gestionar oferta propia, recursos, horarios, disponibilidad y adelanto; revisar solicitudes y registrar cotización/condiciones; receptor de fondos y registro posterior de saldo completo positivo. | HU06–HU08/HU14; RF08–RF10/RF12/RF14/RF20; DF-02/DF-05. Iniciador de confirmación de eventos PC-03 pendiente. |
+| Administrador | Gestionar y supervisar establecimientos. | HU11 → RF15; ADR-007. Sin gestión administrativa de usuarios o autoridad financiera añadida. |
 
-| Actor | Descripción | Responsabilidades en UrbanPulse | HU/RF relacionados |
-|---|---|---|---|
-| Cliente | Persona que busca entretenimiento y recreación y realiza operaciones propias. | Buscar establecimientos; consultar información, disponibilidad y ubicación; reservar directamente canchas o karaoke; presentar solicitudes de salón/recreo y aceptar sus condiciones dentro de UrbanPulse; iniciar adelantos simulados; consultar sus reservas, estados y resumen autorizado; acceder al contacto por WhatsApp. No registra la recepción posterior del saldo. | HU01 → RF01; HU02 → RF02; HU03 → RF03; HU04 → RF05; RF04 y RF06 con HU03/HU04 **contextuales**; HU05 → RF07; HU09 → RF11/RF18/RF19; HU10 → RF14; HU12 → RF17; HU13 → RF16. DF-02 respalda la aceptación interna, con formalización detallada pendiente en HU05/HU08 y RF07/RF10/RF12. |
-| Propietario del establecimiento | Responsable de la oferta y las operaciones autorizadas de su establecimiento. | Registrar y administrar información, servicios y condiciones; gestionar recursos, horarios y disponibilidad; configurar el adelanto por recurso de cancha/karaoke; revisar y aceptar o rechazar solicitudes de eventos; registrar cotizaciones y condiciones; consultar el resumen autorizado y registrar posteriormente el saldo completo simulado de reservas confirmadas propias, con correcciones trazables. | HU06 → RF08; HU07 → RF09; HU08 → RF10/RF12; HU14 → RF20 y RF14. Cotización y condiciones: DF-02, con HU05/HU08 y RF07/RF10/RF12 como contexto pendiente de formalización detallada. |
-| Administrador | Responsable de gestionar y supervisar establecimientos registrados. | Consultar y revisar información, gestionar el estado del establecimiento y supervisar lo registrado según el alcance de HU11. No se le atribuye gestión de usuarios ni confirmación de eventos. | HU11 → RF15; AC04 y ADR-007 limitan el acceso por rol, sin ampliar competencias. |
-
-Las asociaciones anteriores se verifican en las tablas de [HU](../01-analisis-de-sistema/02-historias-del-usuarios.md) y [RF](../01-analisis-de-sistema/03-requisitos-funcionales.md). Gestionar una solicitud por el cliente se limita a las acciones respaldadas de presentación y aceptación de condiciones; no presupone edición, reapertura, cancelación o una nueva función de consulta de solicitudes. RF12 expresa condiciones de confirmación, sin asignar al propietario el disparador de confirmación del evento (PC-03).
+La vinculación del propietario como receptor exige diseño y cobertura documental pendiente; esta vista no inventa un nuevo actor ni un flujo de alta aprobado.
 
 ## 4. Sistemas
 
-| Sistema | Tipo | Responsabilidad | Estado de integración | Evidencia |
-|---|---|---|---|---|
-| UrbanPulse | Sistema principal | Plataforma web para descubrir establecimientos, consultar información y disponibilidad, reservar según modalidad y administrar las operaciones previstas para cada actor, incluidos adelantos y saldo simulados. En C1 aparece como una unidad. | Alcance documentado; esta vista no acredita implementación. | RC01/RC05/RC06; RF01–RF12/RF14–RF20; DF-01–DF-06; ADR-001. |
-| WhatsApp | Sistema externo confirmado en el alcance | Permitir el contacto externo entre cliente y propietario después de la redirección. UrbanPulse no administra conversaciones ni su historial. | Redirección aprobada; mecanismo técnico pendiente, sin evidencia de implementación en esta vista. | HU12 → RF17; RC08; catálogo de actores; DA06/ADR-006. |
-| Proveedor de mapas | Sistema externo confirmado en el alcance, identificado por su función | Permitir visualizar la ubicación registrada de los establecimientos. | Uso de un servicio externo aprobado; proveedor y mecanismo concretos pendientes. | HU13 → RF16; RC09/RC10; catálogo de actores; DA06/ADR-006. |
+| Sistema | Posición y responsabilidad | Estado |
+|---|---|---|
+| UrbanPulse | Único sistema principal: descubrimiento, disponibilidad, reservas diferenciadas y coordinación de pagos para propietario receptor. | RC01/RC05/RC06/RC07; alcance objetivo, sin implementación acreditada. |
+| WhatsApp | Externo, contacto cliente–propietario por redirección. | HU12/RF17/RC08; sin mensajería propia ni almacenamiento de conversaciones. |
+| Proveedor de mapas | Externo, visualización de ubicación registrada. | HU13/RF16/RC09/RC10; proveedor/frontera/mecanismo pendientes. Google Maps solo ejemplo histórico. |
+| Proveedor de pagos electrónicos | Externo, operación real de total o adelanto con propietario receptor; resultados verificados por backend. | HU09/RF11/RF18/RF19/RC07; ADR-012 propuesta. Candidato sin aprobación de producción. |
 
-La evidencia se encuentra en [actores](../01-analisis-de-sistema/01-actores.md), [HU/RF](../01-analisis-de-sistema/03-requisitos-funcionales.md), [restricciones](../01-analisis-de-sistema/05-restricciones.md), [drivers](../01-analisis-de-sistema/06-driver-arquitectonicos.md) y [ADR](../01-analisis-de-sistema/07-decisiones-arquitectonicas.md).
-
-**Servicios mencionados y medios que no constituyen integraciones adicionales:**
-
-- Google Maps figura como ejemplo previo, sin selección aprobada (RC09). Se representa la función genérica «Proveedor de mapas»; no se añade otro sistema por cada proveedor posible. No hay un proveedor GPS aprobado.
-- «Servicio de pago simulado» se denomina sistema externo conceptual en parte del análisis. Las aclaraciones de RC07, DA06 y ADR-006 sitúan el componente de simulación dentro de UrbanPulse durante el MVP; por ello no se dibuja como sistema externo ni como integración financiera. No se afirma que esté implementado.
-- Efectivo, Yape, Plin y transferencia son categorías informativas del registro simulado (DP-07). No representan bancos, billeteras o pasarelas conectadas.
-- No hay un servicio externo de autenticación confirmado. ADR-007 exige autenticación y autorización por roles, pero deja pendiente el mecanismo; no justifica añadir un proveedor al C1.
-
-Reservas, disponibilidad, establecimientos, pagos simulados y demás responsabilidades internas quedan comprendidas en UrbanPulse. La persistencia relacional y la API REST también son internas al límite de esta vista.
+Efectivo, Yape, Plin y transferencia declarados para el saldo no agregan sistemas bancarios ni conexiones financieras. No hay proveedor externo de autenticación seleccionado. Redis, RabbitMQ, web, backend y persistencia son detalles internos visibles en C2, no externos C1.
 
 ## 5. Relaciones
 
-Las filas desglosan las cinco flechas del diagrama para mantener sus etiquetas legibles; no representan pasos secuenciales ni nuevas relaciones internas.
+| Origen → destino | Interacción y límite | Respaldo |
+|---|---|---|
+| Cliente → UrbanPulse | Consulta, reserva directa o solicitud/aceptación interna de evento y elección de pago; consulta de situación autorizada. Consultar no retiene. | HU01–HU05/HU09/HU10; DF-01–DF-04; RN-12/RN-13. |
+| Propietario → UrbanPulse | Oferta y solicitudes propias; cotización/condiciones; registro/corrección de recepción completa. Aceptar solicitud no confirma. | HU06–HU08/HU14; DF-02/DF-05; DP-05–DP-11. |
+| Administrador → UrbanPulse | Gestión y supervisión de establecimientos dentro de HU11/RF15. | ADR-007; PC-11. |
+| UrbanPulse → WhatsApp | Abrir contacto externo a petición del cliente; no sustituye aceptación interna. | HU12/RF17/RC08. |
+| UrbanPulse → mapas | Visualizar ubicación; asignación técnica pendiente en C2. | HU13/RF16/RC09/RC10. |
+| UrbanPulse → proveedor de pagos | Inicio, consulta/verificación y devolución cuando corresponda, con receptor identificado. Sin redistribución manual de fondos. | RC07; DF-06; ADR-006/ADR-012. Contratos propuestos. |
+| Proveedor de pagos → UrbanPulse | Notificaciones de pago como señal para verificar. No confirman por sí solas. | ADR-012; PC-07/PC-08. |
 
-| Origen | Destino | Interacción | Finalidad | Referencia HU/RF | Estado |
-|---|---|---|---|---|---|
-| Cliente | UrbanPulse | Buscar y consultar información, disponibilidad y ubicación. | Elegir establecimiento y recurso con información disponible. | HU01/RF01; HU02/RF02; HU03/RF03; HU04/RF05; HU13/RF16. | Aprobada; consultar no retiene el recurso (consecuencia derivada RN-12). |
-| Cliente | UrbanPulse | Reservar directamente cancha o karaoke por recurso, fecha y bloque/intervalo. | Obtener confirmación solo con adelanto simulado aprobado y disponibilidad válida. | RF04/RF06/RF12; HU03/RF04 y HU04/RF06 contextuales; HU09/RF11; DF-04. | Modalidad aprobada; precisión de cobertura HU pendiente. |
-| Cliente | UrbanPulse | Presentar solicitud de salón/recreo y aceptar cotización y condiciones dentro de la plataforma. | Solicitar el evento y registrar la aceptación necesaria para evaluar su confirmación. | HU05/RF07; HU05/HU08 y RF07/RF10/RF12 como contexto de DF-02; RF12 explicita la aceptación como condición. | DF-02/DF-03 aprobadas; formalización detallada HU/RF pendiente. No asigna iniciador de confirmación. |
-| Cliente | UrbanPulse | Iniciar adelanto simulado y consultar sus reservas, estados y resumen autorizado. | Conocer el resultado del adelanto y la situación de la reserva, distinguiendo total, adelanto aplicado, saldo y estado de registro. | HU09/RF11/RF18/RF19; HU10/RF14; DP-03/DP-10. | Aprobada; aprobación aislada no confirma. |
-| Cliente | UrbanPulse | Solicitar contacto con el propietario mediante WhatsApp. | Acceder a la redirección de contacto complementaria. | HU12/RF17. | Aprobada; sin mensajería propia. |
-| Propietario del establecimiento | UrbanPulse | Gestionar información, servicios, condiciones, recursos, horarios, disponibilidad y adelanto configurado. | Mantener la oferta propia y sus condiciones de reserva. | HU06/RF08; HU07/RF09. | Aprobada; no altera importes fijados de operaciones iniciadas. |
-| Propietario del establecimiento | UrbanPulse | Revisar solicitudes de eventos, aceptarlas o rechazarlas y registrar cotizaciones y condiciones. | Atender las solicitudes y poner las condiciones a disposición de la aceptación del cliente. | HU08/RF10/RF12; DF-02 con cobertura contextual HU05/HU08 y RF07/RF10/RF12. | Acciones aprobadas; aceptar solicitud no confirma; detalle de cotización y aceptación pendiente. |
-| Propietario del establecimiento | UrbanPulse | Registrar el saldo completo simulado de reserva confirmada propia, conservar correcciones y consultar el resumen autorizado. | Mantener un registro académico trazable con una recepción activa y su historial. | HU14/RF20/RF14; DF-05/DF-06; DP-04–DP-11. | Aprobada; procedimiento técnico de corrección y representación de saldo cero pendientes. |
-| Administrador | UrbanPulse | Gestionar y supervisar establecimientos. | Mantener información válida de los establecimientos registrados. | HU11/RF15. | Aprobada; no incluye gestión de usuarios. |
-| UrbanPulse | WhatsApp | Redirigir al cliente al contacto registrado del propietario. | Facilitar contacto fuera de UrbanPulse sin administrar mensajes. | HU12/RF17; RC08. | Alcance aprobado; integración no acreditada como implementada. No sustituye aceptación interna. |
-| UrbanPulse | Proveedor de mapas | Utilizar un servicio externo para visualizar ubicaciones registradas. | Presentar la ubicación del establecimiento al cliente. | HU13/RF16; RC09. | Alcance aprobado; proveedor y mecanismo pendientes. |
+No se dibuja un enlace financiero adicional entre propietario y proveedor que presuponga contratos/onboarding definidos. Los fondos corresponden al propietario; aprobación no acredita liquidación ni retiro inmediato.
 
 ## 6. Decisiones y supuestos
 
 ### Decisiones respaldadas
 
-- **Ámbito web y local:** RC01/RC05 orientan UrbanPulse a una plataforma web para entretenimiento y recreación en Huamanga.
-- **Modalidades diferenciadas:** RC06, DF-01–DF-04 y ADR-003 mantienen reserva directa de cancha/karaoke y solicitud de evento para salón/recreo. En recreos se reserva el ambiente o espacio definido por el propietario; no se presume exclusividad del establecimiento ni de todo el día. Los bloques de cancha no requieren duración uniforme.
-- **Condiciones de confirmación:** RF04/RF06/RF12, DF-02–DF-04 y DP-12 exigen adelanto simulado aprobado y disponibilidad válida al confirmar; los eventos exigen además aceptación del cliente dentro de UrbanPulse. Aceptar la solicitud, aceptar condiciones y confirmar son hechos distintos. Una aprobación aislada del adelanto no confirma (RF19). Consultar o coordinar no retiene el recurso (RN-12, derivada); impedir confirmaciones incompatibles incluso concurrentes es una obligación aprobada (RN-13/AC03/DA02/ADR-004), con mecanismo pendiente PC-05.
-- **Simulación académica:** RC07, DF-04–DF-06 y DP-01–DP-12 preservan adelantos y saldo simulados. Total y adelanto se muestran antes y quedan fijados al iniciar (DP-03). Saldo = total acordado menos adelanto aprobado y aplicado (DP-04). Solo el propietario autorizado registra posteriormente el saldo completo de una reserva confirmada propia, sin parciales, con reserva, importe, método informativo, autor, fecha/hora, una recepción activa e historial de correcciones. Cliente y propietario autorizados consultan el resumen. Registrar o corregir saldo no cambia Reserva ni resultado del adelanto. DP-08 aprueba sus dos estados informativos, sin aprobar otras máquinas de estados. No se fijan importes, porcentajes o plazos universales; saldo cero sigue pendiente, sin recepción ficticia.
-- **Responsabilidades por rol:** HU11/RF15 y AC04/DA05/ADR-007 limitan al administrador a establecimientos. HU14/RF20 respalda el registro del saldo por el propietario autorizado, sin concederlo al cliente ni al administrador.
-- **Límite externo:** HU12/RF17/RC08 respaldan WhatsApp como redirección; HU13/RF16/RC09 respaldan mapas externos sin elegir proveedor. AC08/DA06/ADR-006 respalda su desacoplamiento y la abstracción del simulador interno del MVP, sin añadir integraciones financieras.
-- **Arquitectura vigente:** ADR-001 adopta Monolito Modular; ADR-002 establece Presentación, Aplicación, Dominio e Infraestructura. El C1 conserva UrbanPulse como una unidad y no muestra esa estructura. RC03/ADR-005, RC04/ADR-008 y ADR-009 siguen vigentes para comunicación interna, persistencia y consultas, sin seleccionar tecnologías, caché o métricas.
-- **Exclusiones:** RF13 sigue pendiente; no se habilitan cancelación, devolución, expiración, reapertura ni cierre del ciclo. DF-01/DF-06 y RN-21 excluyen compra de comidas, entradas o actividades y reserva de habitaciones, pagos reales y comprobantes bancarios. No se introduce mensajería propia.
+Cancha mantiene recurso, fecha y bloque configurado sin duración uniforme obligatoria; karaoke, sala, fecha e intervalo. Son reservas directas, sin solicitud de evento ni cotización obligatoria. Salón/recreo mantienen solicitud, revisión, cotización y condiciones aceptadas por el cliente dentro de UrbanPulse. Recreo reserva un ambiente/espacio definido, sin exclusividad presunta del establecimiento o del día (DF-01–DF-04).
 
-Estas decisiones se consultan en [restricciones y DF/DP](../01-analisis-de-sistema/05-restricciones.md), [calidad](../01-analisis-de-sistema/04-atributos-de-calidad.md), [drivers](../01-analisis-de-sistema/06-driver-arquitectonicos.md), [ADR](../01-analisis-de-sistema/07-decisiones-arquitectonicas.md), [RN y pendientes PC](../03-diseño-software/01-reglas-de-negocio.md), [estados](../03-diseño-software/02-estados-y-transiciones.md) y [flujos](../03-diseño-software/03-flujos-de-reserva.md).
+El cliente elige total o adelanto configurado. Antes de iniciar se muestran y fijan total, adelanto, opción, importe, moneda y propietario receptor (DP-02/DP-03). Confirmar exige pago requerido verificado por backend y aplicado una sola vez, disponibilidad válida y ausencia de confirmaciones incompatibles concurrentes; eventos requieren además aceptación interna. Aprobación aislada, navegador o notificación sin verificar no confirman. Consultar/coordinar no retiene recursos (RN-12/RN-13; DP-12; PC-05).
+
+Importe pendiente = total acordado − pago verificado y aplicado. Pago total aplicado implica cero; aprobado sin aplicar no se descuenta. La recepción posterior del saldo completo positivo se registra separadamente, sin doble descuento ni nuevo cobro de lo ya recibido. Solo propietario autorizado de reserva confirmada propia registra método declarado, importe, fecha de recepción, referencia cuando corresponda, autor y fecha/hora de registro; una recepción activa e historial de correcciones. Registrar/corregir no cambia Reserva ni resultado electrónico. Sin fraccionamientos posteriores ni recepción ficticia para cero, cuya etiqueta sigue pendiente (HU14/RF20; DF-05; DP-04–DP-11).
+
+Operación electrónica, resultado verificado, aplicación, confirmación, recepción declarada y liquidación del proveedor son hechos distintos. Aprobados sin confirmación conservan evidencia para conciliación y devolución cuando corresponda; políticas, permisos y ejecución pendientes. Esto no habilita RF13, cancelación, expiración o reapertura. Efectivo, Yape, Plin y transferencia son métodos declarados del saldo, sin acreditar soporte electrónico del candidato. UrbanPulse no recauda para redistribuir manualmente fondos ni adopta comisión propia (RC07/DF-06; ADR-012).
 
 ### Supuestos de representación
 
-- Agrupar las interacciones de cada persona en una flecha hacia UrbanPulse para mantener legibilidad; la tabla de relaciones conserva su detalle y trazabilidad.
-- Mostrar un único nodo UrbanPulse, conforme al [nivel de contexto del modelo C4](https://c4model.com/diagrams/system-context). Su caja expresa el límite del sistema, sin requerir un contorno adicional ni descomponerlo.
-- Representar mapas por la función aprobada del servicio, aunque el proveedor permanezca pendiente. WhatsApp se identifica por su nombre porque las fuentes lo especifican. No se añaden proveedores hipotéticos ni protocolos.
-- Representar la redirección con una flecha UrbanPulse → WhatsApp como responsabilidad de navegación visible al usuario. No implica comunicación servidor a servidor ni gestión de la conversación posterior.
-- Mantener leyenda textual junto al diagrama. La agrupación y las flechas son decisiones gráficas propuestas para auditoría; no aprueban tecnologías, permisos ni secuencias operativas nuevas.
+La jerarquía aplicada es: solicitud explícita actual y Análisis vigente (actores, HU/RF, RC/DF/DP); decisiones estructurales ADR-001–ADR-011 y estado individual de ADR-012; RN/PC, estados y flujos; Diseño Interno; representación C4. Los informes son antecedentes auxiliares, no aprobaciones. Tarea 4 sincroniza AGENTS.md, README y los textos de arquitectura con pagos reales como objetivo y las cuatro capas de ADR-002. Las seis fuentes C1–C4 ya existen para revisión; sus PNG históricos siguen pendientes de actualización. Los ejemplos no seleccionan tecnología ni aprueban ADR-012.
+
+El cierre histórico del C1 se conserva como antecedente; esta revisión queda revisable. Los informes y PNG no aprueban el proveedor o mecanismos. ADR-001 mantiene el Monolito Modular; ADR-002 las cuatro capas, sin dibujarlas en C1.
+
+| Respaldo | Aplicación y límite |
+|---|---|
+| HU09 → RF11/RF18/RF19; RC07/RC10 y AC08 → DA06 → ADR-006/ADR-012 | Pagos reales con integración desacoplada; RF18 es origen explícito de DA06; RF11/RF19 son contexto allí y origen en DA08. Arquitectura financiera propuesta. |
+| RF04/RF06/RF12 y AC03 → DA02 → ADR-004/ADR-012; RN-13, DP-12 | Confirmación compatible, disponibilidad válida y aplicación única; PC-05 pendiente. HU03/RF04 y HU04/RF06 son contextuales. |
+| RC04 y RF11/RF19 → DA08 → ADR-008/ADR-012 | Evidencia definitiva por repositorios; AC03/AC05 son complementarios en DA08, sin garantía operativa inferida. |
+| HU10/HU14 → RF14; HU14 → RF20; AC04 → DA05 → ADR-007; RF14/RF20 → DA08 → ADR-008/ADR-012 | Resumen autorizado y recepción posterior completa; autorización apoya ADR-012, sin nuevo origen RF18 → DA05. |
+| RC03 → DA07 → ADR-005 | REST web–backend; AC05/AC08 complementarios en DA07. No impone REST entre módulos. |
+| AC01 y RF01/RF03/RF05 → DA04 → ADR-009; ADR-010 complementaria | Consultas y fichas públicas; no cachear disponibilidad. ADR-011 procede de su cierre propio, sin nuevo driver de origen. |
+
+La evidencia detallada reside en [HU](../01-analisis-de-sistema/02-historias-del-usuarios.md), [RF](../01-analisis-de-sistema/03-requisitos-funcionales.md), [AC](../01-analisis-de-sistema/04-atributos-de-calidad.md), [drivers](../01-analisis-de-sistema/06-driver-arquitectonicos.md) y [catálogo ADR](../01-analisis-de-sistema/07-decisiones-arquitectonicas.md#7-trazabilidad-y-estado-de-adr-012). RF02/RF09/RF10 carecen de origen explícito en drivers; AC02/AC07 no tienen driver/respuesta explícitos. DF-02 conserva formalización detallada pendiente; RF13 sigue pendiente. [EQ](../01-analisis-de-sistema/08-escenarios-atributos-calidad.md) propone evaluaciones y métricas por revisar, sin pruebas ejecutadas.
 
 ### Pendientes por definir
 
-| Aspecto | Evidencia y estado | Efecto sobre futuras versiones del C1 |
-|---|---|---|
-| Mapas | RC09/HU13/RF16 confirman el servicio externo; proveedor y mecanismo siguen pendientes. Google Maps es solo ejemplo previo. | Sustituir el nombre genérico únicamente cuando exista una selección aprobada; no añadir GPS ni otras capacidades por inferencia. |
-| Contacto por WhatsApp | HU12/RF17/RC08 ya resuelven el alcance como redirección. Falta su mecanismo concreto; no hay mensajería integrada pendiente de aprobación en esta vista. | Precisar representación si cambia el alcance mediante aprobación; la aceptación de eventos sigue siendo interna. |
-| Autenticación e integraciones adicionales | ADR-007/PC-11 dejan pendientes mecanismos concretos. No hay proveedor externo de identidad ni otras integraciones adicionales confirmadas. | Añadir un sistema externo solo ante evidencia de alcance aprobado. No se infiere de la existencia de roles. |
-| Cobertura funcional | HU03/RF04 y HU04/RF06 son contextuales; DF-02 tiene formalización detallada pendiente. RF13 no está aprobado. | Revisar trazabilidad sin inventar HU/RF ni ampliar acciones del diagrama. |
-| Cobertura de calidad | RF02/RF09/RF10 carecen de origen explícito en drivers; AC02/AC07 no tienen driver ni respuesta arquitectónica explícita. EQ conserva medidas y procedimientos pendientes de revisión. | No completar cadenas por analogía ni afirmar cumplimiento de atributos por este C1. |
-| Imagen del diagrama | La vista se incluye como PNG; su visualización depende del visor utilizado. | Verificar la legibilidad en el entorno de entrega. |
+| Pendiente | Límite conservado |
+|---|---|
+| PC-01 | Contenido/versiones de cotización, servicios y evidencia de aceptación; DF-02 no formalizada completamente en HU/RF. |
+| PC-02 | Creación, cardinalidades, asociaciones y propiedad relacional de Reserva/Solicitud/operación/aplicación/incidencia/saldo. |
+| PC-03 | Iniciador y automatización de confirmación de eventos. Un webhook no los decide. |
+| PC-04 | Periodos, extremos, solapamientos y espacios compartidos. |
+| PC-05 | Garantía concurrente y coordinación aplicación única/confirmación/Disponibilidad; mecanismo y validación pendientes. Sin bloqueo, retención o expiración adoptados. |
+| PC-06 | Moneda, precisión, límites, bruto/neto, tarifas y representación de cero; fórmula vigente y recepción completa no se reabren. |
+| PC-07 | Evidencia recuperable de aprobación sin confirmación, aplicada o no, caídas tras cobro y responsables de conciliación/devolución. |
+| PC-08 | Inicio/consulta/webhook/devolución, autenticidad, correlación, reintentos, duplicados entre canales, aplicación única, desorden e incertidumbre. |
+| PC-09 | No aceptación, cambios y reapertura sin estados ni permisos nuevos. |
+| PC-10 | RF13/ciclo posterior separados de devolución financiera: política, elegibilidad, importe, iniciador y evidencia final pendientes. |
+| PC-11 | Matriz de permisos, seguridad, vinculación/renovación/revocación del receptor y custodia de credenciales. |
+| PC-12 | Cobertura HU/RF/DA, onboarding si requiere formalización y evaluación EQ, sin cerrar vacíos por analogía. |
 
-**Discrepancias conservadas y criterio aplicado:**
-
-- [README](../../README.md) y [arquitectura inicial](../02-arquitectura-software/01-arquitectura-inicial.md) describen una separación de tres capas; ADR-002 establece cuatro y tiene prioridad. La afirmación de armonización de la sección 3 de ADR no coincide con el texto inicial actual. El C1 no reproduce capas y deja constancia del desfase sin modificar las fuentes.
-- README y arquitectura inicial enumeran pago simulado entre sistemas externos. Las precisiones de RC07, DA06 y ADR-006 lo sitúan como componente de UrbanPulse durante el MVP. Se aplica esa delimitación y se excluye un nodo financiero externo; la abstracción conceptual no demuestra despliegue externo.
-- [Estilo arquitectónico](../02-arquitectura-software/02-estilo-arquitectonico.md) menciona ORM, pero no hay selección técnica aprobada. [Enfoque arquitectónico](../02-arquitectura-software/03-enfoque-arquitectonico.md) conserva el desacoplamiento. Ninguna mención habilita tecnologías o proveedores en el C1. La aprobación conceptual de patrones tampoco aprueba clases o firmas concretas del diseño interno.
-- ADR conserva referencias gráficas desactualizadas, entre ellas nombres de arquitectura inicial y matriz HU/RF que no coinciden con los archivos versionados. No se utilizan esos destinos como evidencia del C1, no se corrigen otras etapas y no se afirma una nueva auditoría visual de sus imágenes.
-- La guía utiliza `docs`, mientras UrbanPulse mantiene `Doc` y nombres propios por etapa. Se adapta únicamente la nueva carpeta C4; no se reorganiza el repositorio ni se copian tecnologías, actores o integraciones del Marketplace. Su mención de commit no prevalece sobre la prohibición expresa de esta tarea.
-
-Los [PC-01–PC-12](../03-diseño-software/01-reglas-de-negocio.md#restricciones-del-mvp-y-pendientes-contractuales) continúan abiertos. Se distinguen de la identificación externa propia del C1: tratan principalmente contenido/versionado de cotización y aceptación (PC-01), creación y relaciones persistentes (PC-02), iniciador de confirmación (PC-03), alcance temporal y espacios compartidos (PC-04), concurrencia (PC-05), precisión y saldo cero (PC-06), aprobación sin demás condiciones (PC-07), fallos y duplicados (PC-08), cambios/no aceptación (PC-09), ciclo posterior (PC-10), permisos y autenticación (PC-11) y trazabilidad/evaluación (PC-12). PC-03 y PC-11 podrían precisar responsabilidades visibles futuras; este C1 no los resuelve. No se reabren la fórmula del saldo ni su registro manual completo, ya aprobados.
-
+Fuente de detalle: [catálogo RN/PC](../03-diseño-software/01-reglas-de-negocio.md#restricciones-del-mvp-y-pendientes-contractuales), [estados](../03-diseño-software/02-estados-y-transiciones.md), [flujos](../03-diseño-software/03-flujos-de-reserva.md) y reconciliación de Tarea 2 (antecedente auxiliar local, fuera del repositorio). Un timeout no aprueba/rechaza ni autoriza automáticamente otro cobro. Deduplicar solo el ID del evento no evita aplicar dos eventos distintos del mismo pago. No se adopta transacción distribuida, Outbox, inbox, scheduler o cola financiera por esta representación.

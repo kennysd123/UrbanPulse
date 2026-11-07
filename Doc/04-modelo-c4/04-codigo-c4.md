@@ -1,22 +1,16 @@
 # UrbanPulse — Modelo C4 Nivel 4: Código de Reservas
 
-**Estado: vista ilustrativa aprobada conceptualmente y cerrada documentalmente — confirmación directa de Reservas. Clases, contratos e implementación pendientes de aprobación concreta.**
+**Revisión Tarea 3 — 07/11/2026; pendiente de auditoría.** Se conserva el antecedente de aprobación conceptual y cierre documental de la estructura anterior. La revisión financiera no hereda ese cierre: el alcance funcional está establecido por [RC/DF/DP vigentes](../01-analisis-de-sistema/05-restricciones.md), mientras la respuesta arquitectónica de [ADR-012](../01-analisis-de-sistema/adr/ADR-012-modelo-pagos-mvp.md) sigue propuesta. Mercado Pago Marketplace Split 1:1 es solamente candidato, sin capacidades verificadas ni aprobación de producción. No se acredita implementación, despliegue o pruebas.
 
-**Alcance:** módulo Reservas, confirmación directa de cancha y karaoke.
-
-**Fuente:** Diseño Interno de Módulos, secciones 2–6.
-
-Las clases, interfaces, firmas y composición son propuestas académicas existentes, no código implementado ni contratos definitivos. La aprobación conceptual de las responsabilidades no aprueba su realización concreta. Fecha de elaboración: 16/10/2026.
+**Alcance:** vista ilustrativa de confirmación directa de cancha/karaoke. Clases, puertos, contratos y composición candidatos, sin implementación ni firmas definitivas.
 
 ## 1. Objetivo y alcance
 
-Detallar el componente **Reservas** del C3 mediante sus elementos ilustrativos de código, responsabilidades y relaciones. Esta es la primera vista del cuarto nivel del Modelo C4, expresada mediante UML de clases; no se introduce una sintaxis `C4Code`.
+Reconciliar la confirmación de Reservas con pago real total o adelanto configurado. Se parte de una operación electrónica ya iniciada y correlacionada, cuya asociación exacta con Reserva/intento/Solicitud sigue pendiente PC-02. El inicio, identificación del receptor, fijación de importes y verificación del proveedor pertenecen a Pagos; se muestran conceptualmente para distinguir los hechos financieros, sin incorporar sus clases privadas al Dominio de Reservas.
 
-Se representa exclusivamente la confirmación directa de cancha y karaoke. El recorrido comienza con una referencia de operación de adelanto ya iniciada: Reservas consulta su contexto y resultado registrado en Pagos Simulados, contrasta operación y titular, coordina la disponibilidad y solicita persistencia compatible. El inicio de la simulación, la fijación de importes y el registro de su resultado pertenecen a Pagos Simulados y no se desarrollan aquí.
+La coordinación usa fronteras públicas de Pagos y Disponibilidad dentro del mismo backend. Resultado verificado, aplicación única y confirmación persistida son hechos distintos. La incidencia aprobada sin confirmación conserva evidencia; no se resuelve con un renombre del simulador. Redis/RabbitMQ quedan fuera: no procesan cobros ni confirman reservas.
 
-El detalle mantiene Presentación, Aplicación, Dominio e Infraestructura según ADR-002. La raíz de composición ensambla esas capas desde fuera del núcleo; no constituye una quinta capa. Disponibilidad y Pagos Simulados aparecen únicamente mediante sus fronteras públicas internas, externas al módulo Reservas y dentro del mismo backend. No se añaden módulos, contenedores o servicios desplegables.
-
-Quedan fuera del diagrama Redis, RabbitMQ, confirmación de salón/recreo, cotizaciones y aceptación de eventos, registro/corrección del saldo, cancelaciones, reembolsos, retenciones temporales y estados persistidos adicionales. Tampoco se representan frameworks, ORM, motor relacional o mecanismos concurrentes concretos. Esta selección de alcance no elimina responsabilidades del sistema completo.
+No se desarrolla confirmación de salón/recreo, cotización/aceptación, registro/corrección de saldo o devolución operativa. Eventos siguen requiriendo condiciones aceptadas dentro de UrbanPulse, además de pago y disponibilidad, pero no se simula su cobertura añadiendo booleanos al recorrido directo.
 
 ## 2. Fuentes y trazabilidad
 
@@ -24,163 +18,186 @@ Quedan fuera del diagrama Redis, RabbitMQ, confirmación de salón/recreo, cotiz
 
 | Fuente | Uso y límite |
 |---|---|
-| [AGENTS.md](../../AGENTS.md) | Jerarquía documental, preservación del trabajo preexistente y restricciones funcionales/técnicas. |
-| [C1 — Contexto](01-contexto-c1.md) | Límite de UrbanPulse y responsabilidades de actores; no determina clases. |
-| [C2 — Contenedores](02-contenedores-c2.md) | Cinco contenedores: Aplicación Web, Backend UrbanPulse, Base de datos relacional, Redis y RabbitMQ. Esta vista abre una responsabilidad del backend, sin redibujar el despliegue. |
-| [C3 — Componentes](03-componentes-c3.md) | Ocho módulos funcionales; Reservas consulta Disponibilidad y Pagos Simulados por fronteras públicas internas. Su cierre conceptual no aprueba código. |
-| [Diseño Interno de Módulos, secciones 2–6](../03-diseño-software/diseño-interno/diseño-interno-de-modulos.md) | Fuente de nombres, capas, datos, firmas, colaboraciones y ensamblado. El árbol y los ejemplos TypeScript son ilustrativos. |
-| [Patrones de Diseño](../03-diseño-software/diseño-interno/patrones-de-diseño.md) | Repository, Adapter e inyección por constructor sobre el mismo ejemplo; no acreditan operación ni concurrencia. |
-| [Principios SOLID](../03-diseño-software/diseño-interno/principios-de-diseño.md) | Separación de responsabilidades y obligaciones semánticas; dependencias hacia abstracciones. No demuestra garantías ejecutadas. |
-| [Catálogo ADR-001–ADR-011](../01-analisis-de-sistema/07-decisiones-arquitectonicas.md) | Monolito Modular, cuatro capas, modalidades, disponibilidad, REST, adaptadores, roles y repositorios. ADR-010/011 conservan su alcance técnico y quedan fuera del diagrama seleccionado. |
-| [Reglas RN y pendientes PC](../03-diseño-software/01-reglas-de-negocio.md) | Condiciones aprobadas y contratos pendientes, especialmente RN-04/RN-12/RN-13/RN-15–RN-19 y PC-02/PC-04–PC-08/PC-11. |
-| [PNG de clases](../diagramas/diagrama-de-clases.png) y [PNG de secuencia](../diagramas/Flujo-de-ejecución_confirmar-reserva.png) | Antecedentes gráficos disponibles e inspeccionados. No constituyen código ni evidencia de ejecución; las firmas y advertencias textuales del Diseño Interno delimitan su interpretación. Esta vista se presenta como PNG en la sección 3 y no conserva el código Mermaid fuente. |
+| [Restricciones](../01-analisis-de-sistema/05-restricciones.md) y [ADR-012](../01-analisis-de-sistema/adr/ADR-012-modelo-pagos-mvp.md) | Condiciones financieras establecidas; arquitectura financiera propuesta y proveedor sin aprobar. |
+| [C1](01-contexto-c1.md), [C2](02-contenedores-c2.md), [C3](03-componentes-c3.md) | Sistema y proveedor externo; cinco contenedores, ocho módulos, seis responsabilidades técnicas fuera de este recorrido. |
+| [Diseño Interno](../03-diseño-software/diseño-interno/diseño-interno-de-modulos.md), [Patrones](../03-diseño-software/diseño-interno/patrones-de-diseño.md), [SOLID](../03-diseño-software/diseño-interno/principios-de-diseño.md) | Responsabilidades reconciliadas en Tarea 2, sin contratos o código del simulador vigentes. |
+| [RN/PC](../03-diseño-software/01-reglas-de-negocio.md), [estados](../03-diseño-software/02-estados-y-transiciones.md), [flujos](../03-diseño-software/03-flujos-de-reserva.md) | RN-04/RN-12–RN-19/RN-24/RN-25; guardas y separación de hechos; PC-02/PC-05/PC-08 explícitos. No aprueban modelos persistidos. |
+| [AGENTS.md](../../AGENTS.md) | Preservación del trabajo y jerarquía; sus referencias financieras se sincronizan en Tarea 4, preservando seguridad, jerarquía y reglas de Git. |
 
 ### 2.2 Matriz C3 ↔ C4 y decisiones
 
-«Aprobado» califica las responsabilidades o decisiones citadas. Los nombres de clases, interfaces, DTO, firmas, relaciones concretas y composición de esta vista permanecen **propuestos**. La matriz describe correspondencia de diseño; no crea cadenas HU/RF/DA ni aprueba contratos por el cierre de C3.
+| Participantes candidatos | Correspondencia C3 | Respaldo y pendiente |
+|---|---|---|
+| Reserva, DatosReservaDirecta, EvidenciaPagoAplicado | Datos/reglas de Reservas y evidencia mínima aplicada. | ADR-002/003/004/008; DF-04; DP-03/DP-04/DP-12; PC-02/PC-04/PC-06. |
+| ConfirmarReservaUseCase, PuertoPagos, PuertoDisponibilidad, ReservaRepository | Coordinación de Reservas por contratos propios/API públicas. | ADR-001/002/004/006/008; RN-13; PC-05/PC-08. |
+| OperacionElectronica, ResultadoVerificado, AplicacionUnicaPago, IncidenciaPago | Conceptos de Pagos; fronteras externas al módulo Reservas, internas al backend. | HU09/RF11/RF18/RF19; RC07; ADR-012 propuesta; PC-02/PC-07/PC-08. |
+| Adaptadores internos y de proveedor, repositorios | Infraestructura dependiente de abstracciones internas. | ADR-002/006/008; sin SDK, motor, contratos o mecanismo concurrente seleccionado. |
 
-| Elementos C4 propuestos | Componente o frontera C3 | Decisiones pertinentes | RN y pendientes conservados |
-|---|---|---|---|
-| `Reserva`, `DatosReservaDirecta`, `AdelantoAplicado`, `RecursoId`, `PeriodoReserva` | Reservas: datos propios y condiciones de confirmación directa. | ADR-002/ADR-003/ADR-004/ADR-008. | RN-01–RN-04/RN-15/RN-17; PC-02/PC-04/PC-06/PC-08. Evidencia candidata, sin modelo relacional aprobado. |
-| `ConfirmarReservaUseCase`, `ConfirmarReservaCommand` | Reservas: coordinación de disponibilidad y resultado ya registrado del adelanto. | ADR-002/ADR-004/ADR-007. | RN-04/RN-13/RN-15/RN-16/RN-19; PC-05/PC-07/PC-08/PC-11. |
-| `ReservaRepository`, `ReservaRepositoryAdapter` | Reservas → persistencia propia mediante repositorios. | ADR-002/ADR-008; obligación de ADR-004. | RN-13/RN-17; PC-02/PC-05/PC-08. El adaptador fuente no es operativo. |
-| `DisponibilidadPort`, `DisponibilidadInternaAdapter`, `DisponibilidadApi` | Reservas → Disponibilidad mediante frontera pública interna. | ADR-001/ADR-002/ADR-004; criterio de desacoplamiento de ADR-006. | RN-12/RN-13/RN-15; PC-04/PC-05. Consultar no retiene recursos. |
-| `AdelantoSimuladoPort`, `AdelantoSimuladoInternoAdapter`, `ContextoAdelanto`, `PagosSimuladosApi` | Reservas → Pagos Simulados: consulta de operación propia registrada. | ADR-001/ADR-002/ADR-007; criterio de desacoplamiento de ADR-006. | RN-14–RN-17/RN-19; PC-06/PC-08/PC-11. No inicia simulación ni registra saldo. |
-| `ReservaController`, `SolicitudAutenticada` | Frontera API REST que delega en Aplicación de Reservas. | ADR-002/ADR-005/ADR-007. | RN-19; PC-11 y contratos REST pendientes. Identidad tomada del contexto autenticado. |
-| `componerReservas()` | Ensamblado interno del backend para Reservas; no es otro componente funcional C3. | ADR-001/ADR-002. | RN-22; realización concreta propuesta. PC-05 no se resuelve por inyección. |
+| Respaldo | Aplicación y límite |
+|---|---|
+| HU09 → RF11/RF18/RF19; RC07/RC10 y AC08 → DA06 → ADR-006/ADR-012 | Pagos reales con integración desacoplada; RF18 es origen explícito de DA06; RF11/RF19 son contexto allí y origen en DA08. Arquitectura financiera propuesta. |
+| RF04/RF06/RF12 y AC03 → DA02 → ADR-004/ADR-012; RN-13, DP-12 | Confirmación compatible, disponibilidad válida y aplicación única; PC-05 pendiente. HU03/RF04 y HU04/RF06 son contextuales. |
+| RC04 y RF11/RF19 → DA08 → ADR-008/ADR-012 | Evidencia definitiva por repositorios; AC03/AC05 son complementarios en DA08, sin garantía operativa inferida. |
+| HU10/HU14 → RF14; HU14 → RF20; AC04 → DA05 → ADR-007; RF14/RF20 → DA08 → ADR-008/ADR-012 | Resumen autorizado y recepción posterior completa; autorización apoya ADR-012, sin nuevo origen RF18 → DA05. |
+| RC03 → DA07 → ADR-005 | REST web–backend; AC05/AC08 complementarios en DA07. No impone REST entre módulos. |
+| AC01 y RF01/RF03/RF05 → DA04 → ADR-009; ADR-010 complementaria | Consultas y fichas públicas; no cachear disponibilidad. ADR-011 procede de su cierre propio, sin nuevo driver de origen. |
 
-Las necesidades funcionales de referencia se conservan como en la fuente: RF04/RF06/RF12 para confirmación y disponibilidad; HU09/RF11/RF18/RF19 para adelanto simulado y su efecto. HU03/RF04 y HU04/RF06 mantienen asociaciones contextuales. HU14/RF20 respalda el saldo posterior, excluido del caso de uso. RF02/RF09/RF10 y AC02/AC07 conservan sus vacíos de trazabilidad; esta vista no los completa por analogía. Las seis responsabilidades técnicas de caché/mensajería de C3 permanecen fuera de esta selección de código.
+La evidencia detallada reside en [HU](../01-analisis-de-sistema/02-historias-del-usuarios.md), [RF](../01-analisis-de-sistema/03-requisitos-funcionales.md), [AC](../01-analisis-de-sistema/04-atributos-de-calidad.md), [drivers](../01-analisis-de-sistema/06-driver-arquitectonicos.md) y [catálogo ADR](../01-analisis-de-sistema/07-decisiones-arquitectonicas.md#7-trazabilidad-y-estado-de-adr-012). RF02/RF09/RF10 carecen de origen explícito en drivers; AC02/AC07 no tienen driver/respuesta explícitos. DF-02 conserva formalización detallada pendiente; RF13 sigue pendiente. [EQ](../01-analisis-de-sistema/08-escenarios-atributos-calidad.md) propone evaluaciones y métricas por revisar, sin pruebas ejecutadas.
 
 ## 3. Vista de código del módulo Reservas
 
-Los cuatro espacios de nombres `Presentacion`, `Aplicacion`, `Dominio` e `Infraestructura` agrupan las cuatro capas de **Reservas**. Se usan identificadores sin tildes para la notación. `FronteraDisponibilidad` y `FronteraPagosSimulados` identifican contratos públicos de los módulos colaboradores; no son paquetes privados de Reservas. `Ensamblado` ubica la función de composición fuera del núcleo y no representa una capa o módulo adicional.
+UML de clases conceptuales mediante Mermaid. Los cuatro espacios de nombres de Reservas representan sus cuatro capas. La frontera pública y los conceptos de Pagos/Disponibilidad se encuentran fuera de Reservas y dentro del backend; no son paquetes privados compartidos. La separación gráfica de conceptos no exige entidades/tablas independientes ni cardinalidades. Se omiten miembros y firmas deliberadamente.
 
-Las operaciones se abrevian gráficamente para mantener legibilidad. `Promise` omite su parámetro de tipo; las firmas y restricciones respaldadas se precisan en la sección 4. Las cajas con `interface` incluyen contratos de datos ilustrativos, sin afirmar que se instancien interfaces. La caja con `function` representa exclusivamente la función existente `componerReservas()`; **no define una clase**, ni una clase `ReservasModule`.
+```mermaid
+classDiagram
+    namespace Reservas_Presentacion {
+        class ReservaController
+    }
+    namespace Reservas_Aplicacion {
+        class ConfirmarReservaUseCase
+        class PuertoPagos {
+            <<interface>>
+        }
+        class PuertoDisponibilidad {
+            <<interface>>
+        }
+        class ReservaRepository {
+            <<interface>>
+        }
+    }
+    namespace Reservas_Dominio {
+        class Reserva
+        class DatosReservaDirecta
+        class EvidenciaPagoAplicado
+    }
+    namespace Reservas_Infraestructura {
+        class PagosInternoAdapter
+        class DisponibilidadInternaAdapter
+        class ReservaRepositoryAdapter
+    }
+    namespace Fronteras_Publicas_Backend {
+        class PagosApi {
+            <<interface>>
+        }
+        class DisponibilidadApi {
+            <<interface>>
+        }
+    }
+    namespace Conceptos_Pagos_Sin_Contrato_Persistido {
+        class OperacionElectronica
+        class ResultadoVerificado
+        class AplicacionUnicaPago
+        class IncidenciaPago
+    }
+    ReservaController --> ConfirmarReservaUseCase : delega
+    ConfirmarReservaUseCase --> PuertoPagos : coordina evidencia y aplicacion
+    ConfirmarReservaUseCase --> PuertoDisponibilidad : validez al confirmar
+    ConfirmarReservaUseCase --> ReservaRepository : persistencia consistente requerida
+    ConfirmarReservaUseCase ..> Reserva : condiciones locales
+    Reserva --> DatosReservaDirecta : datos propios
+    Reserva --> EvidenciaPagoAplicado : evidencia minima vinculada
+    PagosInternoAdapter ..|> PuertoPagos
+    DisponibilidadInternaAdapter ..|> PuertoDisponibilidad
+    ReservaRepositoryAdapter ..|> ReservaRepository
+    PagosInternoAdapter --> PagosApi : contrato publico
+    DisponibilidadInternaAdapter --> DisponibilidadApi : contrato publico
+    PagosApi ..> OperacionElectronica : proyeccion autorizada
+    PagosApi ..> ResultadoVerificado : evidencia backend
+    PagosApi ..> AplicacionUnicaPago : efecto unico por pago
+    PagosApi ..> IncidenciaPago : evidencia si no confirma
+    ResultadoVerificado --> OperacionElectronica : correlacion y receptor contrastados
+    AplicacionUnicaPago --> ResultadoVerificado : requiere verificacion
+    IncidenciaPago --> ResultadoVerificado : aprobado sin confirmacion
+    note for ConfirmarReservaUseCase "PC-02: asociaciones abiertas. PC-05: consistencia y<br/>concurrencia pendientes. PC-08: correlacion,<br/>idempotencia y recuperacion pendientes."
+    note for DatosReservaDirecta "Cliente, modalidad directa, recurso, periodo,<br/>propietario receptor, total y opcion elegida fijados;<br/>contrato pendiente."
+    note for EvidenciaPagoAplicado "Pago verificado y aplicado una sola vez; importe<br/>aplicado y saldo pendiente derivados sin doble<br/>descuento."
+    note for ResultadoVerificado "Backend contrasta estado, importe, moneda, receptor y<br/>correlacion. Notificacion o navegador no bastan."
+```
 
-![Diagrama C4: clases de Reservas](../diagramas/C4-1-diagrama-de-clase-reserva.png)
+El gráfico no dibuja una secuencia consulta–escritura como garantía. Ubicación de puertos en Aplicación es candidata; no reubica contratos aprobados. `PagosApi` representa acceso público, no un servicio que exporte entidades privadas. Las dependencias punteadas a conceptos explican semántica de la frontera, sin aprobar tipos compartidos. La interfaz no causa ejecución por sí sola.
 
-**Lectura de datos y asociaciones:** `Reserva` contiene sus valores de recurso y periodo a través de `DatosReservaDirecta`. Los accesores `recurso`, `periodo` y `datosPropios` muestran esa misma representación local; no crean copias adicionales ni asociaciones persistentes con el módulo Recursos. Las composiciones `1` a `1` describen únicamente los valores obligatorios del objeto ilustrativo en memoria. No establecen cardinalidades entre tablas, solicitudes, reservas u operaciones de pago.
+**PNG histórico desactualizado:** la vista C4-1 y los antecedentes de clases/secuencia conservan supuestos del adelanto simulado y firmas que ya no describen el alcance financiero vigente. Se preservan sin reemplazar ni inspección visual nueva.
 
-`ContextoAdelanto` se mantiene en el Dominio local como forma de consulta del puerto, conforme a la fuente. No es la entidad privada de Pagos, no queda compuesto dentro de `Reserva` y no se persiste íntegro por conveniencia. Las API colaboradoras se muestran como fronteras; no se dibuja una dependencia de sus módulos hacia clases privadas de Reservas. La validación y traducción real entre sus DTO y los valores locales siguen pendientes.
+![Antecedente C4-01 desactualizado](../diagramas/C4-1-diagrama-de-clase-reserva.png)
+
+Otros antecedentes: [diagrama de clases histórico](../diagramas/diagrama-de-clases.png) y [flujo de ejecución histórico](../diagramas/Flujo-de-ejecución_confirmar-reserva.png).
 
 ## 4. Responsabilidades de clases e interfaces
 
 ### 4.1 Elementos representados
 
-| Capa o frontera | Elementos ilustrativos | Responsabilidad y límite |
+| Capa/frontera | Responsabilidad candidata | Límite |
 |---|---|---|
-| Dominio | `Reserva` | Exigir aprobación y disponibilidad como condiciones locales, construir candidata y conservar datos propios/evidencia mínima. No garantiza RN-13 por sí sola. |
-| Dominio | `RecursoId`, `PeriodoReserva` | Identidad y selección temporal inmutables del ejemplo; sin cargar Recursos ni calcular solapamientos. Cancha conserva bloque configurado sin duración uniforme; karaoke conserva sala/fecha/intervalo. |
-| Dominio | `DatosReservaDirecta` | Cliente, modalidad directa, recurso/periodo, total fijado y adelanto requerido fijado. |
-| Dominio | `AdelantoAplicado` | Referencia de operación, importe aprobado y aplicado, resultado aprobado y naturaleza simulada; evidencia candidata hasta persistir satisfactoriamente. |
-| Dominio | `ContextoAdelanto` | Operación propia consultada, selección, importes fijados y resultado registrado. Aplicación lo proyecta; Reserva no conserva el contexto completo. |
-| Dominio | `ReservaRepository` | Solicitar confirmación compatible y conservar datos/vínculo del adelanto aplicado; identificador solo tras persistencia satisfactoria. |
-| Dominio | `DisponibilidadPort` | Consultar validez al confirmar; no retiene ni garantiza exclusividad por una consulta aislada. |
-| Dominio | `AdelantoSimuladoPort` | Consultar resultado/contexto ya registrado y autorizado; no inicia RF11/RF18 ni implementa RF20. |
-| Aplicación | `ConfirmarReservaUseCase` | Consultar adelanto, contrastar operación/titular, coordinar disponibilidad, proyectar datos y solicitar persistencia mediante puertos. |
-| Aplicación | `ConfirmarReservaCommand` | Referencia `operacionId` e identidad autenticada `clienteId`; no transporta aprobación o importes declarados por el navegador. |
-| Presentación | `ReservaController`, `SolicitudAutenticada` | Validar forma y rol del recorrido directo, construir el comando desde identidad autenticada y llamar al caso de uso. El mecanismo de autenticación no está implementado. |
-| Infraestructura | `ReservaRepositoryAdapter` | Esqueleto deliberadamente no operativo: en la fuente lanza error por PC-02/PC-05 antes de ejecutar `preparar`. |
-| Infraestructura | `DisponibilidadInternaAdapter`, `AdelantoSimuladoInternoAdapter` | Realizar los puertos y delegar en API públicas internas. Los fragmentos fuente no resuelven traducción completa, fallos o correlación. |
-| Módulos colaboradores | `DisponibilidadApi`, `PagosSimuladosApi` | Contratos públicos propuestos de Disponibilidad y Pagos Simulados. No son clases privadas de Reservas ni implican HTTP interno. |
-| Ensamblado externo al núcleo | `componerReservas()` | Recibir las API públicas, construir adaptadores y suministrar dependencias por constructor; devolver `{ controller }`. Es función, sin clase ni contenedor DI obligatorio. |
+| Presentación: ReservaController | Recibir operación directa e identidad confiable y delegar. | No acepta aprobación, aplicación o importes como hechos del navegador. Autenticación PC-11 pendiente. |
+| Aplicación: ConfirmarReservaUseCase | Contrastar contexto propio, coordinar verificación/aplicación financiera y disponibilidad con confirmación consistente. | No es integración completa ni transacción distribuida; protocolo PC-05/PC-08 pendiente. |
+| Aplicación: PuertoPagos | Acceder a evidencia autorizada/correlacionada y coordinar aplicación única por frontera pública de Pagos. | No vuelve a cobrar al confirmar ni confunde aprobado con aplicado. Firma/DTO/errores abiertos. |
+| Aplicación: PuertoDisponibilidad | Obtener validez para recurso/periodo dentro del acuerdo de consistencia por diseñar. | Una consulta no retiene ni impide carreras por sí sola. |
+| Aplicación: ReservaRepository | Solicitar persistencia propia que preserve incompatibilidad y vínculo del pago aplicado. | No encapsula por nombre toda la garantía; atomicidad/recuperación pendientes. |
+| Dominio: Reserva | Expresar condiciones y datos propios de confirmación directa. | Candidata en memoria no acredita confirmación definitiva. Sin SDK o cliente de infraestructura. |
+| Dominio: DatosReservaDirecta | Cliente, modalidad cancha/karaoke, recurso/periodo, receptor, total/opción/importe fijados. | Valores y evidencia local; no cardinalidades persistidas ni copia total de Pagos. |
+| Dominio: EvidenciaPagoAplicado | Identidad de pago/operación, importe verificado y aplicado, asociación/receptor y evidencia mínima trazable. | Saldo pendiente calculado sobre pago aplicado; dato duplicado/derivado y almacenamiento por decidir. |
+| Infraestructura: adaptadores internos | Realizar puertos de Reservas y traducir API públicas de Pagos/Disponibilidad. | Sin importar sus entidades privadas ni HTTP interno obligatorio. |
+| Infraestructura: ReservaRepositoryAdapter | Realizar repositorio propio mediante persistencia relacional. | Modelo y garantía PC-02/PC-05/PC-08 pendientes; no hay implementación operativa. |
+| Frontera Pagos: OperacionElectronica | Operación iniciada con selección, total/opción/importe/moneda fijados, cliente, propietario receptor y referencias correlacionadas. | Inicio/asociación exacta PC-02/PC-08 abiertos. Receptor debe estar válidamente vinculado. |
+| Frontera Pagos: ResultadoVerificado | Hecho contrastado por backend con autoridad del proveedor y evidencia. | Aprobación, rechazo e incertidumbre diferenciados. No aprobación por webhook sin verificar. |
+| Frontera Pagos: AplicacionUnicaPago | Aplicar importe al vínculo autorizado una sola vez por pago, incluso entre canales/eventos distintos. | No resuelto por deduplicar ID de evento; persistencia/protocolo pendientes. |
+| Frontera Pagos: IncidenciaPago | Conservar aprobado sin confirmación, aplicado o no, correlación/receptor/importe, motivo y seguimiento. | Conciliación y devolución cuando corresponda; políticas y responsables PC-07/PC-10 pendientes. |
 
 ### 4.2 Firmas respaldadas y abreviaciones
 
-Se transcriben las firmas ilustrativas del [Código de referencia del Diseño Interno](../03-diseño-software/diseño-interno/diseño-interno-de-modulos.md#6-código-de-referencia). No se incorporan cuerpos de métodos ni nuevas operaciones. TypeScript sigue siendo notación académica, sin adoptarse como lenguaje del proyecto.
-
-| Elemento | Firma o forma respaldada | Precisión |
-|---|---|---|
-| `Reserva` | `static confirmarDirecta(datos: DatosReservaDirecta, operacionAdelantoId: string, resultado: "aprobado" \| "rechazado", disponible: boolean): Reserva` | `$` expresa operación estática en el Mermaid. La fábrica construye una candidata. |
-| `ConfirmarReservaUseCase` | `constructor(reservas: ReservaRepository, disponibilidad: DisponibilidadPort, adelantos: AdelantoSimuladoPort)`; `async execute(command: ConfirmarReservaCommand)` | La fuente no declara un tipo nominal de retorno de `execute`; se abrevia a `Promise` en el dibujo sin inventar un DTO. |
-| `ReservaRepository` | `confirmarSiCompatible(recurso: RecursoId, periodo: PeriodoReserva, preparar: () => Promise<Reserva>): Promise<string>` | Ámbito de consistencia pendiente PC-05; devuelve identificador solo tras persistencia satisfactoria. |
-| `DisponibilidadPort` | `verificarAlConfirmar(recurso: RecursoId, periodo: PeriodoReserva): Promise<boolean>` | La respuesta no es retención ni prueba aislada de compatibilidad concurrente. |
-| `AdelantoSimuladoPort` | `consultar(operacionId: string, clienteId: string): Promise<ContextoAdelanto \| undefined>` | Ausencia no significa aprobación ni rechazo de negocio. |
-| Adaptadores | Operaciones correspondientes de los tres puertos; constructores colaboradores `constructor(api: DisponibilidadApi)` y `constructor(api: PagosSimuladosApi)` | El repositorio fuente usa `_recurso`, `_periodo`, `_preparar` como argumentos no utilizados. El dibujo omite los guiones bajos para mostrar el contrato realizado, sin cambiar parámetros o comportamiento. Los retornos de los adaptadores colaboradores son inferidos en la fuente. |
-| `DisponibilidadApi` | `verificarSeleccion(recurso: RecursoId, periodo: PeriodoReserva): Promise<boolean>` | Forma local ilustrativa del contrato público; no aprueba compartir tipos privados entre módulos. |
-| `PagosSimuladosApi` | `consultarOperacionPropia(operacionId: string, clienteId: string): Promise<ContextoAdelanto \| undefined>` | Forma local ilustrativa; DTO de frontera y mapeo pendientes. |
-| `ReservaController` | `constructor(confirmarReserva: ConfirmarReservaUseCase)`; `async confirmar(solicitud: SolicitudAutenticada)` | Retorno inferido en la fuente y abreviado gráficamente; sin endpoint, verbo o código HTTP adoptados. |
-| `componerReservas` | `componerReservas(disponibilidadApi: DisponibilidadApi, pagosApi: PagosSimuladosApi)` | Retorno inferido `{ controller }` en el ejemplo; no se inventa un tipo o clase de módulo. |
-
-Los accesores existentes `recurso: RecursoId`, `periodo: PeriodoReserva` y `datosPropios: DatosReservaDirecta` se muestran como propiedades públicas de lectura; el constructor de `Reserva` es privado en la fuente. `RecursoId` recibe `valor: string`; `PeriodoReserva` recibe `fecha: string` y `referenciaSeleccion: string`. El dibujo omite constructores de valores para reducir detalle, sin añadir fábricas.
-
-Las propiedades de interfaces y valores conservan el carácter `readonly` de la fuente aunque el dibujo no repita ese modificador. `DatosReservaDirecta.modalidad` y `ContextoAdelanto.modalidad` se limitan a `"cancha" | "karaoke"`; `ContextoAdelanto.resultado`, a `"aprobado" | "rechazado"`; `AdelantoAplicado.resultado` es el literal `"aprobado"` y `simulado` es el literal `true`. La omisión gráfica de esos tipos no amplía sus valores. `SolicitudAutenticada.identidad` contiene exclusivamente la forma ilustrativa `{ id: string; rol: string }`, y `cuerpo` es `unknown`; no se completa con campos nuevos. Total e importes son cadenas opacas del ejemplo, sin precisión, moneda o aritmética decididas por esta vista.
+Las antiguas firmas del simulador y su literal de naturaleza académica dejan de ser contratos vigentes. Se sustituyen por responsabilidades sin miembros en el diagrama. No se aprueban nuevas firmas, booleanos de resultado, callbacks, DTO, IDs físicos, tipos monetarios, cardinalidades o endpoints. La notación TypeScript histórica no selecciona lenguaje. Proyectar información por API pública requiere contratos/mapeo futuros; no obliga a compartir clases del Dominio entre módulos.
 
 ## 5. Relaciones y reglas de dependencia
 
 ### 5.1 Notación y dirección
 
-| Notación | Significado en esta vista | Ejemplo |
-|---|---|---|
-| `-->` | Asociación dirigida: referencia utilizada por el objeto. | Controlador → caso de uso; caso de uso → puertos; adaptador → API pública colaboradora. |
-| `..>` | Dependencia por tipo, uso temporal o construcción, sin propiedad permanente. | Caso de uso → comando/entidad; raíz → elementos construidos. |
-| `..\|>` | Realización; el triángulo apunta al contrato implementado. | Adaptador → puerto. |
-| `*--` | Composición de datos/valores locales, con rombo en el todo. | Reserva → datos propios/evidencia; datos propios → recurso/periodo locales. |
-| `"1"` | Un valor obligatorio en cada extremo de la composición ilustrativa. | Una candidata contiene un conjunto de datos propios y una evidencia local. No expresa cardinalidad relacional. |
+`-->` expresa referencia conceptual dirigida; `..>` dependencia semántica/uso sin propiedad persistida; `..|>` realización hacia la interfaz. No se usan multiplicidades ni composiciones para decidir PC-02. Las flechas no expresan orden temporal, transacciones o garantía de ejecución.
 
-Las flechas representan dependencias o referencias de código, **no secuencia temporal ni despacho desde interfaces hacia implementaciones**. Presentación depende de Aplicación; Aplicación usa Dominio y sus puertos; Infraestructura realiza esos puertos y conoce las API públicas colaboradoras. Dominio no depende de Infraestructura ni de la raíz. La composición puede conocer las cuatro capas para ensamblarlas, sin que el núcleo la utilice como localizador de servicios.
+Presentación depende de Aplicación; Aplicación coordina mediante abstracciones y reglas del Dominio; Infraestructura realiza abstracciones hacia el núcleo. Dominio no depende de Infraestructura, SDK, secretos, proveedor o broker. Pagos traduce estados del proveedor sin trasladarlos como tipos de SDK al núcleo.
 
 ### 5.2 Ensamblado y fronteras
 
-La raíz recibe las dos referencias públicas del monolito, construye los adaptadores y suministra las siguientes referencias al constructor del caso de uso, conforme a la sección 6.5 de la fuente:
+La raíz de composición, fuera del núcleo y omitida por legibilidad, suministraría repositorio y adaptadores a sus puertos; no es quinta capa ni módulo. Contratos públicos de Pagos/Disponibilidad no autorizan tablas privadas. La propuesta financiera sitúa recepción de webhook en Presentación de Pagos, coordinación en Aplicación y adaptador del proveedor en Infraestructura; su código interno queda fuera de esta selección de clases. No se mueve al proveedor o webhook a Reservas ni a RabbitMQ.
 
-| Instancia construida | Contrato con el que se suministra | Destinatario |
-|---|---|---|
-| `ReservaRepositoryAdapter` | `ReservaRepository` | `ConfirmarReservaUseCase.reservas` |
-| `DisponibilidadInternaAdapter` | `DisponibilidadPort` | `ConfirmarReservaUseCase.disponibilidad` |
-| `AdelantoSimuladoInternoAdapter` | `AdelantoSimuladoPort` | `ConfirmarReservaUseCase.adelantos` |
-| `ConfirmarReservaUseCase` | Tipo del caso de uso existente | Constructor de `ReservaController` |
-
-La tabla describe suministro de objetos; no añade dependencias de código desde adaptadores hacia el caso de uso. `componerReservas()` devuelve la referencia del controlador. El `index.ts` ilustrativo exporta la función y el tipo `SolicitudAutenticada`, sin exportar por ello la entidad o los adaptadores privados.
-
-Compartir backend y almacén relacional no permite leer tablas o clases privadas de Disponibilidad/Pagos. Las API mostradas pertenecen a esos módulos, y las formas locales usadas por brevedad en el ejemplo no deciden su estructura interna ni obligan a que importen el Dominio de Reservas. La API REST de ADR-005/RC03 corresponde a web–backend; no se infiere REST interno.
-
-Repository separa la persistencia; Adapter delimita la colaboración; la inyección suministra implementaciones. SRP separa entrada, coordinación, reglas y detalles; ISP acota los tres puertos; DIP orienta dependencias al núcleo. LSP exige conservar significado y obligaciones al sustituir implementaciones. OCP orienta futuras extensiones sin imponer el proceso de eventos a las reservas directas. Ninguno garantiza por sí solo seguridad, atomicidad o cumplimiento de RN-13, ni adopta Strategy, Factory, State o Specification.
+Repository, Adapter e inyección conservan separación; SRP distingue cobro, verificación, aplicación y confirmación; DIP evita dependencia al detalle; LSP exige preservar incertidumbre/efecto único al sustituir adaptadores. Ningún patrón acredita la garantía concurrente.
 
 ## 6. Límites, decisiones pendientes y riesgos
 
 ### 6.1 Confirmación y evidencia
 
-- `Reserva.confirmarDirecta()` construye una candidata en memoria. Solo la persistencia satisfactoria puede acreditar confirmación almacenada y vínculo del adelanto aplicado. Un candidato descartado no acredita ese vínculo.
-- Aprobación simulada aislada no confirma. Debe existir disponibilidad válida al confirmar; rechazo, ausencia de aprobación o selección inválida impiden confirmar. Ausencia o fallo técnico no se convierten en aprobación ni en rechazo de negocio.
-- **RN-13 está aprobada y obliga a impedir confirmaciones incompatibles incluso concurrentes; PC-05 sigue abierto.** El repositorio debe preservar esa obligación y contrastar la candidata con el mismo recurso y periodo recibidos. El mecanismo y la coordinación con Disponibilidad no están decididos.
-- `preparar` ubica la consulta de disponibilidad y construcción de la candidata dentro del ámbito por diseñar. El callback no aporta por sí solo atomicidad, exclusividad ni protección frente a cambios concurrentes de disponibilidad. No se dibuja una transacción implementada, bloqueo o retención.
-- `ReservaRepositoryAdapter` es un esqueleto no operativo que falla antes del callback. La composición no lo convierte en una persistencia funcional. No debe atribuirse éxito al recorrido actual.
-- PC-08 mantiene pendientes correlación inequívoca, duplicados, aplicación única y recuperación del adelanto. Una referencia y una comprobación de titular no demuestran todas esas propiedades.
-- Total y adelanto se muestran antes y quedan fijados al iniciar la simulación en Pagos (DP-03). La confirmación usa esos valores; no recalcula tarifas actuales. Todo pago permanece exclusivamente simulado.
-- Resultado del adelanto, estado de Reserva y registro del saldo son hechos distintos. Los resultados ilustrativos de salida no aprueban estados persistidos ni resuelven todo RF19/PC-02. El registro posterior del saldo completo y su corrección quedan fuera del caso de uso y no cambian Reserva ni el resultado del adelanto.
+Cancha mantiene recurso, fecha y bloque configurado sin duración uniforme obligatoria; karaoke, sala, fecha e intervalo. Son reservas directas, sin solicitud de evento ni cotización obligatoria. Salón/recreo mantienen solicitud, revisión, cotización y condiciones aceptadas por el cliente dentro de UrbanPulse. Recreo reserva un ambiente/espacio definido, sin exclusividad presunta del establecimiento o del día (DF-01–DF-04).
+
+El cliente elige total o adelanto configurado. Antes de iniciar se muestran y fijan total, adelanto, opción, importe, moneda y propietario receptor (DP-02/DP-03). Confirmar exige pago requerido verificado por backend y aplicado una sola vez, disponibilidad válida y ausencia de confirmaciones incompatibles concurrentes; eventos requieren además aceptación interna. Aprobación aislada, navegador o notificación sin verificar no confirman. Consultar/coordinar no retiene recursos (RN-12/RN-13; DP-12; PC-05).
+
+Importe pendiente = total acordado − pago verificado y aplicado. Pago total aplicado implica cero; aprobado sin aplicar no se descuenta. La recepción posterior del saldo completo positivo se registra separadamente, sin doble descuento ni nuevo cobro de lo ya recibido. Solo propietario autorizado de reserva confirmada propia registra método declarado, importe, fecha de recepción, referencia cuando corresponda, autor y fecha/hora de registro; una recepción activa e historial de correcciones. Registrar/corregir no cambia Reserva ni resultado electrónico. Sin fraccionamientos posteriores ni recepción ficticia para cero, cuya etiqueta sigue pendiente (HU14/RF20; DF-05; DP-04–DP-11).
+
+Operación electrónica, resultado verificado, aplicación, confirmación, recepción declarada y liquidación del proveedor son hechos distintos. Aprobados sin confirmación conservan evidencia para conciliación y devolución cuando corresponda; políticas, permisos y ejecución pendientes. Esto no habilita RF13, cancelación, expiración o reapertura. Efectivo, Yape, Plin y transferencia son métodos declarados del saldo, sin acreditar soporte electrónico del candidato. UrbanPulse no recauda para redistribuir manualmente fondos ni adopta comisión propia (RC07/DF-06; ADR-012).
+
+El acuerdo de consistencia debe impedir tanto doble aplicación como confirmación incompatible y definir recuperación si aplicación/confirmación no completan juntas. No se presupone que proveedor y base compartan transacción. Guardar una candidata, ejecutar un callback o consultar antes de escribir no demuestra RN-13. No se declara éxito mientras PC-05/PC-08 y su validación estén abiertos.
+
+Si el proveedor aprueba y faltan disponibilidad u otras condiciones, no forzar Reserva ni transformar aprobación en rechazo; conservar evidencia de aprobación y aplicación real o ausencia para conciliación/devolución cuando corresponda. También debe diseñarse detección tras caída después del cobro: no se garantiza recuperar intenciones nunca conservadas. Una incidencia no habilita cancelar ni reenviar automáticamente otro cobro. Aprobación no equivale a liquidación del propietario.
 
 ### 6.2 Pendientes conservados
 
-| Pendiente | Límite de esta vista |
+| Pendiente | Límite conservado |
 |---|---|
-| PC-01/PC-03 | Contenido/evidencia de aceptación e iniciador de confirmación de eventos. El recorrido directo no se reutiliza para salón/recreo por cambiar una modalidad. |
-| PC-02 | Creación, relaciones, cardinalidades, identificadores y estados persistidos. Composiciones del objeto no aprueban tablas ni modelo persistente. |
-| PC-04 | Extremos, formatos, solapamientos y recursos compartidos. `PeriodoReserva` no implementa esos cálculos ni fija duración uniforme. |
-| PC-05 | Garantía concurrente y disponibilidad durante coordinación. No se seleccionan bloqueos, retenciones, expiraciones o transacciones distribuidas. |
-| PC-06 | Precisión/límites monetarios y representación de saldo cero; cadenas opacas no los resuelven. Fórmula y registro completo del saldo ya aprobados no se reabren. |
-| PC-07 | Adelanto aprobado sin disponibilidad u otras condiciones: no confirmar; resolución posterior pendiente, sin reembolso inferido. |
-| PC-08 | Fallos, ausencias, reintentos, duplicados, correlación y aplicación única pendientes. No se añade idempotencia operativa por el diagrama. |
-| PC-09/PC-10 | No aceptación, cambios, reapertura y ciclo posterior; RF13 sigue pendiente. No se introducen cancelación, devolución, expiración o cierre. |
-| PC-11 | Autenticación, matriz de permisos y mecanismos concretos. Identidad confiable es una precondición del ejemplo; no se implementa por definir `SolicitudAutenticada`. |
-| PC-12 | Cobertura HU/RF/DA y evaluación EQ. La vista no completa huecos ni acredita pruebas o métricas. |
+| PC-01 | Contenido/versiones de cotización, servicios y evidencia de aceptación; DF-02 no formalizada completamente en HU/RF. |
+| PC-02 | Creación, cardinalidades, asociaciones y propiedad relacional de Reserva/Solicitud/operación/aplicación/incidencia/saldo. |
+| PC-03 | Iniciador y automatización de confirmación de eventos. Un webhook no los decide. |
+| PC-04 | Periodos, extremos, solapamientos y espacios compartidos. |
+| PC-05 | Garantía concurrente y coordinación aplicación única/confirmación/Disponibilidad; mecanismo y validación pendientes. Sin bloqueo, retención o expiración adoptados. |
+| PC-06 | Moneda, precisión, límites, bruto/neto, tarifas y representación de cero; fórmula vigente y recepción completa no se reabren. |
+| PC-07 | Evidencia recuperable de aprobación sin confirmación, aplicada o no, caídas tras cobro y responsables de conciliación/devolución. |
+| PC-08 | Inicio/consulta/webhook/devolución, autenticidad, correlación, reintentos, duplicados entre canales, aplicación única, desorden e incertidumbre. |
+| PC-09 | No aceptación, cambios y reapertura sin estados ni permisos nuevos. |
+| PC-10 | RF13/ciclo posterior separados de devolución financiera: política, elegibilidad, importe, iniciador y evidencia final pendientes. |
+| PC-11 | Matriz de permisos, seguridad, vinculación/renovación/revocación del receptor y custodia de credenciales. |
+| PC-12 | Cobertura HU/RF/DA, onboarding si requiere formalización y evaluación EQ, sin cerrar vacíos por analogía. |
 
-También siguen pendientes traducción de DTO colaboradores, contrato REST, errores uniformes, persistencia y simulador concreto. No se seleccionan lenguaje, framework, ORM, motor o proveedor. Redis y RabbitMQ conservan los alcances de ADR-010/ADR-011, sus seis responsabilidades conceptuales C3 y sus mecanismos abiertos, incluida la no adopción de Transactional Outbox; no se incorporan como clases o conexiones de Reservas por esta vista.
+Fuente de detalle: [catálogo RN/PC](../03-diseño-software/01-reglas-de-negocio.md#restricciones-del-mvp-y-pendientes-contractuales), [estados](../03-diseño-software/02-estados-y-transiciones.md), [flujos](../03-diseño-software/03-flujos-de-reserva.md) y reconciliación de Tarea 2 (antecedente auxiliar local, fuera del repositorio). Un timeout no aprueba/rechaza ni autoriza automáticamente otro cobro. Deduplicar solo el ID del evento no evita aplicar dos eventos distintos del mismo pago. No se adopta transacción distribuida, Outbox, inbox, scheduler o cola financiera por esta representación.
 
 ## 7. Reconciliación y estado documental
 
-Esta vista deriva del Diseño Interno cerrado **conceptualmente**. Su versión anterior se entregó como propuesta ilustrativa pendiente de auditoría; se conserva ese antecedente. Tras la auditoría favorable comunicada en la solicitud de cierre y el contraste sin contradicciones arquitectónicas bloqueantes nuevas, queda **aprobada conceptualmente y cerrada documentalmente exclusivamente la vista ilustrativa de confirmación directa de cancha y karaoke**. El cierre reconoce las cuatro capas, Reservas dentro del Monolito Modular y las responsabilidades ilustrativas de clases y contratos; Presentación depende de Aplicación, Aplicación de contratos y reglas del Dominio, y los adaptadores implementan contratos internos. Conserva las fronteras públicas de Disponibilidad y Pagos Simulados, la raíz de composición externa al núcleo y la distinción entre datos propios, contexto consultado y evidencia mínima del adelanto. La aprobación es documental: no aprueba clases definitivas, interfaces, firmas, algoritmos, implementación ni pruebas. C1 conserva el contexto funcional; C2 conserva cinco contenedores; C3 conserva ocho módulos y sus responsabilidades técnicas. No se cierra el diseño completo de clases del sistema.
+La jerarquía aplicada es: solicitud explícita actual y Análisis vigente (actores, HU/RF, RC/DF/DP); decisiones estructurales ADR-001–ADR-011 y estado individual de ADR-012; RN/PC, estados y flujos; Diseño Interno; representación C4. Los informes son antecedentes auxiliares, no aprobaciones. Tarea 4 sincroniza AGENTS.md, README y los textos de arquitectura con pagos reales como objetivo y las cuatro capas de ADR-002. Las seis fuentes C1–C4 ya existen para revisión; sus PNG históricos siguen pendientes de actualización. Los ejemplos no seleccionan tecnología ni aprueban ADR-012.
 
-Se conservan los desfases identificados en la auditoría cruzada: AGENTS.md mantiene la base de nueve ADR frente a once en el catálogo; README/arquitectura inicial mantienen tres capas y referencias a simulación externa frente a las cuatro capas de ADR-002 y al simulador interno del MVP; catálogo y cierres independientes todavía describen C2/C3 anteriores; C2 presenta la reconciliación de C3 como futura y Patrones aún describe Principios como pendiente. Se aplican los alcances explícitos de los cierres vigentes y las restricciones de diseño concreto, sin inferir aprobación por fecha o Git. Su efecto aquí es preservar cuatro capas, fronteras internas y los límites funcionales, sin corregir otras fuentes.
-
-Los PNG anteriores se conservan como antecedentes. El diagrama de esta vista se presenta mediante el PNG C4-1 en la sección 3; la selección de relaciones y agrupación UML queda aprobada conceptualmente como representación documental, sin aprobar la realización concreta de sus elementos ni afirmar equivalencia gráfica exacta con los antecedentes.
-
-**Verificación documental de este cierre:** siete secciones principales y matriz de trazabilidad intactas; la vista gráfica se presenta como PNG enlazado en la sección 3 y el código Mermaid ya no se conserva en este documento. La imagen no constituye código ni evidencia de ejecución. La selección de responsabilidades descrita en el documento conserva sus límites funcionales y pendientes técnicos; no se afirma equivalencia gráfica exacta con los PNG antecedentes.
-
-**Verificación Git de este cierre:** `git diff --check` termina con código 0. El archivo sin seguimiento se revisa por separado con `git diff --no-index --check -- NUL Doc/04-modelo-c4/04-codigo-c4.md`: no presenta diagnósticos de espacios y devuelve 1 por la diferencia respecto del archivo vacío. La revisión textual tampoco encuentra espacios finales y confirma salto de línea final. Git advierte sobre conversión LF/CRLF. La comparación SHA-256 de los 47 archivos preexistentes enumerados por Git identifica únicamente el cambio editorial del documento autorizado; no se crean ni eliminan archivos. La rama es `main` y el índice permanece vacío e idéntico al inicial. No se ejecutan operaciones de add, commit, push, reset, clean, checkout o restore. Se conserva como antecedente que la creación anterior añadió solo este documento y preservó los 46 archivos entonces preexistentes.
-
-**Límite de verificación gráfica:** se comprueba la existencia del PNG enlazado, pero no se valida visualmente su contenido ni su legibilidad en GitHub/Obsidian. No se ejecuta código ilustrativo, pruebas de negocio, persistencia ni concurrencia. Ninguna garantía operativa se acredita por esta documentación.
-
-Este cierre modifica exclusivamente `Doc/04-modelo-c4/04-codigo-c4.md`; no se crean archivos en `src/`, exportaciones gráficas o informes auxiliares, ni se modifican otras fuentes. **Estado final: vista ilustrativa aprobada conceptualmente y cerrada documentalmente; clases definitivas, interfaces, firmas, algoritmos, mecanismos e implementación pendientes de aprobación concreta, sin pruebas acreditadas.**
-
-**URBANPULSE — MODELO C4 NIVEL 4 DE RESERVAS DIRECTAS APROBADO CONCEPTUALMENTE — VISTA ILUSTRATIVA CERRADA DOCUMENTALMENTE — SIN COMMIT NI PUSH.**
+Se preserva el alcance directo y las cuatro capas del cierre conceptual histórico; la revisión financiera queda pendiente de auditoría sin aprobar nombres, firmas, composición o algoritmos. C1/C2/C3 se reconcilian en esta Tarea 3; el aislamiento Redis/RabbitMQ y sus cierres D1–D6 no se reabren. No se selecciona framework/ORM/motor/proveedor. La verificación documental y Mermaid de esta revisión se detalla en el informe Tarea 3 (antecedente auxiliar local, fuera del repositorio); no se heredan resultados de pruebas o de Git de cierres anteriores.

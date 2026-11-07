@@ -1,5 +1,7 @@
 # ADR-011 — Mensajería asíncrona con RabbitMQ
 
+**Nota de vigencia financiera — 07/11/2026:** se conserva íntegro el texto y cierre histórico de esta ADR. Sus menciones de pagos exclusivamente simulados y prohibición de integración financiera corresponden al alcance anterior, sustituido por [RC07/DF/DP revisados](../05-restricciones.md) y el alcance funcional de [ADR-012](ADR-012-modelo-pagos-mvp.md). No se reabre su aprobación técnica ni se extiende a pagos/conciliación. Redis sigue limitado a fichas públicas reconstruibles; RabbitMQ a invalidación técnica con consumidor dentro del backend. Worker posterior: **Preparado arquitectónicamente, no obligatorio inicialmente**; extraíble mediante fronteras técnicas sin modificar dominio, sin microservicio ni proceso adicional obligatorio en el MVP. Los mecanismos operativos continúan pendientes. Las descripciones de C2/C3 aún no actualizados dentro del antecedente son históricas: las seis fuentes C1–C4 ya incorporan el objetivo financiero tras Tarea 3; AGENTS.md y los textos de arquitectura se sincronizan en Tarea 4. PNG e informes históricos conservan su contexto; las propuestas financieras y la validación visual siguen pendientes.
+
 **Proyecto:** UrbanPulse
 
 **Estado: APROBADA CONCEPTUALMENTE — CERRADA DOCUMENTALMENTE — IMPLEMENTACIÓN Y MECANISMOS OPERATIVOS PENDIENTES**

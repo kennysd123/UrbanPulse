@@ -1,115 +1,102 @@
 # UrbanPulse — Estados y transiciones
 
+**Reconciliación Tarea 2 — 07/11/2026; pendiente de auditoría.** El alcance funcional de pagos reales sustituye la exclusividad simulada histórica conforme a [RC/DF/DP revisados](../01-analisis-de-sistema/05-restricciones.md) y [ADR-012](../01-analisis-de-sistema/adr/ADR-012-modelo-pagos-mvp.md). Las decisiones arquitectónicas financieras de ADR-012 siguen propuestas; Mercado Pago Marketplace Split 1:1 es candidato, sin capacidades verificadas ni integración de producción aprobada. Esta revisión no acredita implementación o pruebas. AGENTS.md y la arquitectura general se sincronizan en Tarea 4 con el alcance funcional vigente; la arquitectura financiera de ADR-012 sigue propuesta y los cierres históricos no la aprueban.
+
 ## Propósito y nivel de aprobación
 
-Separar Solicitud de evento, Reserva, Adelanto simulado y Registro de liquidación simulada del saldo conforme a las [reglas RN y fuentes](01-reglas-de-negocio.md). Las acciones funcionales aprobadas no equivalen a una máquina de estados aprobada. Los dos estados informativos del saldo están aprobados por DP-08; los nombres y la organización de los demás estados intermedios son propuestas para auditoría; no fijan tablas, enumeraciones de código, cardinalidades ni el momento de creación de una entidad persistida (PC-02).
-
-Las referencias HU/RF/DF/AC/DA/ADR/EQ remiten a las [fuentes del catálogo](01-reglas-de-negocio.md#fuentes-y-criterio-de-trazabilidad). La lectura arquitectónica conserva Monolito Modular y Clean Architecture. Los diagramas describen comportamiento conceptual, sin elegir mecanismo concurrente, framework, base de datos o despliegue del simulador.
-
-**Diagramas de referencia:** los PNG incorporados representan visualmente las transiciones descritas por las tablas. No aprueban estados propuestos ni acreditan implementación; PC-02 y los demás pendientes descritos arriba siguen vigentes.
-
-Las tablas conservan el detalle textual de las transiciones; los diagramas se mantienen como imágenes PNG.
+Separar seis hechos conceptuales sin decidir que sean seis entidades persistidas. Las reglas funcionales proceden de [RN/PC](01-reglas-de-negocio.md), RF11/RF12/RF18–RF20 y DP-01–DP-12. Excepto los dos estados informativos de DP-08, los nombres, estados intermedios y secuencias siguientes son propuestas revisables, sin enumeraciones, cardinalidades ni contratos persistidos aprobados (PC-02/PC-08). Se conservan los identificadores locales S1–S4, R1–R6, P1–P3 y L1/L2.
 
 ## Hechos que deben distinguirse
 
-| Hecho | Responsable | Efecto permitido | No acredita |
-|---|---|---|---|
-| Aceptar solicitud | Propietario | Aceptación de la petición del evento (HU08/RF10; RN-08). | Aceptación del cliente ni reserva confirmada. |
-| Registrar cotización y condiciones | Propietario | Poner las condiciones en UrbanPulse (DF-02; RN-09). | Aceptación automática ni disponibilidad retenida. |
-| Aceptar cotización y condiciones | Cliente en UrbanPulse | Satisfacer la condición de aceptación (DF-02; RN-09). | Adelanto aprobado ni confirmación. |
-| Aprobar adelanto simulado | Simulador, resultado registrado por el sistema | Satisfacer la condición de adelanto correspondiente (RN-14/RN-15). | Movimiento real de dinero ni reserva confirmada por sí solo. |
-| Confirmar reserva | Sistema al evaluar el caso de uso; iniciador del evento pendiente PC-03 | Registrar confirmación solo si se cumplen las condiciones de la modalidad (RN-04/RN-11/RN-13). | Una garantía concurrente implementada o un derecho a cancelar. |
+| Ámbito | Situación conceptual | Efecto y límite |
+|---|---|---|
+| A. Solicitud de evento | En revisión/coordinación; Aceptada; Rechazada | Propietario revisa/acepta/rechaza. Aceptada no equivale a aceptación del cliente ni a Reserva confirmada. |
+| B. Reserva | Pendiente de confirmación; Confirmada | Confirmada requiere pago requerido verificado y aplicado, disponibilidad válida y aceptación interna en eventos. Creación previa y persistencia pendientes. |
+| C. Operación electrónica | Iniciada/en procesamiento; Pendiente; Aprobada verificada; Rechazada verificada; Resultado incierto | Situaciones conceptuales para interpretar evidencia del proveedor, sin copiar sus enums. Aprobación no es aplicación ni liquidación. Timeout deja incertidumbre. |
+| D. Pago verificado y aplicado | Verificado sin aplicación; Aplicado una vez | Verificar aprobación no descuenta importe por sí solo. Aplicación es hecho auditable asociado a la reserva; mecanismo conjunto con confirmación pendiente PC-05/PC-08. |
+| E. Registro posterior del saldo positivo | Pendiente de registro; Registrado como recibido | Etiquetas informativas aprobadas DP-08. Declaración del propietario, sin cambiar Reserva o resultado electrónico. Cero: no aplica recepción; etiqueta pendiente. |
+| F. Conciliación de incidencias financieras | Incidencia pendiente de análisis; En tratamiento; Resolución documentada | Nombres propuestos. Conserva aprobado sin confirmar, diferencias, duplicados o incertidumbre. No presume devolución ni cierre de Reserva. |
 
-La aceptación de cotización se representa como condición del proceso, separada del estado de Solicitud; no se crea otra máquina para la aceptación; la cuarta máquina independiente corresponde al registro del saldo (DP-08). El orden entre aceptación de solicitud y registro de cotización en los flujos es una propuesta de coordinación, no una política contractual aprobada.
-
-## Catálogo de estados
-
-| Entidad | Estado / situación | Significado | Nivel y respaldo |
-|---|---|---|---|
-| Solicitud | En revisión/coordinación | Petición registrada, sujeta a revisión de fecha, personas, servicios y condiciones. | Nombre propuesto; acciones aprobadas HU05/HU08, RF07/RF10, RN-05/RN-06. |
-| Solicitud | Aceptada | El propietario acepta la solicitud, sin confirmar reserva. | Nombre propuesto; aceptación respaldada en HU08/RF10 y RN-08/RN-10. |
-| Solicitud | Rechazada | El propietario rechaza la solicitud. | Nombre propuesto; rechazo respaldado en HU08/RF10 y RN-08. No cancela una reserva. |
-| Reserva | Pendiente de confirmación | Situación conceptual de una operación que aún no cumple todas las condiciones; no presupone persistencia de un intento directo. | Propuesta; RF12/RF19 y flujo de pagos de arquitectura inicial; RN-11/RN-16. Creación/persistencia pendientes PC-02. |
-| Reserva | Confirmada | Se verificó disponibilidad y las condiciones aplicables. | Concepto aprobado RF04/RF06/RF12, DF-03/DF-04; nombre de diseño sujeto a auditoría. |
-| Adelanto simulado | En procesamiento | Intento invocado sin resultado de negocio registrado todavía. | Estado técnico propuesto para representar RF11/RF18; no implica espera asíncrona ni protocolo elegido. |
-| Adelanto simulado | Aprobado | Resultado positivo del intento asociado al adelanto. | Resultado aprobado HU09/RF18, RC07; RN-14. |
-| Adelanto simulado | Rechazado | Resultado negativo del intento, sin adelanto aprobado. | Resultado aprobado HU09/RF18, RC07; RN-14/RN-15. |
-| Registro de saldo | Pendiente de registro | Sin recepción simulada activa del saldo completo. | Aprobado DP-08; aplicabilidad a saldo cero pendiente. |
-| Registro de saldo | Registrado como recibido en simulación | Existe recepción simulada activa completa y trazable. | Aprobado DP-08; HU14/RF20. |
-
-No tener intento de pago no es un pago rechazado. La ausencia de respuesta no es un resultado aprobado/rechazado ni un nuevo estado de negocio autorizado. “Condiciones aceptadas”, “adelanto requerido” y “disponibilidad consultada” tampoco son estados de Reserva. `Disponible` y `No disponible` son resultados de consulta, sin constituir una reserva o una retención.
-
+Cotización registrada y aceptación interna son evidencia contractual diferenciada; su organización/versiones siguen en PC-01. Disponibilidad consultada es un resultado sin retención. Un evento duplicado es una condición de procesamiento, no un rechazo financiero ni otro importe aplicado. Dos pagos diferentes potencialmente cobrados requieren conciliación; deduplicar eventos no permite borrar un cobro real adicional.
 
 ## Transiciones de Solicitud
 
-Los ID S, R, P y L son referencias locales de transición. “Inicio” significa ausencia del objeto o situación representada; no es un estado almacenado. Los responsables humanos desencadenan la acción y el sistema verifica autorización y registra el resultado.
+| ID | Origen | Acción / guarda | Destino o efecto | Respaldo |
+|---|---|---|---|---|
+| S1 | Inicio conceptual | Cliente autorizado registra recurso de salón/recreo, fecha, personas y servicios | En revisión/coordinación | HU05/RF07; RN-05/RN-06; DF-01. |
+| S2 | En revisión/coordinación | Propietario autorizado revisa y coordina | Misma situación; sin mensajería interna ni retención | HU08/RF10; RN-08/RN-09/RN-19. |
+| S3 | En revisión/coordinación | Propietario acepta petición | Aceptada; sin confirmar Reserva | HU08/RF10; RN-08/RN-10. |
+| S4 | En revisión/coordinación | Propietario rechaza petición | Rechazada; no cancela una Reserva | HU08/RF10; RN-08. |
 
-| ID | Origen | Evento | Condición | Destino / efecto | Responsable | Respaldo y nivel |
-|---|---|---|---|---|---|---|
-| S1 | Inicio | Registrar solicitud de salón/recreo | Fecha, cantidad de personas y servicios según RF07; recurso según modalidad | En revisión/coordinación | Cliente / sistema | HU05/RF07; DF-01; RN-05/RN-06. Acción aprobada, nombre propuesto. |
-| S2 | En revisión/coordinación | Revisar y coordinar | Propietario autorizado, revisión de disponibilidad y condiciones | En revisión/coordinación | Propietario y cliente / sistema para datos registrados | HU08/RF10; RN-08/RN-09/RN-19. Sin mensajería interna implícita. |
-| S3 | En revisión/coordinación | Aceptar solicitud | Decisión del propietario según las condiciones del establecimiento | Aceptada | Propietario / sistema | HU08/RF10; RN-08/RN-10. Acción aprobada. |
-| S4 | En revisión/coordinación | Rechazar solicitud | Decisión del propietario según las condiciones del establecimiento | Rechazada | Propietario / sistema | HU08/RF10; RN-08. Acción aprobada. |
+Registrar cotización y aceptar condiciones dentro de UrbanPulse son hechos DF-02 separados de S3. Su orden concreto, cambios y reapertura siguen PC-01/PC-09; WhatsApp no sustituye aceptación.
 
-Una solicitud aceptada no transita a “reserva confirmada”: son conceptos distintos. Registrar condiciones y su aceptación por el cliente son hechos DF-02, sin transición adicional de Solicitud en esta propuesta. Reapertura, edición tras aceptación y rechazo de cotización por el cliente siguen pendientes PC-01/PC-09.
-
-![Solicitud de evento: S1–S4; aceptar la solicitud no confirma la reserva.](../diagramas/Transiciones-de-Solicitud.png)
+![Antecedente gráfico S1–S4, conservado sin editar](../diagramas/Transiciones-de-Solicitud.png)
 
 ## Transiciones de Reserva
 
-RF19 se expresa registrando el resultado del adelanto y reflejando su efecto: ante rechazo, sigue sin confirmar; ante aprobación, queda satisfecha únicamente la condición de adelanto y se evalúan las restantes. El modelo conceptual puede conservar “Pendiente de confirmación” y distinguir el motivo; no se adopta una estructura de persistencia ni se elimina la actualización exigida por RF19.
+| ID | Origen conceptual | Evaluación / guarda | Destino o efecto | Responsable y respaldo |
+|---|---|---|---|---|
+| R1 | Inicio / operación directa | Identidad y autorización, recurso/periodo, pago total o adelanto configurado verificado y aplicado, disponibilidad válida; impedir incompatibles concurrentes | Confirmada solo con persistencia consistente | Cliente inicia; sistema evalúa. DF-04; RN-04/RN-13; RF04/RF06/RF12. |
+| R2 | Inicio / operación directa | Falta alguna condición de R1 | Sin confirmación; no crea automáticamente Reserva Rechazada ni objeto persistido | Sistema; DP-12; RN-15; PC-02. |
+| R3 | Proceso de evento | Aún faltan condiciones | Pendiente de confirmación, conceptualmente | Sistema; PC-02; RF12/RF19. |
+| R4 | Pendiente de confirmación | Aceptación de condiciones en UrbanPulse + pago requerido verificado y aplicado + disponibilidad válida sin incompatibles concurrentes | Confirmada | Sistema; iniciador/automatización pendientes PC-03. DF-02/DF-03; RN-11/RN-13. |
+| R5 | Pendiente de confirmación | Rechazo verificado | Sigue sin confirmar y refleja rechazo según RF19 | Backend verifica; sistema registra. RF18/RF19; RN-15/RN-16. |
+| R6 | Pendiente de confirmación | Pago aprobado pero falta disponibilidad u otra condición | Sin confirmar; aprobación conservada e incidencia trazable | RF19; RN-15; PC-07/PC-08. |
 
-| ID | Origen | Evento | Condición | Destino / efecto | Responsable | Respaldo y nivel |
-|---|---|---|---|---|---|---|
-| R1 | Inicio / operación directa en curso | Reservar cancha o karaoke | Recurso/fecha/bloque o intervalo definidos; operación autorizada; adelanto simulado aprobado y disponibilidad válida al confirmar | Confirmada | Cliente inicia; sistema confirma | DF-04; DP-02/DP-12; RF04/RF06/RF12; RN-04/RN-13. |
-| R2 | Inicio / operación directa en curso | Intentar reserva directa con alguna condición incumplida | Adelanto rechazado o no aprobado, o disponibilidad no válida al confirmar | Sin confirmación; no se crea automáticamente estado Rechazada ni Reserva persistida | Cliente / sistema | DF-04; DP-12; RN-04/RN-15. |
-| R3 | Proceso de evento | Representar situación previa a confirmación | Aún faltan condiciones del evento | Pendiente de confirmación, conceptualmente | Sistema; momento de materialización pendiente | RF12/RF19; RN-10/RN-11/RN-16; PC-02. Propuesta de modelo. |
-| R4 | Pendiente de confirmación | Evaluar confirmación de evento | Condiciones aceptadas en UrbanPulse + adelanto simulado aprobado + disponibilidad verificada | Confirmada | Sistema; actor iniciador/automatización pendientes | DF-02/DF-03; RF12; RN-09/RN-11/RN-13; AC03/DA02/ADR-004/EQ-03. Guarda aprobada; disparador pendiente PC-03. |
-| R5 | Pendiente de confirmación | Registrar resultado de adelanto rechazado | Simulador devuelve rechazo | Permanece pendiente; situación de adelanto rechazado reflejada según RF19 | Simulador devuelve; sistema registra | HU09/RF18/RF19; RN-15/RN-16; EQ-08. No confirmación derivada; representación concreta propuesta. |
-| R6 | Pendiente de confirmación | Evaluar con pago aprobado y falta de disponibilidad u otra condición | Incumplimiento de al menos una condición de DF-03 | Permanece pendiente; sin confirmación | Sistema | RN-11/RN-13/RN-15; EQ-03/EQ-08. Resolución posterior pendiente PC-07. |
+R1/R4 no se alcanzan por P2 aislada: requieren aplicación única y todas las guardas. RN-13 es obligatoria; la tabla no demuestra un mecanismo de concurrencia. El orden lógico de evaluación no aprueba una consulta seguida de escritura ni una transacción distribuida. Reflejar resultados según RF19 no fusiona las máquinas ni obliga a crear Reserva antes de tiempo.
 
-Cancha y karaoke no pasan por Solicitud de evento, pero sí requieren adelanto simulado obligatorio. R1 exige P2 y disponibilidad válida; R2 cubre también rechazo o ausencia de aprobación. Un intento fallido no presupone una Reserva persistida. R3–R6 conservan el recorrido de eventos y sus tres condiciones.
+**Desfase gráfico:** el PNG siguiente conserva adelanto simulado obligatorio; es antecedente, no representación financiera vigente.
 
-![Reserva: R1–R6; las situaciones intermedias son conceptuales y PC-02 sigue pendiente.](../diagramas/transiciones-de-reserva.png)
+![Antecedente de Reserva R1–R6, pendiente de actualización gráfica](../diagramas/Transiciones-de-Reserva.png)
 
-## Transiciones de Pago simulado
+## Transiciones de operación electrónica y aplicación
 
-El orden “condiciones aceptadas antes de invocar pago” utilizado en los flujos es una propuesta de recorrido; DF-03 fija la conjunción necesaria para confirmar. DP-03 fija los importes de la operación; DP-04 fija el saldo.
+| ID | Origen conceptual | Acción / condición | Efecto permitido | Nivel / respaldo |
+|---|---|---|---|---|
+| P1 | Inicio | Identidad/autorización y receptor vinculado válido; mostrar y fijar total, adelanto, opción, importe y moneda; correlacionar operación | Solicitar pago a proveedor mediante adaptador; iniciada/en procesamiento | RF11; DP-02/DP-03; secuencia propuesta, contratos PC-02/PC-08/PC-11. |
+| P2 | En procesamiento / pendiente / incierto | Backend verifica aprobación y contrasta estado, correlación, importe, moneda y receptor | Aprobación verificada; aún no es aplicación ni confirmación | RF18/RF19; RN-14/RN-16. Sustituye aprobación del simulador. |
+| P3 | En procesamiento / pendiente / incierto | Backend verifica rechazo correspondiente a operación | Rechazo verificado; no aporta importe ni confirma | RF18/RF19; DP-12. Sustituye rechazo del simulador. |
+| P4 | Operación sin resultado definitivo | Proveedor informa pendiente o consulta falla/timeout | Conservar pendiente o incertidumbre con evidencia; reconsulta/recuperación por diseñar | Propuesta de representación; PC-08; nunca aprobar/rechazar por timeout. |
+| P5 | Aprobación ya conocida / evento repetido | Mismo pago reaparece por webhook, consulta o reintento | Preservar evidencia y resultado; ninguna aplicación o cobro solicitado duplicados | Obligación RF11/RF18/RF19; mecanismo pendiente. |
+| P6 | Resultado contradictorio o fuera de orden | Nueva evidencia requiere contraste autoritativo | No degradar hechos verificados por orden de llegada; preservar incidencia | Propuesta de coordinación; PC-08; contrato del proveedor por verificar. |
+| AP1 | Pago verificado sin aplicación | Correlación y condiciones comprobadas; coordinar aplicación única con Reserva y disponibilidad | Registrar aplicación única a reserva; descuento solo del importe efectivamente aplicado | RF12/RF19; DP-04/DP-12; realización PC-02/PC-05/PC-08. |
+| AP2 | Aplicación registrada | Repetición del mismo pago, incluso evento distinto | Conservar aplicación existente, sin acumular importe ni generar nueva confirmación | Obligación idempotente; RF18/RF19. |
 
-| ID | Origen | Evento | Condición | Destino / efecto | Responsable | Respaldo y nivel |
-|---|---|---|---|---|---|---|
-| P1 | Inicio | Iniciar adelanto simulado | Recurso/operación y adelanto identificados; total y adelanto mostrados previamente y fijados al iniciar; en eventos según condiciones aceptadas | En procesamiento | Cliente inicia; sistema invoca simulador | HU09/RF11/RF18; DF-04; DP-02/DP-03; RN-14/RN-17. |
-| P2 | En procesamiento | Recibir aprobación | Resultado aprobado asociado al intento correspondiente | Aprobado; actualizar situación de reserva y evaluar las otras condiciones | Simulador / sistema | RF18/RF19; DF-03; RN-14–RN-16; DA06/ADR-006/EQ-08. Resultado aprobado. |
-| P3 | En procesamiento | Recibir rechazo | Resultado rechazado asociado al intento correspondiente | Rechazado; no satisfacer adelanto, reserva sin confirmar | Simulador / sistema | RF18/RF19; RN-14–RN-16. Resultado aprobado documentalmente. |
+P4–P6/AP1/AP2 son referencias locales nuevas para separar situaciones antes ausentes; no enumeraciones persistidas. AP1 no ordena aplicar a ciegas antes de validar disponibilidad ni afirma atomicidad: unidad consistente o protocolo recuperable por diseñar. Si hay aprobación y no se consigue confirmar, se conserva tanto resultado como aplicación real existente o ausencia de ella; no se registra aplicación ficticia ni se pierde la incidencia.
 
-Los contratos técnicos de asociación, precisión monetaria, fallos y resultados repetidos siguen pendientes PC-06/PC-08. No se diseña un callback, una política de reintentos ni un mecanismo de idempotencia.
+El navegador solo informa navegación. Webhook es señal para verificar en backend, con autenticidad y correlación según contrato futuro. Ausencia de intento no es rechazo; una referencia declarada no acredita aprobación. Reintentos de inicio o devolución requieren identidad estable y contratos; resultado incierto no autoriza otro cobro automático.
 
-![Adelanto simulado: P1–P3; la aprobación no confirma por sí sola ni mueve dinero real.](../diagramas/Transiciones-de-Pago-simulado.png)
+**Antecedente gráfico sustituido:** el PNG de P1–P3 representa el simulador, no el proveedor ni AP1/AP2.
+
+![Antecedente de Pago simulado, conservado sin editar](../diagramas/Transiciones-de-Pago-simulado.png)
+
+## Registro posterior del saldo
+
+| ID | Origen | Guarda / operación | Efecto | Respaldo |
+|---|---|---|---|---|
+| L1 | Pendiente de registro, saldo positivo | Propietario autorizado, reserva confirmada propia, importe completo; reserva, método declarado, fecha de recepción, referencia aplicable, autor/fecha de registro; sin otra recepción activa | Registrado como recibido; no cambia Reserva, pago electrónico ni aplicación | HU14/RF20; RN-24/RN-25; DF-05; DP-04–DP-08/DP-11. |
+| L2 | Registrado como recibido | Corrección autorizada con historial anterior preservado, autor/fecha y una recepción activa | Misma situación informativa; corrección trazable, sin segundo pago | DP-06/DP-09; procedimiento pendiente. |
+
+Repetir L1 no crea otra recepción; no se admiten fraccionamientos. La consulta RF14/DP-10 distingue pendiente calculado y recepción declarada para evitar doble descuento o cobro posterior del saldo ya recibido. Con pago total aplicado el pendiente es cero, no se ejecuta L1 ni se inventa recepción. Fecha de recepción no acredita liquidación del proveedor.
+
+**Desfase gráfico:** el PNG conserva la etiqueta anterior «Registrado como recibido en simulación», sustituida por DP-08 revisada.
+
+![Antecedente de L1/L2, pendiente de actualización gráfica](../diagramas/Registro-de-saldo-simulado.png)
+
+## Conciliación y devolución diferenciada
+
+| Referencia local nueva | Disparador | Efecto conceptual propuesto y límite |
+|---|---|---|
+| CF1 | Aprobado sin confirmar; cobro o aplicación inciertos; importe/receptor/correlación divergentes; posibles cobros diferentes duplicados | Registrar incidencia con operación, referencias, receptor, importe, evidencia, motivo, intentos y resolución pendiente. Propiedad y asociación PC-02/PC-07. |
+| CF2 | Análisis autorizado y contraste con proveedor | Recuperar evidencia y documentar qué se verificó/aplicó/confirmó; no fabricar rechazo, aprobación o confirmación. Responsables y política pendientes. |
+| CF3 | Devolución cuando corresponda según política futura | Operación financiera propia con autorización, correlación, importe, resultado e idempotencia; incertidumbre se conserva. No implica cancelar Reserva ni garantiza devolución completada. |
+
+CF1–CF3 son referencias locales nuevas de conciliación, no nuevos requisitos. Solicitar una devolución y verificar su resultado son hechos separados. RF19 establece trazabilidad; no aprueba aquí estados persistidos de devolución, responsables, automatización o capacidades del candidato.
 
 ## Estados y transiciones no aprobados
 
-| Elemento | Estado de decisión y efecto sobre este diseño |
-|---|---|
-| Cancelada / cancelar reserva | RF13 pendiente de validación y sin HU de origen; excluido de las máquinas. |
-| Expirada, bloqueo temporal o liberación por vencimiento | Sin política aprobada de retención o plazo; excluidos. |
-| Devuelto / reembolsado y transición de devolución | Sin pago real ni condiciones contractuales aprobadas; excluidos. |
-| Finalizada, no asistió, borrador o reabierta | Sin ciclo aprobado; no se añaden. |
-| Cotización rechazada por cliente, vencida o renegociada | Sin aceptación no se confirma; estados/transiciones y tratamiento pendientes. |
-| Rechazado → En procesamiento o Aprobado → Rechazado | No se autoriza reintento ni reversión por este modelo. PC-08 requiere decidir si hay nuevos intentos y cómo se relacionan. |
-| Error técnico / tiempo agotado como resultado de pago | Ausencia de respuesta no se transforma en rechazo o aprobación; recuperación pendiente. |
-| Confirmada → otro estado | Ciclo posterior sin definir; no se supone inmutabilidad perpetua por omitirlo. |
+RF13 mantiene cancelación pendiente. No se añaden Expirada, Reabierta, Finalizada, retenciones ni liberación por vencimiento. El ciclo Confirmada → otro estado, rechazo/reapertura de cotización y reversión de hechos financieros requieren decisión. Una devolución financiera no introduce un estado Reembolsada en Reserva. PC-01–PC-12 siguen abiertos; contratos del proveedor y normalización de estados pendientes.
 
-Los nodos iniciales representados en los diagramas no fijan el momento de persistencia. No se usan nodos finales para afirmar que el ciclo contractual terminó. Los escenarios alternativos y las cuatro modalidades se desarrollan en [flujos de reserva](03-flujos-de-reserva.md); todos los pendientes PC se registran en [reglas](01-reglas-de-negocio.md#restricciones-del-mvp-y-pendientes-contractuales).
+## Sustituciones y criterio de revisión
 
-## Registro de liquidación simulada del saldo
-
-Máquina independiente de Solicitud, Reserva y Adelanto simulado. L1/L2 son identificadores nuevos necesarios porque P1–P3 describen exclusivamente resultados del simulador y R1–R6 confirmación de Reserva. No se renumeran esas transiciones.
-
-| ID | Origen | Operación y guarda | Destino / efecto | Trazabilidad |
-|---|---|---|---|---|
-| L1 | Pendiente de registro | Propietario autorizado registra saldo completo positivo de reserva confirmada propia, con método informativo, reserva, importe, autor, fecha y hora; sin otro registro activo | Registrado como recibido en simulación; Reserva y adelanto sin cambios | HU14/RF20; RN-24/RN-25; DF-05; DP-04–DP-08/DP-11. |
-| L2 | Registrado como recibido en simulación | Corrección controlada por propietario autorizado con historial anterior preservado, autor y fecha; conservar importe completo y un único registro activo | Mismo estado informativo, con corrección trazable; no segundo pago ni cambio de Reserva | HU14/RF20; RN-25; DP-06/DP-09. |
-
-El intento duplicado se rechaza sin crear otra recepción activa. La consulta autorizada del resumen (RF14/DP-10) no cambia estados. La forma técnica de corregir sigue pendiente; no se agregan estados Anulado, Reembolsado o Cancelado. Si el saldo es cero no se ejecuta L1: representación pendiente sin recepción ficticia.
-
-![Registro de saldo simulado: L1/L2; una recepción activa y correcciones con historial, sin cambiar Reserva ni adelanto.](../diagramas/Registro-de-saldo-simulado.png)
+S1–S4 conservan su semántica; R1–R6 conservan separación directa/evento con guardas financieras revisadas. P1–P3 dejan de ser resultados del simulador y ya no fusionan aprobación con aplicación; AP1/AP2 explicitan esta última. L1/L2 preservan autorización, unicidad activa e historial, sustituyendo naturaleza simulada y etiqueta de recepción. Todos los PNG son antecedentes preservados sin renderizado ni actualización en esta tarea. Los [flujos](03-flujos-de-reserva.md) y el informe (antecedente auxiliar local, fuera del repositorio) delimitan impacto y pendientes.

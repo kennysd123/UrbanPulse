@@ -1,5 +1,7 @@
 # Atributos de Calidad
 
+**Revisión de alcance financiero — 07/11/2026:** las decisiones funcionales de pagos reales sustituyen la exclusividad de simulación del MVP. Pago requerido significa pago total o adelanto configurado, verificado por el backend y aplicado una sola vez a la reserva. El proveedor sigue pendiente de validación; véanse [restricciones](05-restricciones.md) y [ADR-012](adr/ADR-012-modelo-pagos-mvp.md). No se acredita implementación ni aprobación de la integración de producción.
+
 Los atributos de calidad permiten definir cómo debe comportarse
 UrbanPulse, además de especificar las funcionalidades que debe
 realizar.
@@ -22,7 +24,7 @@ y extensibilidad del sistema.
 | **AC05** | **Mantenibilidad** | El sistema debe estar organizado de manera que permita realizar cambios y correcciones sin afectar innecesariamente otras funcionalidades. |
 | **AC06** | **Extensibilidad** | El sistema debe permitir incorporar nuevos tipos de establecimientos o modalidades de reserva sin modificar significativamente el núcleo de UrbanPulse. |
 | **AC07** | **Usabilidad** | El cliente debe poder buscar establecimientos, consultar disponibilidad y realizar una reserva o solicitud mediante un flujo comprensible. |
-| **AC08** | **Interoperabilidad** | El sistema debe poder interactuar con servicios externos como proveedores de mapas, WhatsApp y el servicio de pago simulado sin acoplar directamente estas integraciones con las reglas principales del negocio. |
+| **AC08** | **Interoperabilidad** | El sistema debe poder interactuar con servicios externos como proveedores de mapas, WhatsApp y el proveedor de pagos electrónicos sin acoplar directamente estas integraciones con las reglas principales del negocio. |
 
 ---
 
@@ -90,7 +92,7 @@ La misma consideración se aplica a:
 
 En el caso de salones y recreos, la disponibilidad de la fecha también debe considerarse antes de confirmar una reserva.
 
-Según DF-01 y DF-03, se verifica la disponibilidad del salón, ambiente o espacio definido por el propietario y la fecha solicitada. La confirmación del evento exige además condiciones aceptadas por el cliente dentro de UrbanPulse y adelanto simulado aprobado; la disponibilidad por sí sola no basta.
+Según DF-01 y DF-03, se verifica la disponibilidad del salón, ambiente o espacio definido por el propietario y la fecha solicitada. La confirmación del evento exige además condiciones aceptadas por el cliente dentro de UrbanPulse y pago requerido verificado y aplicado; la disponibilidad por sí sola no basta.
 
 ---
 
@@ -149,11 +151,11 @@ Sala + tiempo
 
 Salones
    ↓
-Fecha + servicios + coordinación + aceptación + adelanto
+Fecha + servicios + coordinación + aceptación + pago total o adelanto
 
 Recreos
    ↓
-Ambiente o espacio + fecha + servicios + coordinación + aceptación + adelanto
+Ambiente o espacio + fecha + servicios + coordinación + aceptación + pago total o adelanto
 ```
 
 La arquitectura debe permitir que posteriormente pueda incorporarse otro tipo de establecimiento sin tener que modificar significativamente el núcleo de reservas.
@@ -192,7 +194,7 @@ Reservar / Solicitar
 Confirmar
 ```
 
-Para salones y recreos, el flujo incorpora registro de cotización y condiciones por el propietario, aceptación del cliente dentro de UrbanPulse y adelanto simulado. La confirmación requiere condiciones aceptadas, adelanto aprobado y disponibilidad verificada (DF-02/DF-03). Canchas y karaoke utilizan confirmación directa con adelanto simulado obligatorio y disponibilidad válida al confirmar, previa verificación de disponibilidad (DF-04). La cobertura explícita de DF-02 en HU/RF permanece pendiente de formalización.
+Para salones y recreos, el flujo incorpora registro de cotización y condiciones por el propietario, aceptación del cliente dentro de UrbanPulse y pago total o adelanto configurado. La confirmación requiere condiciones aceptadas, pago requerido verificado y aplicado y disponibilidad verificada (DF-02/DF-03). Canchas y karaoke utilizan confirmación directa con pago total o adelanto configurado y disponibilidad válida al confirmar, previa verificación de disponibilidad (DF-04). La cobertura explícita de DF-02 en HU/RF permanece pendiente de formalización.
 
 ---
 
@@ -206,11 +208,11 @@ Inicialmente se consideran:
 |---|---|
 | **Proveedor de mapas** | Visualización de la ubicación del establecimiento. |
 | **WhatsApp** | Redirección al contacto del propietario, sin administración de conversaciones. |
-| **Pago simulado** | Simulación de aprobación o rechazo de un pago o adelanto. |
+| **Proveedor de pagos electrónicos** | Pago real de total o adelanto para el propietario receptor; backend verifica resultados. Candidato pendiente de validación. |
 
 Estas integraciones deben mantenerse separadas de la lógica principal del negocio.
 
-El pago representa un sistema externo conceptual. Durante el MVP, UrbanPulse implementa su simulador detrás de una abstracción de integración, sin conexión a una pasarela financiera real. La separación arquitectónica no implica que el simulador deba desplegarse como sistema externo.
+La integración de pago real se mantiene detrás de puertos y adaptadores. Mercado Pago Marketplace Split 1:1 es candidato pendiente de validación; sustituir el adaptador no deberá alterar reglas de confirmación ni confundir sus estados con los de Reserva. La respuesta del navegador no constituye verificación del proveedor.
 
 El sistema no debe depender directamente de una implementación específica cuando esta pueda ser reemplazada posteriormente.
 
@@ -227,17 +229,18 @@ Los ocho atributos AC01–AC08 cuentan con los ocho escenarios EQ-01–EQ-08 doc
 | AC05 — Mantenibilidad | Separación de responsabilidades y de integraciones. | Cambio de referencia, alcance del impacto y criterio de aceptación del cambio. |
 | AC06 — Extensibilidad | Incorporar modalidades sin alterar significativamente las existentes. | Cambio de referencia y criterio para evaluar su impacto, sin incorporar una nueva modalidad al MVP. |
 | AC07 — Usabilidad | Flujo comprensible de consulta y reserva o solicitud. | Tareas, contexto de evaluación y criterio observable de éxito. |
-| AC08 — Interoperabilidad | Mapas, redirección a WhatsApp y pago simulado desacoplados. | Condiciones de interacción, resultados y fallos a evaluar, sin elegir proveedores ni protocolos adicionales. |
+| AC08 — Interoperabilidad | Mapas, redirección a WhatsApp y pago electrónico desacoplados. | Condiciones de interacción, resultados y fallos a evaluar, sin aprobar al proveedor candidato ni protocolos concretos. |
 
 Las condiciones, procedimientos y medidas propuestos en los escenarios se validarán antes de utilizarlos como criterios de aceptación aprobados. En rendimiento, disponibilidad y usabilidad se mantiene: **Métrica cuantitativa pendiente de validación.** Las relaciones existentes con drivers se encuentran en [06-driver-arquitectonicos](06-driver-arquitectonicos.md). AC02 y AC07 no tienen actualmente un driver ni una respuesta arquitectónica explícita; esa cobertura queda pendiente de evaluación, sin inventar drivers o ADR.
 
-## 4. Aplicación de DF-04–DF-06 y DP-01–DP-12
+## 4. Aplicación del modelo de pagos reales
 
 | Elemento existente | Precisión de alcance y evaluación |
 |---|---|
-| AC03 | Confirmar cancha/karaoke exige adelanto aprobado y disponibilidad válida, incluso bajo concurrencia. Mantener importes fijados (DP-03), fórmula de saldo (DP-04) y un registro activo (DP-06) con historial (DP-09). |
-| AC04 | Solo el propietario autorizado registra saldo de su reserva confirmada; cliente y propietario consultan su resumen autorizado (HU14/RF20/RF14). Conservar autor y fecha en registros y correcciones. |
-| AC07 | Mostrar total y adelanto antes de iniciar; distinguir adelanto, saldo y estado de registro, aprobación y confirmación. Identificar siempre simulación; no mostrar comprobantes bancarios ni evidencia de fondos reales. Saldo cero pendiente de representación. |
-| AC08 | Simulador detrás de abstracción; métodos efectivo, Yape, Plin y transferencia informativos. La recepción manual no invoca servicios financieros. |
+| AC03 | Confirmar exige pago requerido verificado y aplicado, disponibilidad válida aun bajo concurrencia y aceptación interna en eventos. Pagos, webhooks, aplicaciones y recepción posterior idempotentes; no aplicar dos veces un mismo pago aun con eventos diferentes. Conservar importes fijados, una recepción activa e historial. Aprobado sin confirmación queda trazable sin forzar la reserva. |
+| AC04 | Verificación de notificaciones y consulta al proveedor en backend, correlación con operación/reserva/receptor/importe/moneda; no confiar en navegador. Solo propietario autorizado registra saldo de confirmada propia; consulta según titularidad. Credenciales y datos sensibles protegidos; método concreto pendiente. |
+| AC05 | Separar Reserva, operación de pago, aplicación y recepción posterior; aislar adaptador del proveedor. Mantener consumidor técnico RabbitMQ extraíble sin cambiar dominio. |
+| AC07 | Mostrar total, opción total/adelanto, importe y receptor antes de pagar; diferenciar aprobado, aplicado y confirmado, saldo cero y saldo recibido declarado. No presentar pago aprobado sin confirmación como éxito de reserva; no mostrar un pendiente como nuevo cobro tras su recepción completa. |
+| AC08 | Pago real mediante integración verificable, idempotencia de webhooks y recuperación ante respuestas inciertas. Medios declarados del saldo no equivalen a métodos electrónicos soportados. Conciliación y devolución requieren contratos y validación propios; RabbitMQ no los confirma. |
 
-Se conservan ocho AC, sus identificadores y sus métricas pendientes; estas precisiones no acreditan pruebas ejecutadas.
+Se conservan AC01–AC08 y EQ-01–EQ-08. Las reglas financieras son alcance establecido; los mecanismos, procedimientos, métricas y evidencias siguen pendientes. AC02/AC07 no adquieren un driver por esta ampliación. La propuesta de [ADR-012](adr/ADR-012-modelo-pagos-mvp.md) debe revisarse y validarse antes de aprobar producción.
