@@ -119,3 +119,13 @@ Al terminar cada tarea, presentar:
 7. Estado de Git: rama, cambios, índice y si hubo operaciones autorizadas de commit/push.
 
 Cuando se solicite auditoría, presentar el contenido o diferencial revisable antes de su aprobación; no declarar aprobación por haber creado el archivo.
+
+## 10. Flujo Spec-Driven Development multiagente
+
+Antes de trabajar, leer [la guía SDD compartida](SDD.md), ejecutar `./scripts/start-session.ps1` desde PowerShell en la raíz y leer el change seleccionado y el handoff local si existen. OpenSpec usa una única raíz `openspec/`; las skills generadas no sustituyen estas reglas.
+
+Para cambios nuevos rige la spec explícitamente aprobada y vigente, contrastada con ADR y requisitos aprobados. Esta prioridad metodológica no migra ni reabre documentos cerrados ni convierte propuestas en aprobaciones. Ante contradicción con la jerarquía de la sección 3, identificar las fuentes, suspender la parte afectada y solicitar resolución humana antes de modificarla.
+
+Explore no implementa. Propose/Update no aprueban ni encadenan Apply. Validate no reemplaza revisión humana. Apply requiere aprobación explícita del responsable sobre la revisión concreta de los artefactos; cambios posteriores de alcance, contrato o arquitectura requieren nueva revisión. Tests, Verify limpio y revisión Git preceden a la selección autorizada de archivos. Commit y push requieren autorizaciones separadas. Sync requiere autorización explícita sobre las specs destino revisadas; Archive requiere cierre humano. No ejecutar Onboard como prueba: puede crear e implementar un change real.
+
+Al terminar cada sesión crear o completar `.ai-context/session-handoff.md` sin sobrescribirlo a ciegas. El contexto local y KennyBrain son auxiliares; no escribir en la bóveda ni publicar conversaciones o secretos. Las puertas son reglas para los agentes, no controles técnicos de acceso de la CLI.

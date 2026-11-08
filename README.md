@@ -49,3 +49,7 @@ El propietario autorizado registra posteriormente el saldo completo positivo de 
 En desarrollo académico para el curso:
 
 **Arquitectura de Software [IS-488]**
+
+## Trabajo con agentes
+
+Consultar la [guía compartida de Spec-Driven Development](SDD.md) y [AGENTS.md](AGENTS.md) antes de iniciar. Este proceso de desarrollo complementa el uso documental de «Software Design Description» descrito arriba. La configuración de herramientas no acredita implementación ni aprobación de funcionalidades.

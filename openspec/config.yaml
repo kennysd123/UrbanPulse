@@ -1,0 +1,54 @@
+schema: spec-driven
+
+context: |
+  Language: Spanish
+  All artifacts must be written in Spanish.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+  Read AGENTS.md and SDD.md at the repository root before work.
+  The only shared planning root is openspec/. No external store is configured.
+  Approved, current specs govern new changes; cross-check approved requirements
+  and ADR using AGENTS.md section 3. Conflicts block the affected work and require
+  a human decision; a spec cannot silently supersede a closed document.
+  UrbanPulse is a modular monolith with Presentation, Application, Domain and
+  Infrastructure; code dependencies point inward. REST and relational persistence
+  are established, but no application language, framework, ORM or database engine
+  is selected. Eight functional modules; Redis only reconstructible public
+  establishment cards; RabbitMQ only technical invalidations of those cards.
+  ADR-001 through ADR-009 adopted; ADR-010/011 conceptually approved within their
+  documented scope; ADR-012 proposed. RF13 and PC-01 through PC-12 remain pending.
+  Preserve the approval levels of all source documents. Tool setup approves no
+  product behavior or pending technology. No vault writes or secrets in artifacts.
+  Explore must not implement. Propose/Update never authorize Apply. Explicit human
+  approval of the reviewed artifact revision is required before Apply. Structural
+  validation is not approval. Stop on unspecified architecture or contracts.
+  Tests, clean Verify and Git review precede separately authorized staging,
+  commit and push. Sync needs explicit authorization for reviewed target specs;
+  Archive needs human closure after Tests, clean Verify and Git review.
+  Read the actual workflow instructions; never invoke Onboard as a harmless demo.
+  Finish every session with a reviewed local .ai-context/session-handoff.md.
+
+rules:
+  proposal:
+    - Identify source paths and individual approval levels, scope and non-goals.
+    - Separate approved facts, derived consequences, proposals and pending decisions.
+    - Identify conflicts with ADR, requirements and closed stages; do not resolve silently.
+  specs:
+    - Preserve HU/RF identifiers and cite evidence; do not invent traceability.
+    - Do not migrate historical requirements or approve pending business decisions implicitly.
+  design:
+    - Preserve AGENTS.md architectural boundaries and distinguish candidates from decisions.
+    - Resolve blocking decisions with the responsible human before implementation.
+  tasks:
+    - Include behavior, contract and architectural verification with concrete evidence.
+    - Require human approval before Apply, then clean Verify and explicit Git review.
+
+operations:
+  apply:
+    guidance:
+      - Read approval.md in the change; require explicit human approval tied to artifact revision.
+      - Missing or stale approval blocks implementation even when the CLI reports ready.
+      - Stop on new scope or unspecified decisions; revise artifacts and request renewed review.
+  archive:
+    guidance:
+      - Require human closure, clean Verify, reviewed Git state and reviewed sync destinations.
+      - Do not use archive, skip flags or generated warnings to bypass pending decisions.
